@@ -141,7 +141,7 @@
 
     .status-col { text-align: right; }
     .status-main { font-size: 1.02vw; font-weight: 400; color: #facc15; }
-    .status-num { font-size: 1.35vw; font-weight: 500; }
+    .status-num { font-size: 1.35vw; font-weight: 500; } /* 分鐘數字放大 */
     .status-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; text-transform: uppercase; }
     .status-none { color: #64748b !important; }
 
@@ -189,7 +189,7 @@
     <div class="column-pane">
       <div class="column-title">
         <span>Southbound (Wo Lok Estate)</span>
-        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨南行 (KT535, KT536, KT537)</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨南行 (往觀塘市中心/九龍/港島方向)</span>
       </div>
       <div class="table-head">
         <div>Route <span>路線</span></div>
@@ -206,7 +206,7 @@
     <div class="column-pane">
       <div class="column-title">
         <span>Northbound (Wo Lok Estate)</span>
-        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨北行 (KT255 - KT260)</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨北行 (往順天/順利/秀茂坪/寶林方向)</span>
       </div>
       <div class="table-head">
         <div>Route <span>路線</span></div>
@@ -330,78 +330,79 @@
 
     async function fetchAPIData() {
       try {
-        // 自動動態尋找九巴和樂邨真實的 16 位數 Stop ID
         const stopRes = await fetch('https://data.etabus.gov.hk/v1/transport/kmb/stop');
         if (!stopRes.ok) return;
         const stopJson = await stopRes.json();
         
         const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
-        if (woLokStops.length === 0) return;
+        
+        // Sort stops by latitude descending to accurately separate Northbound (uphill/higher lat) vs Southbound (downhill/lower lat) stops
+        woLokStops.sort((a, b) => b.lat - a.lat);
+        const midLat = woLokStops.length > 1 ? (woLokStops[0].lat + woLokStops[woLokStops.length - 1].lat) / 2 : 0;
+        
+        let apiEtas = [];
+        const northKeywords = ["順利", "秀茂坪", "寶達", "安泰", "寶林", "翠林", "康盛", "將軍澳", "彩虹", "彩福", "中秀茂坪", "尚德"];
 
-        // 撈取所有和樂邨真實站點的即時 ETA 數據
-        let allEtas = [];
-        for (const stop of woLokStops) {
-          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stop.stop}`);
+        for (const station of woLokStops) {
+          const isStopNorth = station.lat >= midLat;
+          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stop}`;
+          const res = await fetch(url);
           if (res.ok) {
             const json = await res.json();
             if (json.data && Array.isArray(json.data)) {
-              allEtas = allEtas.concat(json.data);
+              json.data.forEach(item => {
+                if (item.eta && item.route) {
+                  // For circular/loop routes like 23M and 26M, destination text is fixed (e.g. "順利"), 
+                  // so physical stop location (isStopNorth) is used to correctly differentiate directions.
+                  let isNorth = isStopNorth;
+                  if (item.route !== "23M" && item.route !== "26M") {
+                    const destTextTc = item.dest_tc || "";
+                    isNorth = northKeywords.some(kw => destTextTc.includes(kw)) || isStopNorth;
+                  }
+                  apiEtas.push({
+                    route: item.route,
+                    isNorth: isNorth,
+                    etaTime: new Date(item.eta)
+                  });
+                }
+              });
             }
           }
         }
 
-        const now = new Date();
-        
-        // 依照用戶指定的固定月台編號（KT255-260 為北，KT535-537 為南）來配對渲染資料
-        northDepartures = NORTH_ROUTES.map(configItem => {
-          const matches = allEtas.filter(item => 
-            item.route === configItem.route && 
-            item.eta && 
-            new Date(item.eta).getTime() >= now.getTime() - 15000
-          );
-
-          let bestEta = null;
-          if (matches.length > 0) {
-            matches.sort((a, b) => new Date(a.eta) - new Date(b.eta));
-            bestEta = new Date(matches[0].eta);
-          }
-
-          return {
-            route: configItem.route,
-            dest: configItem.dest,
-            destZh: configItem.destZh,
-            track: configItem.track,
-            etaTime: bestEta
-          };
-        }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
-
-        southDepartures = SOUTH_ROUTES.map(configItem => {
-          const matches = allEtas.filter(item => 
-            item.route === configItem.route && 
-            item.eta && 
-            new Date(item.eta).getTime() >= now.getTime() - 15000
-          );
-
-          let bestEta = null;
-          if (matches.length > 0) {
-            matches.sort((a, b) => new Date(a.eta) - new Date(b.eta));
-            bestEta = new Date(matches[0].eta);
-          }
-
-          return {
-            route: configItem.route,
-            dest: configItem.dest,
-            destZh: configItem.destZh,
-            track: configItem.track,
-            etaTime: bestEta
-          };
-        }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
+        southDepartures = buildNormalizedList(SOUTH_ROUTES, apiEtas, false);
+        northDepartures = buildNormalizedList(NORTH_ROUTES, apiEtas, true);
         
         isDataLoaded = true;
         renderBoards();
       } catch (e) {
         console.error("API Fetch Error:", e);
       }
+    }
+
+    function buildNormalizedList(routeConfig, apiEtas, isNorthDirection) {
+      const now = new Date();
+      return routeConfig.map(configItem => {
+        const matches = apiEtas.filter(e => 
+          e.route === configItem.route && 
+          e.isNorth === isNorthDirection && 
+          e.etaTime.getTime() >= now.getTime() - 10000
+        );
+        
+        let bestEta = null;
+        if (matches.length > 0) {
+          matches.sort((a, b) => a.etaTime - b.etaTime);
+          bestEta = matches[0].etaTime;
+        }
+
+        return {
+          route: configItem.route,
+          dest: configItem.dest,
+          destZh: configItem.destZh,
+          track: configItem.track,
+          etaTime: bestEta
+        };
+      }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
     }
 
     function renderBoardHTML(departures) {
