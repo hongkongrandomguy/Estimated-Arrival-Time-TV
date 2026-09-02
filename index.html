@@ -2,8 +2,8 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東 巴士發車情報看板 - 日本鐵道純正字體版</title>
-  <!-- 導入最接近日本新ゴ（Shin Go）鐵道字體風格的 M PLUS 1p -->
+  <title>觀塘東 巴士發車情報看板 - 日本鐵道精準版</title>
+  <!-- 導入最接近日本新ゴ (Shin Go) 鐵道看板字體的 M PLUS 1p -->
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -13,7 +13,7 @@
       padding: 0.6vw;
       background-color: #030508;
       color: #ffffff;
-      /* 優先調用日系標準無襯線體，搭配 Helvetica 數字 */
+      /* 日本鐵道標準字體疊加：M PLUS 1p + Helvetica */
       font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, "Arial", "Hiragino Kaku Gothic ProN", sans-serif;
       height: 100vh;
       display: flex;
@@ -23,7 +23,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* 日式 LCD 頂欄 */
     .lcd-header {
       display: flex;
       align-items: center;
@@ -84,7 +83,6 @@
       letter-spacing: 0.05em;
     }
 
-    /* 四豎列主容器 */
     .grid-container {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -123,7 +121,6 @@
       font-family: Helvetica, Arial, sans-serif;
     }
 
-    /* 表頭：日式標準黑底灰欄 */
     .table-head {
       display: grid;
       grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr;
@@ -162,7 +159,6 @@
       transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    /* 列車數據列：日鐵視覺強調 */
     .route-row {
       display: grid;
       grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr;
@@ -178,7 +174,6 @@
     .order-hk { font-size: 0.85vw; color: #ffffff; font-weight: 900; }
     .order-en { font-size: 0.5vw; color: #64748b; font-weight: 700; font-family: Helvetica, Arial, sans-serif; }
 
-    /* 全彩種別色塊（日式高濃縮粗體字） */
     .type-badge {
       font-size: 1vw;
       font-weight: 900;
@@ -189,21 +184,17 @@
       width: 92%;
       margin: 0 auto;
       font-family: Helvetica, Arial, "M PLUS 1p", sans-serif;
-      letter-spacing: -0.02em;
     }
-    .type-rapid { background: #e11d48; }   /* 快車/特急：日式亮紅 */
-    .type-express { background: #0284c7; } /* 急行/幹線：日式靛藍 */
-    .type-semi { background: #16a34a; }    /* 準急/區間：深綠 */
-    .type-local { background: #475569; }   /* 各站停車：深灰 */
+    .type-rapid { background: #e11d48; }
+    .type-express { background: #0284c7; }
+    .type-semi { background: #16a34a; }
+    .type-local { background: #475569; }
 
     .dest-col { text-align: left; padding-left: 0.4vw; overflow: hidden; }
-    .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: 0.02em; }
+    .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
     .dest-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; font-family: Helvetica, Arial, sans-serif; white-space: nowrap; }
 
-    .time-col {
-      text-align: right;
-      padding-right: 0.4vw;
-    }
+    .time-col { text-align: right; padding-right: 0.4vw; }
 
     .time-main {
       font-size: 1.3vw;
@@ -211,7 +202,6 @@
       color: #38bdf8;
       font-family: Helvetica, Arial, sans-serif;
       line-height: 1;
-      letter-spacing: 0.02em;
     }
 
     .time-sub {
@@ -221,7 +211,6 @@
       margin-top: 2px;
     }
 
-    /* 跑馬燈 */
     .lcd-ticker {
       height: 2.2vw;
       background: #000000;
@@ -343,63 +332,64 @@
   <div class="lcd-ticker">
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text">
-      歡迎使用觀塘東實時巴士發車情報看板。數據每 25 秒自動更新，路線班次隨時調整，請注意候車安全。
+      歡迎使用觀塘東實時巴士發車情報看板。數據每 20 秒自動同步九巴官方 API，請注意候車安全。
     </div>
   </div>
 
   <script>
+    // 配置對應的車站 ID (stop_id) 確保數據精準
     const COLUMNS_CONFIG = [
       {
         elementId: "col-1", wrapperId: "wrap-1", colKey: "col1",
         routes: [
-          { route: "1A", dir: "O", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
-          { route: "11X", dir: "I", dest: "紅磡站", destEn: "Hung Hom Station" },
-          { route: "13D", dir: "O", dest: "維港灣", destEn: "Island Harbourview" },
-          { route: "13M", dir: "O", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong" },
-          { route: "13P", dir: "O", dest: "長沙灣 (麗閣邨)", destEn: "Cheung Sha Wan" },
-          { route: "23", dir: "I", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
-          { route: "23M", dir: "O", dest: "樂華", destEn: "Lok Wah" },
-          { route: "26M", dir: "I", dest: "觀塘", destEn: "Kwun Tong" },
-          { route: "28B", dir: "O", dest: "啟德 (啟晴邨)", destEn: "Kai Tak" },
-          { route: "89", dir: "O", dest: "瀝源", destEn: "Lek Yuen" },
-          { route: "89X", dir: "O", dest: "沙田站", destEn: "Sha Tin Station" },
-          { route: "93A", dir: "I", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
-          { route: "93K", dir: "O", dest: "旺角東站", destEn: "Mong Kok East" },
-          { route: "N293", dir: "O", dest: "旺角 (柏景灣)", destEn: "Mong Kok" }
+          { route: "1A", dir: "O", stopId: "KT535", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
+          { route: "11X", dir: "I", stopId: "KT535", dest: "紅磡站", destEn: "Hung Hom Station" },
+          { route: "13D", dir: "O", stopId: "KT535", dest: "維港灣", destEn: "Island Harbourview" },
+          { route: "13M", dir: "O", stopId: "KT535", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong" },
+          { route: "13P", dir: "O", stopId: "KT535", dest: "長沙灣 (麗閣邨)", destEn: "Cheung Sha Wan" },
+          { route: "23", dir: "I", stopId: "KT535", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
+          { route: "23M", dir: "O", stopId: "KT535", dest: "樂華", destEn: "Lok Wah" },
+          { route: "26M", dir: "I", stopId: "KT535", dest: "觀塘", destEn: "Kwun Tong" },
+          { route: "28B", dir: "O", stopId: "KT535", dest: "啟德 (啟晴邨)", destEn: "Kai Tak" },
+          { route: "89", dir: "O", stopId: "KT535", dest: "瀝源", destEn: "Lek Yuen" },
+          { route: "89X", dir: "O", stopId: "KT535", dest: "沙田站", destEn: "Sha Tin Station" },
+          { route: "93A", dir: "I", stopId: "KT535", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
+          { route: "93K", dir: "O", stopId: "KT535", dest: "旺角東站", destEn: "Mong Kok East" },
+          { route: "N293", dir: "O", stopId: "KT535", dest: "旺角 (柏景灣)", destEn: "Mong Kok" }
         ]
       },
       {
         elementId: "col-2", wrapperId: "wrap-2", colKey: "col2",
         routes: [
-          { route: "1A", dir: "I", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
-          { route: "11X", dir: "O", dest: "安泰 (北)", destEn: "On Tai (North)" },
-          { route: "13D", dir: "I", dest: "寶達", destEn: "Po Tat" },
-          { route: "14H", dir: "O", dest: "順利", destEn: "Shun Lee" },
-          { route: "23", dir: "O", dest: "順利", destEn: "Shun Lee" },
-          { route: "23M", dir: "I", dest: "順利", destEn: "Shun Lee" },
-          { route: "26M", dir: "O", dest: "彩虹", destEn: "Choi Hung" },
-          { route: "28B", dir: "I", dest: "彩福", destEn: "Choi Fook" },
-          { route: "93A", dir: "O", dest: "寶林", destEn: "Po Lam" },
-          { route: "93K", dir: "I", dest: "翠林", destEn: "Tsui Lam" },
-          { route: "N293", dir: "I", dest: "尚德", destEn: "Sheung Tak" }
+          { route: "1A", dir: "I", stopId: "KT511", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
+          { route: "11X", dir: "O", stopId: "KT511", dest: "安泰 (北)", destEn: "On Tai (North)" },
+          { route: "13D", dir: "I", stopId: "KT511", dest: "寶達", destEn: "Po Tat" },
+          { route: "14H", dir: "O", stopId: "KT511", dest: "順利", destEn: "Shun Lee" },
+          { route: "23", dir: "O", stopId: "KT511", dest: "順利", destEn: "Shun Lee" },
+          { route: "23M", dir: "I", stopId: "KT511", dest: "順利", destEn: "Shun Lee" },
+          { route: "26M", dir: "O", stopId: "KT511", dest: "彩虹", destEn: "Choi Hung" },
+          { route: "28B", dir: "I", stopId: "KT511", dest: "彩福", destEn: "Choi Fook" },
+          { route: "93A", dir: "O", stopId: "KT511", dest: "寶林", destEn: "Po Lam" },
+          { route: "93K", dir: "I", stopId: "KT511", dest: "翠林", destEn: "Tsui Lam" },
+          { route: "N293", dir: "I", stopId: "KT511", dest: "尚德", destEn: "Sheung Tak" }
         ]
       },
       {
         elementId: "col-3", wrapperId: "wrap-3", colKey: "col3",
         routes: [
-          { route: "11B", dir: "O", dest: "九龍城碼頭", destEn: "Kowloon City" },
-          { route: "11C", dir: "O", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
-          { route: "89C", dir: "O", dest: "恆安", destEn: "Heng On" },
-          { route: "89X", dir: "O", dest: "沙田站", destEn: "Sha Tin Station" }
+          { route: "11B", dir: "O", stopId: "TS055", dest: "九龍城碼頭", destEn: "Kowloon City" },
+          { route: "11C", dir: "O", stopId: "TS055", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
+          { route: "89C", dir: "O", stopId: "TS055", dest: "恆安", destEn: "Heng On" },
+          { route: "89X", dir: "O", stopId: "TS055", dest: "沙田站", destEn: "Sha Tin Station" }
         ]
       },
       {
         elementId: "col-4", wrapperId: "wrap-4", colKey: "col4",
         routes: [
-          { route: "11B", dir: "I", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
-          { route: "11C", dir: "I", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
-          { route: "13M", dir: "I", dest: "寶達", destEn: "Po Tat" },
-          { route: "89C", dir: "I", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" }
+          { route: "11B", dir: "I", stopId: "TS020", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
+          { route: "11C", dir: "I", stopId: "TS020", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
+          { route: "13M", dir: "I", stopId: "TS020", dest: "寶達", destEn: "Po Tat" },
+          { route: "89C", dir: "I", stopId: "TS020", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" }
         ]
       }
     ];
@@ -428,7 +418,7 @@
         fullDataStore[col.colKey] = {};
 
         col.routes.forEach((r, idx) => {
-          fullDataStore[col.colKey][r.route] = { targetTime: null };
+          fullDataStore[col.colKey][r.route] = { targetTime: null, rmk: '' };
           const order = getOrderLabel(idx);
 
           const row = document.createElement('div');
@@ -474,7 +464,7 @@
             const diffSecs = Math.floor((item.targetTime - now) / 1000);
             const diffMins = Math.floor(diffSecs / 60);
 
-            if (diffSecs > 0 && diffMins <= 60) {
+            if (diffSecs > -30) {
               if (diffSecs <= 30) {
                 updateLCDValue(col.colKey, r.route, "即將", "即將到站");
               } else {
@@ -491,20 +481,24 @@
       });
     }
 
+    // 採用九巴「路線-車站 API」獲得準確該站 ETA 數據
     async function fetchAPIData() {
       for (const col of COLUMNS_CONFIG) {
         for (const r of col.routes) {
           try {
-            const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/route-eta/${r.route}/1`);
+            const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/eta/${r.stopId}/${r.route}/1`);
             const json = await res.json();
 
             if (json.data && json.data.length > 0) {
+              // 過濾出方向與有時間數據的項目
               const validEta = json.data.find(item => item.dir === r.dir && item.eta);
-              if (validEta) {
+              if (validEta && validEta.eta) {
                 fullDataStore[col.colKey][r.route].targetTime = new Date(validEta.eta);
               } else {
                 fullDataStore[col.colKey][r.route].targetTime = null;
               }
+            } else {
+              fullDataStore[col.colKey][r.route].targetTime = null;
             }
           } catch (e) {
             console.error(`路線 ${r.route} 數據獲取失敗:`, e);
@@ -538,7 +532,7 @@
     initDOM();
     fetchAPIData();
     setInterval(tickRealtime, 1000);
-    setInterval(fetchAPIData, 25000);
+    setInterval(fetchAPIData, 20000);
     setInterval(autoScrollEngine, 4000);
   </script>
 
