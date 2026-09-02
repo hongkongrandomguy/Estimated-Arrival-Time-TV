@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東 鐵道風巴士發車情報看板</title>
+  <title>觀塘東巴士發車情報看板</title>
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -53,7 +53,7 @@
     
     .table-head {
       display: grid; 
-      grid-template-columns: 1fr 1.2fr 1.4fr 3fr 1.2fr 1.5fr; 
+      grid-template-columns: 1.2fr 1fr 1.2fr 3fr 1fr 1.5fr; 
       background: #141c28; 
       padding: 0.4vw 0.8vw; 
       font-size: 0.75vw; 
@@ -71,7 +71,7 @@
     
     .train-row {
       display: grid; 
-      grid-template-columns: 1fr 1.2fr 1.4fr 3fr 1.2fr 1.5fr; 
+      grid-template-columns: 1.2fr 1fr 1.2fr 3fr 1fr 1.5fr; 
       align-items: center; 
       padding: 0.4vw 0.8vw; 
       background: #0a0f18; 
@@ -130,7 +130,7 @@
     
     <div class="header-title-box">
       <div class="header-main-title">
-        觀塘東 巴士發車情報看板
+        巴士發車情報看板
         <div class="warning-badges" id="warning-container"></div>
       </div>
       <div class="header-sub-title">KWUN TONG EAST BUS DEPARTURE INFORMATION BOARD</div>
@@ -147,7 +147,7 @@
     </div>
 
     <div class="header-time-box">
-      <div class="header-info-label">時刻 TIME</div>
+      <div class="header-info-label">時間 TIME</div>
       <div class="header-time-val" id="clock">00:00</div>
     </div>
   </div>
@@ -155,10 +155,10 @@
   <div class="board-container">
     <div class="table-head">
       <div>站位 <span>Location</span></div>
-      <div>路線 <span>Train / Route</span></div>
-      <div>時刻 <span>Departure Time</span></div>
-      <div>行先 <span>Destination</span></div>
-      <div>番線 <span>Track</span></div>
+      <div>路線 <span>Route</span></div>
+      <div>時間 <span>Time</span></div>
+      <div>目的地 <span>Destination</span></div>
+      <div>月台 <span>Track</span></div>
       <div style="text-align: right;">運行狀態 <span>Status</span></div>
     </div>
     <div class="board-scroll-wrapper" id="board-wrap">
@@ -170,19 +170,12 @@
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用觀塘東鐵道風實時巴士發車情報看板。系統自動同步九巴官方 API 數據，時刻表依據即時交通情況調整，請留意上落車安全。
+        歡迎使用實時巴士發車情報看板。系統自動同步九巴官方 API 數據，請留意上落車安全。
       </div>
     </div>
   </div>
 
   <script>
-    const STATIONS_CONFIG = [
-      { stopId: "003265", stopName: "和樂邨", stopEn: "Wo Lok Est (South)", track: "1" },
-      { stopId: "003348", stopName: "和樂邨", stopEn: "Wo Lok Est (North)", track: "2" },
-      { stopId: "003347", stopName: "翠屏北邨", stopEn: "Tsui Ping North (Urban)", track: "3" },
-      { stopId: "003349", stopName: "翠屏北邨", stopEn: "Tsui Ping North (Hills)", track: "4" }
-    ];
-
     let allDepartures = [];
     let scrollOffset = 0;
     let isDataLoaded = false;
@@ -205,7 +198,7 @@
       if (message.includes("雷暴")) return { icon: "thunder.png", text: "雷暴警告", bg: "#d97706" };
       if (message.includes("寒冷")) return { icon: "cold.png", text: "寒冷天氣", bg: "#2563eb" };
       if (message.includes("酷熱")) return { icon: "hot.png", text: "酷熱天氣", bg: "#d97706" };
-      if (message.includes("水浸")) return { icon: "nt-flood.png", text: "新界水浸", bg: "#2563eb" };
+      if (message.includes("水浸")) return { icon: "nt-flood.png", text: "新界北區水浸", bg: "#2563eb" };
       return { icon: "t1.png", text: message, bg: "#dc2626" };
     }
 
@@ -244,10 +237,18 @@
     }
 
     async function fetchAPIData() {
-      let fetchedList = [];
-      for (const station of STATIONS_CONFIG) {
-        try {
-          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stopId}`;
+      try {
+        // 動態獲取九巴所有站點，篩選出所有「和樂邨」相關站點
+        const stopRes = await fetch('https://data.etabus.gov.hk/v1/transport/kmb/stop');
+        if (!stopRes.ok) return;
+        const stopJson = await stopRes.json();
+        
+        const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
+        let fetchedList = [];
+        let trackIdx = 1;
+
+        for (const station of woLokStops) {
+          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stop}`;
           const res = await fetch(url);
           if (res.ok) {
             const json = await res.json();
@@ -255,9 +256,9 @@
               json.data.forEach(item => {
                 if (item.eta) {
                   fetchedList.push({
-                    stopName: station.stopName,
-                    stopEn: station.stopEn,
-                    track: station.track,
+                    stopName: station.name_tc,
+                    stopEn: station.name_en || "Wo Lok Est",
+                    track: String(trackIdx),
                     route: item.route,
                     dest: item.dest_tc || "指定目的地",
                     destEn: item.dest_en || "DESTINATION",
@@ -267,13 +268,16 @@
               });
             }
           }
-        } catch (e) {}
-      }
+          trackIdx++;
+        }
 
-      fetchedList.sort((a, b) => a.etaTime - b.etaTime);
-      allDepartures = fetchedList;
-      isDataLoaded = true;
-      renderBoard();
+        fetchedList.sort((a, b) => a.etaTime - b.etaTime);
+        allDepartures = fetchedList;
+        isDataLoaded = true;
+        renderBoard();
+      } catch (e) {
+        console.error("API Fetch Error:", e);
+      }
     }
 
     function renderBoard() {
@@ -282,12 +286,12 @@
       container.innerHTML = '';
 
       if (!isDataLoaded) {
-        container.innerHTML = `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:700;">正在同步全線列車與班次資訊...</div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:700;">正在動態同步和樂邨全線班次資訊...</div>`;
         return;
       }
 
       if (allDepartures.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-weight:700; font-size:1vw;">現時深夜時段或暫無實時班次開出 (No Active Departures)</div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-weight:700; font-size:1vw;">現時該站點暫無實時班次開出 (No Active Departures)</div>`;
         return;
       }
 
