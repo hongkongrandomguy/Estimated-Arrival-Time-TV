@@ -114,7 +114,7 @@
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用觀塘東實時巴士發車情報看板。系統已啟用智能備援模式，確保畫面完美展示，請注意候車安全。
+        歡迎使用觀塘東實時巴士發車情報看板。系統每 20 秒自動同步九巴官方 API 數據，請注意候車安全。
       </div>
     </div>
   </div>
@@ -259,15 +259,12 @@
             } else {
               updateLCDValue(col.colKey, r.route, "--:--", "無預定");
             }
-          } else {
-            updateLCDValue(col.colKey, r.route, "--:--", "無預定");
           }
         });
       });
     }
 
     async function fetchAPIData() {
-      let successCount = 0;
       for (const col of COLUMNS_CONFIG) {
         try {
           const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`;
@@ -276,28 +273,20 @@
             const json = await res.json();
             if (json.data && Array.isArray(json.data)) {
               col.routes.forEach(r => {
+                // 找出該路線的第一班有 eta 的資料
                 const match = json.data.find(item => item.route === r.route && item.eta);
                 if (match && match.eta) {
                   fullDataStore[col.colKey][r.route].targetTime = new Date(match.eta);
-                  successCount++;
+                } else {
+                  fullDataStore[col.colKey][r.route].targetTime = null;
+                  updateLCDValue(col.colKey, r.route, "--:--", "無預定");
                 }
               });
             }
           }
         } catch (e) {
-          // 網路或 CORS 封鎖
+          // 網路錯誤略過
         }
-      }
-
-      // 如果因 CORS 限制無法連線，自動啟用演示模式生成模擬時間，讓看板展示完整動態效果
-      if (successCount === 0) {
-        const now = new Date();
-        COLUMNS_CONFIG.forEach(col => {
-          col.routes.forEach((r, idx) => {
-            const randomMins = (idx + 1) * 3 + (r.route.length * 2);
-            fullDataStore[col.colKey][r.route].targetTime = new Date(now.getTime() + randomMins * 60000);
-          });
-        });
       }
       tickRealtime();
     }
