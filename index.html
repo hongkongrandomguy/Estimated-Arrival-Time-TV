@@ -12,7 +12,6 @@
       height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
     }
     
-    /* 頂部車站看板標頭 */
     .lcd-header {
       display: grid;
       grid-template-columns: auto 1fr auto auto auto;
@@ -48,7 +47,6 @@
     .warn-badge img { width: 1.8vw; height: 1.8vw; object-fit: contain; background: rgba(0,0,0,0.2); padding: 0.1vw; border-radius: 2px; }
     @keyframes pulse-warn { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-    /* 主看板表格設計 (新幹線全螢幕統整風格) */
     .board-container {
       border: 2px solid #232d3b; border-radius: 4px; background: #05080f; display: flex; flex-direction: column; flex-grow: 1; overflow: hidden;
     }
@@ -71,7 +69,6 @@
     .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
     .board-body { display: flex; flex-direction: column; gap: 4px; padding: 4px; position: absolute; width: 100%; top: 0; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
     
-    /* 列車行車資訊列 */
     .train-row {
       display: grid; 
       grid-template-columns: 1fr 1.2fr 1.4fr 3fr 1.2fr 1.5fr; 
@@ -83,32 +80,27 @@
       border-bottom: 1px solid #131b26;
     }
     
-    /* 欄位 1：站位/月台代號 */
     .stop-col { font-size: 0.75vw; font-weight: 800; color: #94a3b8; }
     .stop-sub { font-size: 0.5vw; color: #64748b; }
 
-    /* 欄位 2：列車名/路線徽章 (模擬新幹線 Nozomi / Hikari / Kodama 色彩) */
     .train-badge { 
       font-size: 1.1vw; font-weight: 900; padding: 0.2vw 0.4vw; border-radius: 3px; 
       color: #ffffff; text-align: center; width: 85%; display: flex; align-items: center; justify-content: center;
       box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
     }
-    .type-nozomi { background: #16a34a; } /* 綠色：特快/快速 */
-    .type-hikari  { background: #e11d48; } /* 紅色：主要幹線 */
-    .type-kodama  { background: #0284c7; } /* 藍色：普通/各站停車 */
-    .type-local   { background: #475569; } /* 灰色：普通 */
+    .type-nozomi { background: #16a34a; }
+    .type-hikari  { background: #e11d48; }
+    .type-kodama  { background: #0284c7; }
+    .type-local   { background: #475569; }
 
-    /* 欄位 3：發車時刻 */
     .time-col { display: flex; flex-direction: column; }
     .time-main { font-size: 1.4vw; font-weight: 900; color: #38bdf8; line-height: 1.1; letter-spacing: 0.05vw; }
     .time-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; }
 
-    /* 欄位 4：行先 (目的地) */
     .dest-col { overflow: hidden; padding-right: 0.5vw; }
     .dest-main { font-size: 1.2vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
     .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05vw; }
 
-    /* 欄位 5：番線 (月台軌道號碼框 - 經典新幹線白底黑字) */
     .track-col { display: flex; justify-content: center; }
     .track-box {
       background: #ffffff; color: #000000; font-weight: 900; font-size: 1.3vw;
@@ -116,12 +108,10 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
-    /* 欄位 6：狀態/倒數 */
     .status-col { text-align: right; }
     .status-main { font-size: 1.1vw; font-weight: 900; color: #facc15; }
     .status-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; }
 
-    /* 底部跑馬燈 */
     .lcd-ticker {
       height: 2.2vw; background: #000000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.5vw; display: flex; align-items: center; position: relative; overflow: hidden; flex-shrink: 0;
     }
@@ -135,7 +125,6 @@
 </head>
 <body>
 
-  <!-- 頂部資訊列 -->
   <div class="lcd-header">
     <div class="platform-box">東</div>
     
@@ -163,7 +152,6 @@
     </div>
   </div>
 
-  <!-- 主看板：新幹線風格統整列表 -->
   <div class="board-container">
     <div class="table-head">
       <div>站位 <span>Location</span></div>
@@ -178,7 +166,6 @@
     </div>
   </div>
 
-  <!-- 底部跑馬燈 -->
   <div class="lcd-ticker">
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
@@ -189,7 +176,6 @@
   </div>
 
   <script>
-    // 站點與路線對應設定
     const STATIONS_CONFIG = [
       { stopId: "003265", stopName: "和樂邨", stopEn: "Wo Lok Est (South)", track: "1" },
       { stopId: "003348", stopName: "和樂邨", stopEn: "Wo Lok Est (North)", track: "2" },
@@ -199,6 +185,7 @@
 
     let allDepartures = [];
     let scrollOffset = 0;
+    let isDataLoaded = false;
 
     function getBadgeClass(route) {
       if (route.includes("A") || route.includes("X")) return "type-nozomi";
@@ -208,20 +195,18 @@
     }
 
     function getCustomWarningStyle(message) {
-      if (message.includes("一號戒備信號")) return { icon: "t1.png", text: "一號戒備", bg: "#e11d48" };
-      if (message.includes("三號強風信號")) return { icon: "t3.png", text: "三號強風", bg: "#e11d48" };
-      if (message.includes("強烈季候風信號")) return { icon: "monsoon.png", text: "強烈季候風", bg: "#059669" };
-      if (message.includes("黃色暴雨警告信號")) return { icon: "yellow-rain.png", text: "黃雨警告", bg: "#ca8a04" };
-      if (message.includes("紅色暴雨警告")) return { icon: "red-rain.png", text: "紅雨警告", bg: "#dc2626" };
-      if (message.includes("黑色暴雨警告")) return { icon: "black-rain.png", text: "黑雨警告", bg: "#111827" };
-      if (message.includes("山泥傾瀉警告")) return { icon: "landslip.png", text: "山泥傾瀉", bg: "#b45309" };
-      if (message.includes("雷暴警告")) return { icon: "thunder.png", text: "雷暴警告", bg: "#d97706" };
-      if (message.includes("火災危險警告")) return { icon: "fire.png", text: "火災危險", bg: "#ea580c" };
-      if (message.includes("霜凍警告")) return { icon: "frost.png", text: "霜凍警告", bg: "#0284c7" };
-      if (message.includes("寒冷天氣警告")) return { icon: "cold.png", text: "寒冷天氣", bg: "#2563eb" };
-      if (message.includes("酷熱天氣警告")) return { icon: "hot.png", text: "酷熱天氣", bg: "#d97706" };
-      if (message.includes("新界北部水浸特別報告")) return { icon: "nt-flood.png", text: "新界水浸", bg: "#2563eb" };
-      return { icon: "warning.png", text: message, bg: "#dc2626" };
+      if (message.includes("一號")) return { icon: "t1.png", text: "一號戒備", bg: "#e11d48" };
+      if (message.includes("三號")) return { icon: "t3.png", text: "三號強風", bg: "#e11d48" };
+      if (message.includes("季候風")) return { icon: "monsoon.png", text: "強烈季候風", bg: "#059669" };
+      if (message.includes("黃色暴雨")) return { icon: "yellow-rain.png", text: "黃雨警告", bg: "#ca8a04" };
+      if (message.includes("紅色暴雨")) return { icon: "red-rain.png", text: "紅雨警告", bg: "#dc2626" };
+      if (message.includes("黑色暴雨")) return { icon: "black-rain.png", text: "黑雨警告", bg: "#111827" };
+      if (message.includes("山泥傾瀉")) return { icon: "landslip.png", text: "山泥傾瀉", bg: "#b45309" };
+      if (message.includes("雷暴")) return { icon: "thunder.png", text: "雷暴警告", bg: "#d97706" };
+      if (message.includes("寒冷")) return { icon: "cold.png", text: "寒冷天氣", bg: "#2563eb" };
+      if (message.includes("酷熱")) return { icon: "hot.png", text: "酷熱天氣", bg: "#d97706" };
+      if (message.includes("水浸")) return { icon: "nt-flood.png", text: "新界水浸", bg: "#2563eb" };
+      return { icon: "t1.png", text: message, bg: "#dc2626" };
     }
 
     async function fetchWeatherData() {
@@ -285,9 +270,9 @@
         } catch (e) {}
       }
 
-      // 依發車時間排序
       fetchedList.sort((a, b) => a.etaTime - b.etaTime);
       allDepartures = fetchedList;
+      isDataLoaded = true;
       renderBoard();
     }
 
@@ -296,8 +281,13 @@
       if (!container) return;
       container.innerHTML = '';
 
-      if (allDepartures.length === 0) {
+      if (!isDataLoaded) {
         container.innerHTML = `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:700;">正在同步全線列車與班次資訊...</div>`;
+        return;
+      }
+
+      if (allDepartures.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-weight:700; font-size:1vw;">現時深夜時段或暫無實時班次開出 (No Active Departures)</div>`;
         return;
       }
 
@@ -355,7 +345,6 @@
       document.getElementById('clock').innerText = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
       document.getElementById('date-text').innerText = now.toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric', weekday: 'short' });
       
-      // 每秒動態更新倒數狀態，不重新抓取 API
       if (allDepartures.length > 0) {
         renderBoard();
       }
@@ -384,9 +373,9 @@
       fetchAPIData();
       fetchWeatherData();
       setInterval(tickRealtime, 1000);
-      setInterval(fetchAPIData, 20000); // 每 20 秒向 API 同步一次數據
+      setInterval(fetchAPIData, 20000);
       setInterval(fetchWeatherData, 60000);
-      setInterval(autoScrollEngine, 5000); // 自動捲動看板檢視更多班次
+      setInterval(autoScrollEngine, 5000);
     });
   </script>
 </body>
