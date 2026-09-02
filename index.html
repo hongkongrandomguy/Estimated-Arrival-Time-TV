@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東 巴士發車情報看板 - 京急數碼翻頁版</title>
+  <title>觀塘東 巴士發車情報看板 - 京急風格（港化版）</title>
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -12,7 +12,7 @@
       padding: 0.8vw;
       background-color: #0b0d10;
       color: #ffffff;
-      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "PingFang HK", Arial, sans-serif;
+      font-family: "PingFang HK", "Helvetica Neue", "Microsoft JhengHei", Arial, sans-serif;
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -114,6 +114,7 @@
       display: block;
     }
 
+    /* 欄位標頭：改為繁體中文（香港） */
     .table-head {
       display: grid;
       grid-template-columns: 0.8fr 1fr 1.6fr 1.1fr;
@@ -161,7 +162,7 @@
     }
 
     .order-col { text-align: center; line-height: 1; }
-    .order-jp { font-size: 0.75vw; color: #e2e8f0; font-weight: bold; }
+    .order-hk { font-size: 0.75vw; color: #e2e8f0; font-weight: bold; }
     .order-en { font-size: 0.55vw; color: #64748b; }
 
     .type-badge {
@@ -289,11 +290,11 @@
   <div class="keikyu-header">
     <div class="platform-num">3</div>
     <div class="header-time-box">
-      <div class="header-time-label">現在時刻<br>Current Time</div>
+      <div class="header-time-label">現時時間<br>Current Time</div>
       <div class="header-time-val" id="clock">00:00</div>
     </div>
     <div class="header-dest-info">
-      觀塘東 方面 / ✈ 巴士發車導覽
+      觀塘東 方向 / ✈ 巴士發車指南
     </div>
   </div>
 
@@ -304,10 +305,10 @@
         <span class="sub">Wo Lok Estate Southbound</span>
       </div>
       <div class="table-head">
-        <div>順序<span>Order</span></div>
-        <div>種別<span>Train</span></div>
-        <div>行先<span>Destination</span></div>
-        <div>發車時刻<span>Dep.Time</span></div>
+        <div>班次<span>Order</span></div>
+        <div>路線<span>Route</span></div>
+        <div>目的地<span>Destination</span></div>
+        <div>開出時間<span>Dep. Time</span></div>
       </div>
       <div class="column-scroll-wrapper" id="wrap-1">
         <div class="column-body" id="col-1"></div>
@@ -320,10 +321,10 @@
         <span class="sub">Wo Lok Estate Northbound</span>
       </div>
       <div class="table-head">
-        <div>順序<span>Order</span></div>
-        <div>種別<span>Train</span></div>
-        <div>行先<span>Destination</span></div>
-        <div>發車時刻<span>Dep.Time</span></div>
+        <div>班次<span>Order</span></div>
+        <div>路線<span>Route</span></div>
+        <div>目的地<span>Destination</span></div>
+        <div>開出時間<span>Dep. Time</span></div>
       </div>
       <div class="column-scroll-wrapper" id="wrap-2">
         <div class="column-body" id="col-2"></div>
@@ -336,10 +337,10 @@
         <span class="sub">Tsui Ping North (Urban Bound)</span>
       </div>
       <div class="table-head">
-        <div>順序<span>Order</span></div>
-        <div>種別<span>Train</span></div>
-        <div>行先<span>Destination</span></div>
-        <div>發車時刻<span>Dep.Time</span></div>
+        <div>班次<span>Order</span></div>
+        <div>路線<span>Route</span></div>
+        <div>目的地<span>Destination</span></div>
+        <div>開出時間<span>Dep. Time</span></div>
       </div>
       <div class="column-scroll-wrapper" id="wrap-3">
         <div class="column-body" id="col-3"></div>
@@ -352,10 +353,10 @@
         <span class="sub">Tsui Ping North (Hills Bound)</span>
       </div>
       <div class="table-head">
-        <div>順序<span>Order</span></div>
-        <div>種別<span>Train</span></div>
-        <div>行先<span>Destination</span></div>
-        <div>發車時刻<span>Dep.Time</span></div>
+        <div>班次<span>Order</span></div>
+        <div>路線<span>Route</span></div>
+        <div>目的地<span>Destination</span></div>
+        <div>開出時間<span>Dep. Time</span></div>
       </div>
       <div class="column-scroll-wrapper" id="wrap-4">
         <div class="column-body" id="col-4"></div>
@@ -365,12 +366,11 @@
 
   <div class="keikyu-ticker">
     <div class="ticker-text">
-      改用路線到站 API (Route-ETA) 模式，資料獲取成功！實時發車導覽運作中。
+      歡迎使用觀塘東實時巴士發車情報看板。請注意月台安全，切勿超越黃線。
     </div>
   </div>
 
   <script>
-    // 配置：使用 dir (O=Outbound, I=Inbound) 和站點方向比對
     const COLUMNS_CONFIG = [
       {
         elementId: "col-1", wrapperId: "wrap-1", colKey: "col1",
@@ -437,11 +437,12 @@
       return "type-local";
     }
 
+    // 將日語「先発/次発/次々発」轉換為香港用語「即班/下一班/第三班/普通」
     function getOrderLabel(index) {
-      if (index === 0) return { jp: "先発", en: "1st." };
-      if (index === 1) return { jp: "次発", en: "2nd." };
-      if (index === 2) return { jp: "次々発", en: "3rd." };
-      return { jp: "普通", en: `${index + 1}th` };
+      if (index === 0) return { hk: "即班", en: "1st." };
+      if (index === 1) return { hk: "下班", en: "2nd." };
+      if (index === 2) return { hk: "後班", en: "3rd." };
+      return { hk: "普通", en: `${index + 1}th` };
     }
 
     function initDOM() {
@@ -458,7 +459,7 @@
           row.className = 'route-row';
           row.innerHTML = `
             <div class="order-col">
-              <span class="order-jp">${order.jp}</span>
+              <span class="order-hk">${order.hk}</span>
               <span class="order-en">${order.en}</span>
             </div>
             <div>
@@ -515,10 +516,10 @@
 
             if (diffSecs > 0 && diffMins <= 60) {
               if (diffSecs <= 30) {
-                updateFlapValue(col.colKey, r.route, "即將", "まもなく");
+                updateFlapValue(col.colKey, r.route, "即將", "即將到站");
               } else {
                 const depTimeStr = item.targetTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-                updateFlapValue(col.colKey, r.route, depTimeStr, `${diffMins}分後`);
+                updateFlapValue(col.colKey, r.route, depTimeStr, `${diffMins} 分鐘`);
               }
             } else {
               updateFlapValue(col.colKey, r.route, "----", "無預定");
@@ -530,7 +531,6 @@
       });
     }
 
-    // 正確抓取方式：直接拉路線的 Route ETA，無須 stop_id 轉換
     async function fetchAPIData() {
       const now = new Date();
 
@@ -541,7 +541,6 @@
             const json = await res.json();
 
             if (json.data && json.data.length > 0) {
-              // 篩選方向正確，且有 ETA 時間的第一班車
               const validEta = json.data.find(item => item.dir === r.dir && item.eta);
               if (validEta) {
                 fullDataStore[col.colKey][r.route].targetTime = new Date(validEta.eta);
@@ -550,7 +549,7 @@
               }
             }
           } catch (e) {
-            console.error(`路線 ${r.route} 抓取失敗:`, e);
+            console.error(`路線 ${r.route} 數據獲取失敗:`, e);
           }
         }
       }
