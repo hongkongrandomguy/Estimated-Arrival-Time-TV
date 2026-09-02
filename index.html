@@ -2,31 +2,32 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東 巴士發車情報看板</title>
+  <title>觀塘東 鐵道風巴士發車情報看板</title>
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     body {
-      margin: 0; padding: 0.5vw; background-color: #030508; color: #ffffff;
+      margin: 0; padding: 0.6vw; background-color: #020408; color: #ffffff;
       font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, Arial, sans-serif;
       height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
     }
     
+    /* 頂部車站看板標頭 */
     .lcd-header {
       display: grid;
-      grid-template-columns: auto 1fr auto auto;
+      grid-template-columns: auto 1fr auto auto auto;
       align-items: center;
       gap: 1vw;
-      background: linear-gradient(180deg, #1b222d, #0f151d);
-      border: 2px solid #333f50; border-radius: 4px; padding: 0.4vw 1vw; margin-bottom: 0.5vw; flex-shrink: 0;
+      background: linear-gradient(180deg, #161f2e, #0b1017);
+      border: 2px solid #2d3b4e; border-radius: 4px; padding: 0.5vw 1.2vw; margin-bottom: 0.6vw; flex-shrink: 0;
     }
     .platform-box {
-      background: #00d66c; color: #000000; font-weight: 900; font-size: 2vw;
-      padding: 0.1vw 0.8vw; border-radius: 3px; text-align: center;
+      background: #e11d48; color: #ffffff; font-weight: 900; font-size: 1.8vw;
+      padding: 0.1vw 0.8vw; border-radius: 3px; text-align: center; letter-spacing: 0.1vw;
     }
     .header-title-box { display: flex; flex-direction: column; justify-content: center; }
-    .header-main-title { font-size: 1.3vw; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 0.8vw; }
-    .header-sub-title { font-size: 0.65vw; color: #8a99ad; font-weight: 700; }
+    .header-main-title { font-size: 1.4vw; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 0.8vw; }
+    .header-sub-title { font-size: 0.65vw; color: #8a99ad; font-weight: 700; letter-spacing: 0.05vw; }
     
     .header-info-box {
       background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: center;
@@ -34,9 +35,9 @@
     .header-info-label { font-size: 0.5vw; color: #8a99ad; font-weight: 700; }
     .header-info-val { font-size: 0.95vw; font-weight: 900; color: #f59e0b; }
 
-    .header-time-box { background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: right; min-width: 6.5vw; }
+    .header-time-box { background: #000000; border: 1px solid #3a4859; padding: 0.2vw 1vw; border-radius: 3px; text-align: right; min-width: 7vw; }
     .header-time-label { font-size: 0.5vw; color: #8a99ad; font-weight: 700; }
-    .header-time-val { font-size: 1.5vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
+    .header-time-val { font-size: 1.6vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
     
     .warning-badges { display: flex; gap: 0.5vw; align-items: center; }
     .warn-badge {
@@ -44,269 +45,182 @@
       display: inline-flex; align-items: center; gap: 0.4vw; white-space: nowrap; animation: pulse-warn 1.5s infinite;
       border: 1px solid rgba(255,255,255,0.3);
     }
-    .warn-badge img { 
-      width: 2vw; 
-      height: 2vw; 
-      object-fit: contain; 
-      background: rgba(0, 0, 0, 0.2); 
-      padding: 0.15vw; 
-      border-radius: 2px;
-    }
+    .warn-badge img { width: 1.8vw; height: 1.8vw; object-fit: contain; background: rgba(0,0,0,0.2); padding: 0.1vw; border-radius: 2px; }
     @keyframes pulse-warn { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-    .grid-container {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5vw; flex-grow: 1; height: calc(100vh - 8vw); overflow: hidden;
+    /* 主看板表格設計 (新幹線全螢幕統整風格) */
+    .board-container {
+      border: 2px solid #232d3b; border-radius: 4px; background: #05080f; display: flex; flex-direction: column; flex-grow: 1; overflow: hidden;
     }
-    .column-board {
-      border: 2px solid #232d3b; border-radius: 4px; background: #070a0f; display: flex; flex-direction: column; overflow: hidden;
-    }
-    .column-header-title {
-      background: #131a24; color: #f3f4f6; font-size: 0.85vw; font-weight: 800; padding: 0.4vw; text-align: center; border-bottom: 2px solid #232d3b; flex-shrink: 0;
-    }
-    .column-header-title .sub { font-size: 0.55vw; color: #6b7c93; display: block; font-weight: 700; }
+    
     .table-head {
-      display: grid; grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr; background: #1b2330; padding: 0.3vw 0.4vw; font-size: 0.6vw; font-weight: 800; color: #cbd5e1; text-align: center; border-bottom: 1px solid #2b3648; flex-shrink: 0;
+      display: grid; 
+      grid-template-columns: 1fr 1.2fr 1.4fr 3fr 1.2fr 1.5fr; 
+      background: #141c28; 
+      padding: 0.4vw 0.8vw; 
+      font-size: 0.75vw; 
+      font-weight: 800; 
+      color: #cbd5e1; 
+      align-items: center;
+      border-bottom: 2px solid #283548; 
+      flex-shrink: 0;
     }
-    .table-head span { display: block; font-size: 0.45vw; color: #718096; }
-    .column-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
-    .column-body { display: flex; flex-direction: column; gap: 3px; padding: 3px; position: absolute; width: 100%; top: 0; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
-    
-    .route-row {
-      display: grid; grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr; align-items: center; padding: 0.3vw; background: #0d121a; border-radius: 2px; height: 3.3vw; border-bottom: 1px solid #161e2b;
-    }
-    .order-col { text-align: center; }
-    .order-hk { font-size: 0.8vw; color: #ffffff; font-weight: 900; }
-    .order-en { font-size: 0.45vw; color: #64748b; font-weight: 700; }
-    .type-badge { font-size: 0.95vw; font-weight: 900; padding: 0.15vw 0; border-radius: 2px; color: #ffffff; text-align: center; width: 92%; margin: 0 auto; }
-    .type-rapid { background: #e11d48; }
-    .type-express { background: #0284c7; }
-    .type-semi { background: #16a34a; }
-    .type-local { background: #475569; }
-    
-    .dest-col { text-align: left; padding-left: 0.4vw; overflow: hidden; }
-    .dest-main { font-size: 1vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
-    .dest-sub { font-size: 0.5vw; color: #94a3b8; white-space: nowrap; }
-    
-    .time-col { text-align: right; padding-right: 0.4vw; }
-    .time-main { font-size: 1.2vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
-    .time-sub { font-size: 0.6vw; color: #94a3b8; font-weight: 700; margin-top: 1px; }
+    .table-head div { display: flex; flex-direction: column; }
+    .table-head span { font-size: 0.5vw; color: #718096; font-weight: 700; text-transform: uppercase; }
 
+    .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
+    .board-body { display: flex; flex-direction: column; gap: 4px; padding: 4px; position: absolute; width: 100%; top: 0; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
+    
+    /* 列車行車資訊列 */
+    .train-row {
+      display: grid; 
+      grid-template-columns: 1fr 1.2fr 1.4fr 3fr 1.2fr 1.5fr; 
+      align-items: center; 
+      padding: 0.4vw 0.8vw; 
+      background: #0a0f18; 
+      border-radius: 3px; 
+      height: 4vw; 
+      border-bottom: 1px solid #131b26;
+    }
+    
+    /* 欄位 1：站位/月台代號 */
+    .stop-col { font-size: 0.75vw; font-weight: 800; color: #94a3b8; }
+    .stop-sub { font-size: 0.5vw; color: #64748b; }
+
+    /* 欄位 2：列車名/路線徽章 (模擬新幹線 Nozomi / Hikari / Kodama 色彩) */
+    .train-badge { 
+      font-size: 1.1vw; font-weight: 900; padding: 0.2vw 0.4vw; border-radius: 3px; 
+      color: #ffffff; text-align: center; width: 85%; display: flex; align-items: center; justify-content: center;
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
+    }
+    .type-nozomi { background: #16a34a; } /* 綠色：特快/快速 */
+    .type-hikari  { background: #e11d48; } /* 紅色：主要幹線 */
+    .type-kodama  { background: #0284c7; } /* 藍色：普通/各站停車 */
+    .type-local   { background: #475569; } /* 灰色：普通 */
+
+    /* 欄位 3：發車時刻 */
+    .time-col { display: flex; flex-direction: column; }
+    .time-main { font-size: 1.4vw; font-weight: 900; color: #38bdf8; line-height: 1.1; letter-spacing: 0.05vw; }
+    .time-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; }
+
+    /* 欄位 4：行先 (目的地) */
+    .dest-col { overflow: hidden; padding-right: 0.5vw; }
+    .dest-main { font-size: 1.2vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
+    .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05vw; }
+
+    /* 欄位 5：番線 (月台軌道號碼框 - 經典新幹線白底黑字) */
+    .track-col { display: flex; justify-content: center; }
+    .track-box {
+      background: #ffffff; color: #000000; font-weight: 900; font-size: 1.3vw;
+      padding: 0.1vw 0.6vw; border-radius: 3px; text-align: center; min-width: 2.2vw;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* 欄位 6：狀態/倒數 */
+    .status-col { text-align: right; }
+    .status-main { font-size: 1.1vw; font-weight: 900; color: #facc15; }
+    .status-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; }
+
+    /* 底部跑馬燈 */
     .lcd-ticker {
-      height: 2vw; background: #000000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.4vw; display: flex; align-items: center; position: relative; overflow: hidden; flex-shrink: 0;
+      height: 2.2vw; background: #000000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.5vw; display: flex; align-items: center; position: relative; overflow: hidden; flex-shrink: 0;
     }
     .ticker-tag {
-      background: #dc2626; color: #ffffff; font-size: 0.6vw; font-weight: 900; padding: 0.2vw 0.8vw; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10;
+      background: #dc2626; color: #ffffff; font-size: 0.65vw; font-weight: 900; padding: 0.2vw 1vw; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; letter-spacing: 0.1vw;
     }
     .ticker-text-wrapper { flex-grow: 1; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; }
-    .ticker-text { font-size: 0.85vw; color: #f1f5f9; white-space: nowrap; font-weight: 700; position: absolute; animation: ticker 25s linear infinite; }
+    .ticker-text { font-size: 0.85vw; color: #f1f5f9; white-space: nowrap; font-weight: 700; position: absolute; animation: ticker 30s linear infinite; }
     @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
   </style>
 </head>
 <body>
 
+  <!-- 頂部資訊列 -->
   <div class="lcd-header">
-    <div class="platform-box">3</div>
+    <div class="platform-box">東</div>
     
     <div class="header-title-box">
       <div class="header-main-title">
-        觀塘東 方面巴士發車導覽
+        觀塘東 巴士發車情報看板
         <div class="warning-badges" id="warning-container"></div>
       </div>
-      <div class="header-sub-title">Kwun Tong East Area Bus Departure Information</div>
+      <div class="header-sub-title">KWUN TONG EAST BUS DEPARTURE INFORMATION BOARD</div>
     </div>
 
     <div class="header-info-box">
-      <div class="header-info-label">日期 Date</div>
+      <div class="header-info-label">日期 DATE</div>
       <div class="header-info-val" id="date-text">----/--/--</div>
     </div>
 
     <div class="header-info-box">
-      <div class="header-info-label" id="weather-desc">天氣 Weather</div>
+      <div class="header-info-label" id="weather-desc">天氣 WEATHER</div>
       <div class="header-info-val" id="temp-text">--°C</div>
     </div>
 
     <div class="header-time-box">
-      <div class="header-info-label">現時時間 Time</div>
+      <div class="header-info-label">時刻 TIME</div>
       <div class="header-time-val" id="clock">00:00</div>
     </div>
   </div>
 
-  <div class="grid-container">
-    <div class="column-board">
-      <div class="column-header-title">❶ 和樂邨 (南行：往觀塘/市區)<span class="sub">Wo Lok Estate Southbound</span></div>
-      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>預定時間<span>Dep. Time</span></div></div>
-      <div class="column-scroll-wrapper" id="wrap-1"><div class="column-body" id="col-1"></div></div>
+  <!-- 主看板：新幹線風格統整列表 -->
+  <div class="board-container">
+    <div class="table-head">
+      <div>站位 <span>Location</span></div>
+      <div>路線 <span>Train / Route</span></div>
+      <div>時刻 <span>Departure Time</span></div>
+      <div>行先 <span>Destination</span></div>
+      <div>番線 <span>Track</span></div>
+      <div style="text-align: right;">運行狀態 <span>Status</span></div>
     </div>
-    <div class="column-board">
-      <div class="column-header-title">❷ 和樂邨 (北行：往秀茂坪/將軍澳)<span class="sub">Wo Lok Estate Northbound</span></div>
-      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>預定時間<span>Dep. Time</span></div></div>
-      <div class="column-scroll-wrapper" id="wrap-2"><div class="column-body" id="col-2"></div></div>
-    </div>
-    <div class="column-board">
-      <div class="column-header-title">❸ 翠屏北邨/寶佩苑 (往市區/沙田)<span class="sub">Tsui Ping North (Urban Bound)</span></div>
-      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>預定時間<span>Dep. Time</span></div></div>
-      <div class="column-scroll-wrapper" id="wrap-3"><div class="column-body" id="col-3"></div></div>
-    </div>
-    <div class="column-board">
-      <div class="column-header-title">❹ 翠屏北邨/寶佩苑 (往山上/藍田)<span class="sub">Tsui Ping North (Hills Bound)</span></div>
-      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>預定時間<span>Dep. Time</span></div></div>
-      <div class="column-scroll-wrapper" id="wrap-4"><div class="column-body" id="col-4"></div></div>
+    <div class="board-scroll-wrapper" id="board-wrap">
+      <div class="board-body" id="board-body"></div>
     </div>
   </div>
 
+  <!-- 底部跑馬燈 -->
   <div class="lcd-ticker">
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用觀塘東實時巴士發車情報看板。系統自動同步九巴官方 API 數據，請注意候車安全。
+        歡迎使用觀塘東鐵道風實時巴士發車情報看板。系統自動同步九巴官方 API 數據，時刻表依據即時交通情況調整，請留意上落車安全。
       </div>
     </div>
   </div>
 
   <script>
-    const COLUMNS_CONFIG = [
-      {
-        elementId: "col-1", wrapperId: "wrap-1", colKey: "col1", stopId: "003265",
-        routes: [
-          { route: "1A", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
-          { route: "11X", dest: "紅磡站", destEn: "Hung Hom Station" },
-          { route: "13D", dest: "維港灣", destEn: "Island Harbourview" },
-          { route: "13M", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong" },
-          { route: "13P", dest: "長沙灣 (麗閣邨)", destEn: "Cheung Sha Wan" },
-          { route: "23", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
-          { route: "23M", dest: "樂華", destEn: "Lok Wah" },
-          { route: "26M", dest: "觀塘", destEn: "Kwun Tong" },
-          { route: "28B", dest: "啟德 (啟晴邨)", destEn: "Kai Tak" },
-          { route: "89", dest: "瀝源", destEn: "Lek Yuen" },
-          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" },
-          { route: "93A", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
-          { route: "93K", dest: "旺角東站", destEn: "Mong Kok East" },
-          { route: "N293", dest: "旺角 (柏景灣)", destEn: "Mong Kok" }
-        ]
-      },
-      {
-        elementId: "col-2", wrapperId: "wrap-2", colKey: "col2", stopId: "003348",
-        routes: [
-          { route: "1A", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
-          { route: "11X", dest: "安泰 (北)", destEn: "On Tai (North)" },
-          { route: "13D", dest: "寶達", destEn: "Po Tat" },
-          { route: "14H", dest: "順利", destEn: "Shun Lee" },
-          { route: "23", dest: "順利", destEn: "Shun Lee" },
-          { route: "23M", dest: "順利", destEn: "Shun Lee" },
-          { route: "26M", dest: "彩虹", destEn: "Choi Hung" },
-          { route: "28B", dest: "彩福", destEn: "Choi Fook" },
-          { route: "93A", dest: "寶林", destEn: "Po Lam" },
-          { route: "93K", dest: "翠林", destEn: "Tsui Lam" },
-          { route: "N293", dest: "尚德", destEn: "Sheung Tak" }
-        ]
-      },
-      {
-        elementId: "col-3", wrapperId: "wrap-3", colKey: "col3", stopId: "003347",
-        routes: [
-          { route: "11B", dest: "九龍城碼頭", destEn: "Kowloon City" },
-          { route: "11C", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
-          { route: "89C", dest: "恆安", destEn: "Heng On" },
-          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" }
-        ]
-      },
-      {
-        elementId: "col-4", wrapperId: "wrap-4", colKey: "col4", stopId: "003349",
-        routes: [
-          { route: "11B", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
-          { route: "11C", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
-          { route: "13M", dest: "寶達", destEn: "Po Tat" },
-          { route: "89C", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" }
-        ]
-      }
+    // 站點與路線對應設定
+    const STATIONS_CONFIG = [
+      { stopId: "003265", stopName: "和樂邨", stopEn: "Wo Lok Est (South)", track: "1" },
+      { stopId: "003348", stopName: "和樂邨", stopEn: "Wo Lok Est (North)", track: "2" },
+      { stopId: "003347", stopName: "翠屏北邨", stopEn: "Tsui Ping North (Urban)", track: "3" },
+      { stopId: "003349", stopName: "翠屏北邨", stopEn: "Tsui Ping North (Hills)", track: "4" }
     ];
 
-    let fullDataStore = {};
-    let scrollOffsets = { "col-1": 0, "col-2": 0, "col-3": 0, "col-4": 0 };
+    let allDepartures = [];
+    let scrollOffset = 0;
 
     function getBadgeClass(route) {
-      if (route.includes("A") || route.includes("X")) return "type-rapid";
-      if (route.startsWith("8") || route.startsWith("2")) return "type-express";
-      if (route.startsWith("14") || route.startsWith("11")) return "type-semi";
+      if (route.includes("A") || route.includes("X")) return "type-nozomi";
+      if (route.startsWith("8") || route.startsWith("2")) return "type-hikari";
+      if (route.startsWith("14") || route.startsWith("11")) return "type-kodama";
       return "type-local";
     }
 
-    function getOrderLabel(index) {
-      if (index === 0) return { hk: "即班", en: "1st" };
-      if (index === 1) return { hk: "下班", en: "2nd" };
-      if (index === 2) return { hk: "後班", en: "3rd" };
-      return { hk: "普通", en: `${index + 1}th` };
-    }
-
-    function initDOM() {
-      COLUMNS_CONFIG.forEach(col => {
-        const container = document.getElementById(col.elementId);
-        if (!container) return;
-        container.innerHTML = '';
-        fullDataStore[col.colKey] = {};
-
-        col.routes.forEach((r, idx) => {
-          fullDataStore[col.colKey][r.route] = { targetTime: null };
-          const order = getOrderLabel(idx);
-
-          const row = document.createElement('div');
-          row.className = 'route-row';
-          row.innerHTML = `
-            <div class="order-col">
-              <div class="order-hk">${order.hk}</div>
-              <div class="order-en">${order.en}</div>
-            </div>
-            <div>
-              <div class="type-badge ${getBadgeClass(r.route)}">${r.route}</div>
-            </div>
-            <div class="dest-col">
-              <div class="dest-main">${r.dest}</div>
-              <div class="dest-sub">${r.destEn.toUpperCase()}</div>
-            </div>
-            <div class="time-col">
-              <div class="time-main" id="time-${col.colKey}-${r.route}">--:--</div>
-              <div class="time-sub" id="sub-${col.colKey}-${r.route}">暫無資料</div>
-            </div>
-          `;
-          container.appendChild(row);
-        });
-      });
-    }
-
-    function updateLCDValue(colKey, route, timeVal, subVal) {
-      const timeElem = document.getElementById(`time-${colKey}-${route}`);
-      const subElem = document.getElementById(`sub-${colKey}-${route}`);
-      if (timeElem) timeElem.innerText = timeVal;
-      if (subElem) subElem.innerText = subVal;
-    }
-
     function getCustomWarningStyle(message) {
-      if (message.includes("一號戒備信號")) {
-        return { icon: "t1.png", text: "一號戒備", bg: "#e11d48" };
-      } else if (message.includes("三號強風信號")) {
-        return { icon: "t3.png", text: "三號強風", bg: "#e11d48" };
-      } else if (message.includes("強烈季候風信號")) {
-        return { icon: "monsoon.png", text: "強烈季候風", bg: "#059669" };
-      } else if (message.includes("黃色暴雨警告信號")) {
-        return { icon: "yellow-rain.png", text: "黃雨警告", bg: "#ca8a04" };
-      } else if (message.includes("紅色暴雨警告")) {
-        return { icon: "red-rain.png", text: "紅雨警告", bg: "#dc2626" };
-      } else if (message.includes("黑色暴雨警告")) {
-        return { icon: "black-rain.png", text: "黑雨警告", bg: "#111827" };
-      } else if (message.includes("山泥傾瀉警告")) {
-        return { icon: "landslip.png", text: "山泥傾瀉", bg: "#b45309" };
-      } else if (message.includes("雷暴警告")) {
-        return { icon: "thunder.png", text: "雷暴警告", bg: "#d97706" };
-      } else if (message.includes("火災危險警告")) {
-        return { icon: "fire.png", text: "火災危險", bg: "#ea580c" };
-      } else if (message.includes("霜凍警告")) {
-        return { icon: "frost.png", text: "霜凍警告", bg: "#0284c7" };
-      } else if (message.includes("寒冷天氣警告")) {
-        return { icon: "cold.png", text: "寒冷天氣", bg: "#2563eb" };
-      } else if (message.includes("酷熱天氣警告")) {
-        return { icon: "hot.png", text: "酷熱天氣", bg: "#d97706" };
-      } else if (message.includes("新界北部水浸特別報告")) {
-        return { icon: "nt-flood.png", text: "新界水浸", bg: "#2563eb" };
-      }
+      if (message.includes("一號戒備信號")) return { icon: "t1.png", text: "一號戒備", bg: "#e11d48" };
+      if (message.includes("三號強風信號")) return { icon: "t3.png", text: "三號強風", bg: "#e11d48" };
+      if (message.includes("強烈季候風信號")) return { icon: "monsoon.png", text: "強烈季候風", bg: "#059669" };
+      if (message.includes("黃色暴雨警告信號")) return { icon: "yellow-rain.png", text: "黃雨警告", bg: "#ca8a04" };
+      if (message.includes("紅色暴雨警告")) return { icon: "red-rain.png", text: "紅雨警告", bg: "#dc2626" };
+      if (message.includes("黑色暴雨警告")) return { icon: "black-rain.png", text: "黑雨警告", bg: "#111827" };
+      if (message.includes("山泥傾瀉警告")) return { icon: "landslip.png", text: "山泥傾瀉", bg: "#b45309" };
+      if (message.includes("雷暴警告")) return { icon: "thunder.png", text: "雷暴警告", bg: "#d97706" };
+      if (message.includes("火災危險警告")) return { icon: "fire.png", text: "火災危險", bg: "#ea580c" };
+      if (message.includes("霜凍警告")) return { icon: "frost.png", text: "霜凍警告", bg: "#0284c7" };
+      if (message.includes("寒冷天氣警告")) return { icon: "cold.png", text: "寒冷天氣", bg: "#2563eb" };
+      if (message.includes("酷熱天氣警告")) return { icon: "hot.png", text: "酷熱天氣", bg: "#d97706" };
+      if (message.includes("新界北部水浸特別報告")) return { icon: "nt-flood.png", text: "新界水浸", bg: "#2563eb" };
       return { icon: "warning.png", text: message, bg: "#dc2626" };
     }
 
@@ -317,14 +231,12 @@
           const data = await res.json();
           if (data.temperature && data.temperature.data) {
             const hkoTemp = data.temperature.data.find(t => t.place === "香港天文台");
-            if (hkoTemp) {
-              document.getElementById('temp-text').innerText = `${hkoTemp.value}°C`;
-            }
+            if (hkoTemp) document.getElementById('temp-text').innerText = `${hkoTemp.value}°C`;
           }
           if (data.mintainWeather && data.mintainWeather.length > 0) {
             document.getElementById('weather-desc').innerText = data.mintainWeather[0];
           } else {
-            document.getElementById('weather-desc').innerText = "天文台實時";
+            document.getElementById('weather-desc').innerText = "天氣 WEATHER";
           }
 
           const warnContainer = document.getElementById('warning-container');
@@ -335,7 +247,6 @@
               const badge = document.createElement('div');
               badge.className = 'warn-badge';
               badge.style.backgroundColor = custom.bg;
-              
               badge.innerHTML = `<img src="${custom.icon}" alt="icon"> <span>${custom.text}</span>`;
               badge.title = msg;
               warnContainer.appendChild(badge);
@@ -343,100 +254,139 @@
           }
         }
       } catch (e) {
-        document.getElementById('weather-desc').innerText = "天氣聯線受阻";
-        document.getElementById('temp-text').innerText = "--°C";
+        document.getElementById('weather-desc').innerText = "氣象通訊中斷";
       }
-    }
-
-    function tickRealtime() {
-      const now = new Date();
-      
-      const clockElem = document.getElementById('clock');
-      if (clockElem) {
-        clockElem.innerText = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-      }
-
-      const dateStr = now.toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric', weekday: 'short' });
-      const dateElem = document.getElementById('date-text');
-      if (dateElem) {
-        dateElem.innerText = dateStr;
-      }
-
-      COLUMNS_CONFIG.forEach(col => {
-        col.routes.forEach(r => {
-          const item = fullDataStore[col.colKey]?.[r.route];
-          if (item && item.targetTime) {
-            const diffSecs = Math.floor((item.targetTime - now) / 1000);
-            const diffMins = Math.floor(diffSecs / 60);
-
-            if (diffSecs > -30) {
-              if (diffSecs <= 30) {
-                updateLCDValue(col.colKey, r.route, "即將到站", "---");
-              } else {
-                const depTimeStr = item.targetTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-                updateLCDValue(col.colKey, r.route, `${diffMins} 分鐘`, depTimeStr);
-              }
-            } else {
-              updateLCDValue(col.colKey, r.route, "--:--", "已開出");
-            }
-          }
-        });
-      });
     }
 
     async function fetchAPIData() {
-      for (const col of COLUMNS_CONFIG) {
+      let fetchedList = [];
+      for (const station of STATIONS_CONFIG) {
         try {
-          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`;
+          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stopId}`;
           const res = await fetch(url);
           if (res.ok) {
             const json = await res.json();
             if (json.data && Array.isArray(json.data)) {
-              col.routes.forEach(r => {
-                const match = json.data.find(item => item.route === r.route && item.eta);
-                if (match && match.eta) {
-                  fullDataStore[col.colKey][r.route].targetTime = new Date(match.eta);
-                } else {
-                  fullDataStore[col.colKey][r.route].targetTime = null;
-                  updateLCDValue(col.colKey, r.route, "--:--", "暫無資料");
+              json.data.forEach(item => {
+                if (item.eta) {
+                  fetchedList.push({
+                    stopName: station.stopName,
+                    stopEn: station.stopEn,
+                    track: station.track,
+                    route: item.route,
+                    dest: item.dest_tc || "指定目的地",
+                    destEn: item.dest_en || "DESTINATION",
+                    etaTime: new Date(item.eta)
+                  });
                 }
               });
             }
           }
         } catch (e) {}
       }
-      tickRealtime();
+
+      // 依發車時間排序
+      fetchedList.sort((a, b) => a.etaTime - b.etaTime);
+      allDepartures = fetchedList;
+      renderBoard();
     }
 
-    function autoScrollEngine() {
-      COLUMNS_CONFIG.forEach(col => {
-        const wrapper = document.getElementById(col.wrapperId);
-        const container = document.getElementById(col.elementId);
-        if (!wrapper || !container) return;
+    function renderBoard() {
+      const container = document.getElementById('board-body');
+      if (!container) return;
+      container.innerHTML = '';
 
-        const wrapperHeight = wrapper.clientHeight;
-        const containerHeight = container.scrollHeight;
+      if (allDepartures.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:700;">正在同步全線列車與班次資訊...</div>`;
+        return;
+      }
 
-        if (containerHeight > wrapperHeight) {
-          const maxScroll = containerHeight - wrapperHeight + 10;
-          scrollOffsets[col.elementId] += 54;
-          if (scrollOffsets[col.elementId] > maxScroll) scrollOffsets[col.elementId] = 0;
-          container.style.transform = `translateY(-${scrollOffsets[col.elementId]}px)`;
+      const now = new Date();
+      allDepartures.forEach(item => {
+        const diffSecs = Math.floor((item.etaTime - now) / 1000);
+        const diffMins = Math.floor(diffSecs / 60);
+        let statusMain = "";
+        let statusSub = "";
+        let timeStr = item.etaTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+        if (diffSecs <= 30 && diffSecs > -30) {
+          statusMain = "即將到站";
+          statusSub = "ARRIVING";
+        } else if (diffSecs <= -30) {
+          statusMain = "已開出";
+          statusSub = "DEPARTED";
         } else {
-          container.style.transform = `translateY(0px)`;
-          scrollOffsets[col.elementId] = 0;
+          statusMain = `${diffMins} 分鐘`;
+          statusSub = `${diffSecs % 60} 秒`;
         }
+
+        const row = document.createElement('div');
+        row.className = 'train-row';
+        row.innerHTML = `
+          <div class="stop-col">
+            <div>${item.stopName}</div>
+            <div class="stop-sub">${item.stopEn}</div>
+          </div>
+          <div>
+            <div class="train-badge ${getBadgeClass(item.route)}">${item.route}</div>
+          </div>
+          <div class="time-col">
+            <div class="time-main">${timeStr}</div>
+            <div class="time-sub">定刻 SCHEDULE</div>
+          </div>
+          <div class="dest-col">
+            <div class="dest-main">${item.dest}</div>
+            <div class="dest-sub">${item.destEn}</div>
+          </div>
+          <div class="track-col">
+            <div class="track-box">${item.track}</div>
+          </div>
+          <div class="status-col">
+            <div class="status-main">${statusMain}</div>
+            <div class="status-sub">${statusSub}</div>
+          </div>
+        `;
+        container.appendChild(row);
       });
     }
 
+    function tickRealtime() {
+      const now = new Date();
+      document.getElementById('clock').innerText = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+      document.getElementById('date-text').innerText = now.toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric', weekday: 'short' });
+      
+      // 每秒動態更新倒數狀態，不重新抓取 API
+      if (allDepartures.length > 0) {
+        renderBoard();
+      }
+    }
+
+    function autoScrollEngine() {
+      const wrapper = document.getElementById('board-wrap');
+      const container = document.getElementById('board-body');
+      if (!wrapper || !container) return;
+
+      const wrapperHeight = wrapper.clientHeight;
+      const containerHeight = container.scrollHeight;
+
+      if (containerHeight > wrapperHeight) {
+        const maxScroll = containerHeight - wrapperHeight + 10;
+        scrollOffset += 68;
+        if (scrollOffset > maxScroll) scrollOffset = 0;
+        container.style.transform = `translateY(-${scrollOffset}px)`;
+      } else {
+        container.style.transform = `translateY(0px)`;
+        scrollOffset = 0;
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
-      initDOM();
       fetchAPIData();
       fetchWeatherData();
       setInterval(tickRealtime, 1000);
-      setInterval(fetchAPIData, 20000);
+      setInterval(fetchAPIData, 20000); // 每 20 秒向 API 同步一次數據
       setInterval(fetchWeatherData, 60000);
-      setInterval(autoScrollEngine, 4000);
+      setInterval(autoScrollEngine, 5000); // 自動捲動看板檢視更多班次
     });
   </script>
 </body>
