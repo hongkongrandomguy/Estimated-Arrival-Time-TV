@@ -2,108 +2,138 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東 巴士到站發車看板 - 全路線完全體</title>
+  <title>觀塘東 巴士到站發車看板 - 數碼翻頁風格版</title>
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      padding: 1vw;
-      background-color: #020204;
+      padding: 0.8vw;
+      background-color: #0b0d10;
       color: #ffffff;
-      font-family: "PingFang HK", "Helvetica Neue", Arial, sans-serif;
-      box-sizing: border-box;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "PingFang HK", Arial, sans-serif;
       height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    /* 頂部車站金屬質感頂欄 */
-    .shinkansen-header {
+    /* 京急風格頂欄 */
+    .keikyu-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: linear-gradient(180deg, #1b222c 0%, #0a0d13 100%);
-      border: 2px solid #334155;
-      border-radius: 6px;
-      padding: 0.5vw 1.5vw;
-      margin-bottom: 0.8vw;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.9);
+      background: #181c24;
+      border: 2px solid #2e3646;
+      border-radius: 4px;
+      padding: 0.4vw 1vw;
+      margin-bottom: 0.6vw;
       flex-shrink: 0;
     }
 
-    .header-title {
-      font-size: 1.8vw;
+    .platform-num {
+      font-size: 3.5vw;
       font-weight: 900;
-      color: #e2e8f0;
-      display: flex;
-      align-items: center;
-      gap: 0.8vw;
+      color: #ffffff;
+      line-height: 1;
+      padding-right: 1vw;
+      border-right: 2px solid #3a4558;
+      margin-right: 1vw;
+      font-family: 'Arial', sans-serif;
     }
 
-    .jr-tag {
-      background: #0284c7;
-      color: #fff;
-      font-size: 1vw;
-      padding: 0.2vw 0.6vw;
+    .header-time-box {
+      display: flex;
+      align-items: center;
+      background: #000;
+      border: 1px solid #444;
+      padding: 0.1vw 0.6vw;
       border-radius: 3px;
-      font-weight: bold;
+      margin-right: 1.5vw;
+    }
+
+    .header-time-label {
+      font-size: 0.65vw;
+      color: #aaa;
+      margin-right: 0.5vw;
+      line-height: 1.1;
+    }
+
+    .header-time-val {
+      font-family: 'VT323', monospace;
+      font-size: 2vw;
+      color: #ffaa00;
       letter-spacing: 1px;
     }
 
-    /* JR 新幹線風格 LED 數碼時鐘 */
-    .shinkansen-clock {
-      font-family: 'VT323', monospace;
-      font-size: 3.2vw;
-      color: #00ffcc;
-      text-shadow: 0 0 12px rgba(0, 255, 204, 0.8);
-      letter-spacing: 2px;
+    .header-dest-info {
+      font-size: 1.5vw;
+      font-weight: bold;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.8vw;
+      flex-grow: 1;
     }
 
     /* 四豎列容器 */
     .grid-container {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 0.8vw;
+      gap: 0.6vw;
       flex-grow: 1;
-      height: calc(100vh - 6vw);
+      height: calc(100vh - 8.5vw);
       overflow: hidden;
     }
 
     .column-board {
-      border: 2px solid #1e293b;
-      border-radius: 6px;
-      background: #05070a;
+      border: 2px solid #2e3646;
+      border-radius: 4px;
+      background: #000000;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
       position: relative;
     }
 
-    .column-title {
-      background: #0f172a;
+    .column-header-title {
+      background: #181c24;
       color: #38bdf8;
-      font-size: 1.1vw;
+      font-size: 1vw;
       font-weight: bold;
-      padding: 0.6vw;
+      padding: 0.5vw;
       text-align: center;
-      border-bottom: 2px solid #1e293b;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      border-bottom: 2px solid #2e3646;
       z-index: 10;
       flex-shrink: 0;
     }
 
-    .column-title-en {
-      font-size: 0.75vw;
+    .column-header-title .sub {
+      font-size: 0.6vw;
       color: #64748b;
-      font-weight: normal;
-      margin-top: 2px;
+      display: block;
     }
 
-    /* 滾動區域包裝器 */
+    /* 京急表頭 */
+    .table-head {
+      display: grid;
+      grid-template-columns: 0.8fr 1fr 1.6fr 1fr;
+      background: #1e2530;
+      padding: 0.3vw 0.4vw;
+      font-size: 0.65vw;
+      color: #cbd5e1;
+      text-align: center;
+      border-bottom: 1px solid #334155;
+      flex-shrink: 0;
+    }
+
+    .table-head div span {
+      display: block;
+      font-size: 0.5vw;
+      color: #64748b;
+    }
+
+    /* 滾動區域 */
     .column-scroll-wrapper {
       flex-grow: 1;
       overflow: hidden;
@@ -113,8 +143,8 @@
     .column-body {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      padding: 4px;
+      gap: 2px;
+      padding: 2px;
       position: absolute;
       width: 100%;
       top: 0;
@@ -122,103 +152,170 @@
       transition: transform 0.8s ease-in-out;
     }
 
-    /* 路線列表行 */
+    /* 路線行 */
     .route-row {
       display: grid;
-      grid-template-columns: 0.8fr 1.8fr 1fr;
+      grid-template-columns: 0.8fr 1fr 1.6fr 1fr;
       align-items: center;
-      padding: 0.6vw 0.6vw;
-      background: #0a0f18;
-      border-bottom: 1px solid #161e2e;
-      border-radius: 4px;
-      box-sizing: border-box;
+      padding: 0.3vw 0.3vw;
+      background: #0d1117;
+      border-bottom: 1px solid #1a2332;
+      height: 3.4vw;
     }
 
-    .badge-col {
-      display: flex;
+    .order-col { text-align: center; line-height: 1; }
+    .order-jp { font-size: 0.75vw; color: #e2e8f0; font-weight: bold; }
+    .order-en { font-size: 0.55vw; color: #64748b; }
+
+    /* 種別彩標 */
+    .type-badge {
+      font-size: 0.9vw;
+      font-weight: 900;
+      padding: 0.2vw 0;
+      border-radius: 2px;
+      color: #ffffff;
+      text-align: center;
+      width: 90%;
+      margin: 0 auto;
+    }
+    .type-rapid { background: linear-gradient(180deg, #ff3366, #ff6600); }
+    .type-express { background: linear-gradient(180deg, #0044ff, #0000aa); }
+    .type-local { background: linear-gradient(180deg, #444444, #111111); border: 1px solid #555; }
+    .type-semi { background: linear-gradient(180deg, #00aa55, #006633); }
+
+    .dest-col { text-align: left; padding-left: 0.2vw; overflow: hidden; }
+    .dest-main { font-size: 0.95vw; font-weight: bold; color: #ffffff; white-space: nowrap; }
+    .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
+
+    /* 核心：3D 數碼翻頁（Split-Flap）組件樣式 */
+    .flap-board {
+      perspective: 300px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-end;
       justify-content: center;
     }
 
-    .shinkansen-badge {
-      font-size: 1.3vw;
-      font-weight: 900;
-      padding: 0.2vw 0.5vw;
+    .flip-card {
+      position: relative;
+      width: 4.5vw;
+      height: 1.8vw;
+      background: #111;
       border-radius: 3px;
-      color: #ffffff;
-      text-align: center;
-      min-width: 2.5vw;
-    }
-
-    .type-nozomi { background: linear-gradient(135deg, #dc2626, #f97316); }
-    .type-hikari { background: linear-gradient(135deg, #0284c7, #38bdf8); }
-    .type-kodama { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
-    .type-local  { background: linear-gradient(135deg, #15803d, #22c55e); }
-
-    .dest-col {
-      text-align: left;
-      padding-left: 0.3vw;
-      overflow: hidden;
-    }
-
-    .dest-main {
-      font-size: 1.1vw;
-      font-weight: bold;
-      color: #f8fafc;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-
-    .dest-sub {
-      font-size: 0.65vw;
-      color: #64748b;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-
-    .eta-col {
       font-family: 'VT323', monospace;
-      font-size: 1.8vw;
-      color: #22c55e;
-      text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+      font-size: 1.5vw;
+      color: #00ffcc;
+      text-shadow: 0 0 5px rgba(0, 255, 204, 0.6);
+      border: 1px solid #222;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    }
+
+    /* 中間實體分割線 */
+    .flip-card::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #000;
+      z-index: 10;
+      transform: translateY(-50%);
+    }
+
+    .flip-card .top, .flip-card .bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 50%;
+      overflow: hidden;
+      text-align: center;
+      background: #181818;
+    }
+
+    .flip-card .top {
+      top: 0;
+      line-height: 1.8vw;
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+    }
+
+    .flip-card .bottom {
+      bottom: 0;
+      line-height: 0vw;
+      border-bottom-left-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+
+    /* 翻頁動畫類別 */
+    .flip-card.flipping .top {
+      animation: flipTop 0.3s ease-in forwards;
+    }
+
+    @keyframes flipTop {
+      0% { transform: rotateX(0deg); }
+      100% { transform: rotateX(-90deg); }
+    }
+
+    .eta-cars {
+      font-size: 0.55vw;
+      color: #94a3b8;
       text-align: right;
-      letter-spacing: 1px;
+      margin-top: 1px;
     }
 
-    .no-service {
-      font-family: "PingFang HK", sans-serif !important;
-      font-size: 0.8vw !important;
-      color: #475569 !important;
-      text-shadow: none !important;
+    /* 底部 LED 跑馬燈 */
+    .keikyu-ticker {
+      height: 2vw;
+      background: #000000;
+      border: 2px solid #2e3646;
+      border-radius: 4px;
+      margin-top: 0.4vw;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding: 0 1vw;
+      flex-shrink: 0;
     }
 
-    .arriving {
-      color: #ef4444 !important;
-      text-shadow: 0 0 10px rgba(239, 68, 68, 0.9) !important;
-      animation: blink 1s infinite;
+    .ticker-text {
+      font-size: 1vw;
+      color: #ffaa00;
+      white-space: nowrap;
+      font-weight: bold;
+      animation: ticker 25s linear infinite;
     }
 
-    @keyframes blink { 50% { opacity: 0.2; } }
+    @keyframes ticker {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
   </style>
 </head>
 <body>
 
-  <div class="shinkansen-header">
-    <div class="header-title">
-      <span class="jr-tag">KMB / CTB ETA</span>
-      觀塘東 巴士到站時間看板 (全路線實時滾動)
+  <div class="keikyu-header">
+    <div class="platform-num">3</div>
+    <div class="header-time-box">
+      <div class="header-time-label">現在時刻<br>Current Time</div>
+      <div class="header-time-val" id="clock">00:00</div>
     </div>
-    <div class="shinkansen-clock" id="clock">00:00:00</div>
+    <div class="header-dest-info">
+      觀塘東 方面 / ✈ 巴士發車導覽 (數碼翻頁擬真版)
+    </div>
   </div>
 
   <div class="grid-container">
     <div class="column-board">
-      <div class="column-title">
-        ❶ 和樂邨 (南行：往觀塘/市區/港島)
-        <span class="column-title-en">Wo Lok Estate Southbound (Urban / HK Island Bound)</span>
+      <div class="column-header-title">
+        ❶ 和樂邨 (南行：往觀塘/市區)
+        <span class="sub">Wo Lok Estate Southbound</span>
+      </div>
+      <div class="table-head">
+        <div>順序<span>Order</span></div>
+        <div>種別<span>Train</span></div>
+        <div>行先<span>Destination</span></div>
+        <div>發車時刻<span>Dep.Time</span></div>
       </div>
       <div class="column-scroll-wrapper" id="wrap-1">
         <div class="column-body" id="col-1"></div>
@@ -226,9 +323,15 @@
     </div>
 
     <div class="column-board">
-      <div class="column-title">
-        ❷ 和樂邨 (北行：往秀茂坪/將軍澳/順利)
-        <span class="column-title-en">Wo Lok Estate Northbound (Hills / TKO Bound)</span>
+      <div class="column-header-title">
+        ❷ 和樂邨 (北行：往秀茂坪/將軍澳)
+        <span class="sub">Wo Lok Estate Northbound</span>
+      </div>
+      <div class="table-head">
+        <div>順序<span>Order</span></div>
+        <div>種別<span>Train</span></div>
+        <div>行先<span>Destination</span></div>
+        <div>發車時刻<span>Dep.Time</span></div>
       </div>
       <div class="column-scroll-wrapper" id="wrap-2">
         <div class="column-body" id="col-2"></div>
@@ -236,9 +339,15 @@
     </div>
 
     <div class="column-board">
-      <div class="column-title">
+      <div class="column-header-title">
         ❸ 翠屏北邨/寶佩苑 (往市區/沙田)
-        <span class="column-title-en">Tsui Ping North / Po Peui Court (Urban Bound)</span>
+        <span class="sub">Tsui Ping North (Urban Bound)</span>
+      </div>
+      <div class="table-head">
+        <div>順序<span>Order</span></div>
+        <div>種別<span>Train</span></div>
+        <div>行先<span>Destination</span></div>
+        <div>發車時刻<span>Dep.Time</span></div>
       </div>
       <div class="column-scroll-wrapper" id="wrap-3">
         <div class="column-body" id="col-3"></div>
@@ -246,9 +355,15 @@
     </div>
 
     <div class="column-board">
-      <div class="column-title">
+      <div class="column-header-title">
         ❹ 翠屏北邨/寶佩苑 (往山上/藍田)
-        <span class="column-title-en">Tsui Ping North / Po Peui Court (Hills Bound)</span>
+        <span class="sub">Tsui Ping North (Hills Bound)</span>
+      </div>
+      <div class="table-head">
+        <div>順序<span>Order</span></div>
+        <div>種別<span>Train</span></div>
+        <div>行先<span>Destination</span></div>
+        <div>發車時刻<span>Dep.Time</span></div>
       </div>
       <div class="column-scroll-wrapper" id="wrap-4">
         <div class="column-body" id="col-4"></div>
@@ -256,18 +371,21 @@
     </div>
   </div>
 
+  <div class="keikyu-ticker">
+    <div class="ticker-text">
+      數碼翻頁式顯示屏運作中：模擬青物橫丁站與上大岡站新陽社 Split-Flap LCD 渲染技術。請留意月台安全。
+    </div>
+  </div>
+
   <script>
-    // 嚴格對照圖片與實際站點硬編碼路線名單
     const COLUMNS_CONFIG = [
       {
-        elementId: "col-1",
-        wrapperId: "wrap-1",
-        stopId: "2F781DA610D69539", // 和樂邨 南行 (HI04-S-1250-0 / 1200-0 / 1150-0)
+        elementId: "col-1", wrapperId: "wrap-1", stopId: "2F781DA610D69539",
         routes: [
           { route: "1A", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
           { route: "11X", dest: "紅磡站", destEn: "Hung Hom Station" },
           { route: "13D", dest: "維港灣", destEn: "Island Harbourview" },
-          { route: "13M", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong (Elegance Rd)" },
+          { route: "13M", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong" },
           { route: "13P", dest: "長沙灣 (麗閣邨)", destEn: "Cheung Sha Wan" },
           { route: "23", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
           { route: "23M", dest: "樂華", destEn: "Lok Wah" },
@@ -276,21 +394,19 @@
           { route: "89", dest: "瀝源", destEn: "Lek Yuen" },
           { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" },
           { route: "93A", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
-          { route: "93K", dest: "旺角東站", destEn: "Mong Kok East Station" },
+          { route: "93K", dest: "旺角東站", destEn: "Mong Kok East" },
           { route: "601", dest: "金鐘 (東)", destEn: "Admiralty (East)" },
           { route: "601P", dest: "上環", destEn: "Sheung Wan" },
-          { route: "N293", dest: "旺角 (柏景灣)", destEn: "Mong Kok (Park Avenue)" }
+          { route: "N293", dest: "旺角 (柏景灣)", destEn: "Mong Kok" }
         ]
       },
       {
-        elementId: "col-2",
-        wrapperId: "wrap-2",
-        stopId: "A28469C365DE1A45", // 和樂邨 北行 (HI04-N-1175-0 至 1000-0)
+        elementId: "col-2", wrapperId: "wrap-2", stopId: "A28469C365DE1A45",
         routes: [
-          { route: "1A", dest: "中秀茂坪", destEn: "Sau Mau Ping (Central)" },
+          { route: "1A", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
           { route: "11X", dest: "安泰 (北)", destEn: "On Tai (North)" },
           { route: "13D", dest: "寶達", destEn: "Po Tat" },
-          { route: "14H", dest: "順利 (經聯合醫院)", destEn: "Shun Lee (via UCH)" },
+          { route: "14H", dest: "順利", destEn: "Shun Lee" },
           { route: "23", dest: "順利", destEn: "Shun Lee" },
           { route: "23M", dest: "順利", destEn: "Shun Lee" },
           { route: "26M", dest: "彩虹", destEn: "Choi Hung" },
@@ -303,25 +419,21 @@
         ]
       },
       {
-        elementId: "col-3",
-        wrapperId: "wrap-3",
-        stopId: "18492910339410B1", // 翠屏北邨/寶佩苑 往市區
+        elementId: "col-3", wrapperId: "wrap-3", stopId: "18492910339410B1",
         routes: [
-          { route: "11B", dest: "九龍城碼頭", destEn: "Kowloon City Ferry" },
+          { route: "11B", dest: "九龍城碼頭", destEn: "Kowloon City" },
           { route: "11C", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
           { route: "89C", dest: "恆安", destEn: "Heng On" },
           { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" }
         ]
       },
       {
-        elementId: "col-4",
-        wrapperId: "wrap-4",
-        stopId: "5A519E870D1CD1D8", // 翠屏北邨/寶佩苑 往山上/藍田
+        elementId: "col-4", wrapperId: "wrap-4", stopId: "5A519E870D1CD1D8",
         routes: [
-          { route: "11B", dest: "觀塘翠屏道", destEn: "Kwun Tong Tsui Ping Rd" },
-          { route: "11C", dest: "上秀茂坪", destEn: "Sau Mau Ping (Upper)" },
+          { route: "11B", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
+          { route: "11C", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
           { route: "13M", dest: "寶達", destEn: "Po Tat" },
-          { route: "89C", dest: "觀塘翠屏道", destEn: "Kwun Tong Tsui Ping Rd" }
+          { route: "89C", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" }
         ]
       }
     ];
@@ -330,98 +442,119 @@
     let scrollOffsets = { "col-1": 0, "col-2": 0, "col-3": 0, "col-4": 0 };
 
     function getBadgeClass(route) {
-      if (route.includes("A") || route.includes("X") || route.startsWith("6")) return "type-nozomi";
-      if (route.startsWith("8") || route.startsWith("2")) return "type-hikari";
-      if (route.startsWith("13") || route.startsWith("11") || route.startsWith("14")) return "type-kodama";
+      if (route.includes("A") || route.includes("X") || route.startsWith("6")) return "type-rapid";
+      if (route.startsWith("8") || route.startsWith("2")) return "type-express";
+      if (route.startsWith("14") || route.startsWith("11")) return "type-semi";
       return "type-local";
     }
 
-    // 初始化渲染 DOM 結構
+    function getOrderLabel(index) {
+      if (index === 0) return { jp: "先発", en: "1st." };
+      if (index === 1) return { jp: "次発", en: "2nd." };
+      if (index === 2) return { jp: "次々発", en: "3rd." };
+      return { jp: "普通", en: `${index + 1}th` };
+    }
+
     function initDOM() {
       COLUMNS_CONFIG.forEach(col => {
         const container = document.getElementById(col.elementId);
         container.innerHTML = '';
-
         fullDataStore[col.stopId] = {};
 
-        col.routes.forEach(r => {
-          fullDataStore[col.stopId][r.route] = {
-            targetTime: null
-          };
+        col.routes.forEach((r, idx) => {
+          fullDataStore[col.stopId][r.route] = { targetTime: null, lastVal: "" };
+          const order = getOrderLabel(idx);
 
           const row = document.createElement('div');
           row.className = 'route-row';
           row.innerHTML = `
-            <div class="badge-col">
-              <span class="shinkansen-badge ${getBadgeClass(r.route)}">${r.route}</span>
+            <div class="order-col">
+              <span class="order-jp">${order.jp}</span>
+              <span class="order-en">${order.en}</span>
+            </div>
+            <div>
+              <div class="type-badge ${getBadgeClass(r.route)}">${r.route}</div>
             </div>
             <div class="dest-col">
-              <div class="dest-main">往 ${r.dest}</div>
-              <div class="dest-sub">FOR ${r.destEn.toUpperCase()}</div>
+              <div class="dest-main">${r.dest}</div>
+              <div class="dest-sub">${r.destEn.toUpperCase()}</div>
             </div>
-            <div class="eta-col no-service" id="eta-${col.stopId}-${r.route}">暫無預定班次</div>
+            <div class="flap-board">
+              <div class="flip-card" id="card-${col.stopId}-${r.route}">
+                <div class="top">----</div>
+                <div class="bottom">----</div>
+              </div>
+              <div class="eta-cars" id="sub-${col.stopId}-${r.route}">無預定</div>
+            </div>
           `;
           container.appendChild(row);
         });
       });
     }
 
-    // 每秒動態計時與文字更新
+    // 觸發 3D 翻頁物理效果
+    function updateFlapValue(stopId, route, newVal, subVal) {
+      const card = document.getElementById(`card-${stopId}-${route}`);
+      const subElem = document.getElementById(`sub-${stopId}-${route}`);
+      if (!card) return;
+
+      const top = card.querySelector('.top');
+      const bottom = card.querySelector('.bottom');
+
+      if (top.innerText !== newVal) {
+        card.classList.add('flipping');
+        setTimeout(() => {
+          top.innerText = newVal;
+          bottom.innerText = newVal;
+          card.classList.remove('flipping');
+        }, 150);
+      }
+
+      if (subElem) subElem.innerText = subVal;
+    }
+
     function tickRealtime() {
       const now = new Date();
-      document.getElementById('clock').innerText = now.toLocaleTimeString('zh-HK', { hour12: false });
+      document.getElementById('clock').innerText = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
 
       COLUMNS_CONFIG.forEach(col => {
         col.routes.forEach(r => {
           const item = fullDataStore[col.stopId]?.[r.route];
-          const elem = document.getElementById(`eta-${col.stopId}-${r.route}`);
 
-          if (elem) {
-            if (item && item.targetTime) {
-              const diffSecs = Math.floor((item.targetTime - now) / 1000);
-              const diffMins = Math.floor(diffSecs / 60);
+          if (item && item.targetTime) {
+            const diffSecs = Math.floor((item.targetTime - now) / 1000);
+            const diffMins = Math.floor(diffSecs / 60);
 
-              if (diffSecs > 0 && diffMins <= 60) {
-                if (diffSecs <= 30) {
-                  elem.innerText = "即將到達";
-                  elem.className = "eta-col arriving";
-                } else {
-                  elem.innerText = `${diffMins} MIN`;
-                  elem.className = "eta-col";
-                }
+            if (diffSecs > 0 && diffMins <= 60) {
+              if (diffSecs <= 30) {
+                updateFlapValue(col.stopId, r.route, "即將", "まもなく");
               } else {
-                elem.innerText = "暫無預定班次";
-                elem.className = "eta-col no-service";
+                const depTimeStr = item.targetTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+                updateFlapValue(col.stopId, r.route, depTimeStr, `${diffMins}分後`);
               }
             } else {
-              elem.innerText = "暫無預定班次";
-              elem.className = "eta-col no-service";
+              updateFlapValue(col.stopId, r.route, "----", "無預定");
             }
+          } else {
+            updateFlapValue(col.stopId, r.route, "----", "無預定");
           }
         });
       });
     }
 
-    // 同時查詢九巴與城巴 API
     async function fetchAPIData() {
       const now = new Date();
-
       for (const col of COLUMNS_CONFIG) {
         try {
-          // 1. 抓取九巴 API
           const resKmb = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`);
           const jsonKmb = await resKmb.json();
 
-          // 重置時間
-          col.routes.forEach(r => {
-            fullDataStore[col.stopId][r.route].targetTime = null;
-          });
+          col.routes.forEach(r => { fullDataStore[col.stopId][r.route].targetTime = null; });
 
           const updateEtaIfEarlier = (route, etaStr) => {
             if (!etaStr) return;
             const etaTime = new Date(etaStr);
             const diffMins = Math.floor((etaTime - now) / 60000);
-
             if (diffMins >= 0 && diffMins <= 60) {
               const currentTarget = fullDataStore[col.stopId][route].targetTime;
               if (!currentTarget || new Date(currentTarget) > etaTime) {
@@ -432,43 +565,29 @@
 
           if (jsonKmb.data) {
             jsonKmb.data.forEach(item => {
-              if (fullDataStore[col.stopId][item.route]) {
-                updateEtaIfEarlier(item.route, item.eta);
-              }
+              if (fullDataStore[col.stopId][item.route]) updateEtaIfEarlier(item.route, item.eta);
             });
           }
 
-          // 2. 針對城巴合營路線 (601, 601P) 補抓城巴 API
           const ctbRoutes = ["601", "601P"];
           for (const r of ctbRoutes) {
             if (col.routes.some(x => x.route === r)) {
               try {
                 const resCtb = await fetch(`https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/${col.stopId}/${r}`);
                 const jsonCtb = await resCtb.json();
-                if (jsonCtb.data) {
-                  jsonCtb.data.forEach(item => {
-                    updateEtaIfEarlier(r, item.eta);
-                  });
-                }
-              } catch (errCtb) {
-                // 城巴 API 抓取失敗時靜默忽略
-              }
+                if (jsonCtb.data) jsonCtb.data.forEach(item => updateEtaIfEarlier(r, item.eta));
+              } catch (e) {}
             }
           }
-
-        } catch (e) {
-          console.error("抓取到站時間失敗:", e);
-        }
+        } catch (e) {}
       }
       tickRealtime();
     }
 
-    // 自動平滑滾動引擎
     function autoScrollEngine() {
       COLUMNS_CONFIG.forEach(col => {
         const wrapper = document.getElementById(col.wrapperId);
         const container = document.getElementById(col.elementId);
-
         if (!wrapper || !container) return;
 
         const wrapperHeight = wrapper.clientHeight;
@@ -476,12 +595,8 @@
 
         if (containerHeight > wrapperHeight) {
           const maxScroll = containerHeight - wrapperHeight + 10;
-          scrollOffsets[col.elementId] += 60;
-
-          if (scrollOffsets[col.elementId] > maxScroll) {
-            scrollOffsets[col.elementId] = 0;
-          }
-
+          scrollOffsets[col.elementId] += 55;
+          if (scrollOffsets[col.elementId] > maxScroll) scrollOffsets[col.elementId] = 0;
           container.style.transform = `translateY(-${scrollOffsets[col.elementId]}px)`;
         } else {
           container.style.transform = `translateY(0px)`;
