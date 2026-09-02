@@ -183,7 +183,7 @@
         <div>路線 <span>Route</span></div>
         <div>時間 <span>Time</span></div>
         <div>目的地 <span>Destination</span></div>
-        <div>月台 <span>Track</span></div>
+        <div>月台 <span>Platform</span></div>
         <div style="text-align: right;">實時狀態 <span>Status</span></div>
       </div>
       <div class="board-scroll-wrapper" id="south-wrap">
@@ -201,7 +201,7 @@
         <div>路線 <span>Route</span></div>
         <div>時間 <span>Time</span></div>
         <div>目的地 <span>Destination</span></div>
-        <div>月台 <span>Track</span></div>
+        <div>月台 <span>Platform</span></div>
         <div style="text-align: right;">實時狀態 <span>Status</span></div>
       </div>
       <div class="board-scroll-wrapper" id="north-wrap">
@@ -214,7 +214,7 @@
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用觀塘東實時巴士發車情報看板。系統自動同步九巴官方 API 數據，時刻表依據即時交通情況調整，請留意上落車安全。
+        歡迎使用觀塘東實時巴士發車情報看板。系統自動同步九巴官方 API 數據，請留意上落車安全。
       </div>
     </div>
   </div>
@@ -241,7 +241,7 @@
       if (route === "28B") return "KT257";
       if (route === "1A") return "KT256";
       if (["11X", "13D", "601", "601P"].includes(route)) return "KT255";
-      return "KT250";
+      return "--";
     }
 
     // 依據參考圖片設定的南行路線月台對應
@@ -249,7 +249,7 @@
       if (["1A", "13D", "13P", "93K"].includes(route)) return "KT537";
       if (["28B", "601", "601P", "N293"].includes(route)) return "KT536";
       if (["11X", "13M", "23", "23M", "26M", "89", "89X", "93A"].includes(route)) return "KT535";
-      return "KT530";
+      return "--";
     }
 
     function getCustomWarningStyle(message) {
