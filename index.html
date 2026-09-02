@@ -1,343 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-HK">
-<head>
-  <meta charset="UTF-8">
-  <title>觀塘東 巴士發車情報看板 - 日本鐵道精準版</title>
-  <!-- 導入最接近日本新ゴ (Shin Go) 鐵道看板字體的 M PLUS 1p -->
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      padding: 0.6vw;
-      background-color: #030508;
-      color: #ffffff;
-      /* 日本鐵道標準字體疊加：M PLUS 1p + Helvetica */
-      font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, "Arial", "Hiragino Kaku Gothic ProN", sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      user-select: none;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .lcd-header {
-      display: flex;
-      align-items: center;
-      background: linear-gradient(180deg, #1b222d, #0f151d);
-      border: 2px solid #333f50;
-      border-radius: 4px;
-      padding: 0.4vw 1vw;
-      margin-bottom: 0.6vw;
-      flex-shrink: 0;
-    }
-
-    .platform-box {
-      background: #00d66c;
-      color: #000000;
-      font-weight: 900;
-      font-size: 2.2vw;
-      padding: 0.1vw 0.8vw;
-      border-radius: 3px;
-      margin-right: 1.2vw;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    }
-
-    .header-title-box { flex-grow: 1; }
-
-    .header-main-title {
-      font-size: 1.5vw;
-      font-weight: 900;
-      color: #ffffff;
-      letter-spacing: 0.05em;
-    }
-
-    .header-sub-title {
-      font-size: 0.7vw;
-      color: #8a99ad;
-      font-weight: 700;
-      font-family: Helvetica, Arial, sans-serif;
-    }
-
-    .header-time-box {
-      background: #000000;
-      border: 1px solid #3a4859;
-      padding: 0.2vw 0.8vw;
-      border-radius: 3px;
-      text-align: right;
-    }
-
-    .header-time-label {
-      font-size: 0.55vw;
-      color: #8a99ad;
-      font-weight: 700;
-    }
-
-    .header-time-val {
-      font-size: 1.7vw;
-      font-weight: 900;
-      color: #38bdf8;
-      font-family: Helvetica, Arial, sans-serif;
-      letter-spacing: 0.05em;
-    }
-
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.6vw;
-      flex-grow: 1;
-      height: calc(100vh - 8.5vw);
-      overflow: hidden;
-    }
-
-    .column-board {
-      border: 2px solid #232d3b;
-      border-radius: 4px;
-      background: #070a0f;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .column-header-title {
-      background: #131a24;
-      color: #f3f4f6;
-      font-size: 0.9vw;
-      font-weight: 800;
-      padding: 0.5vw;
-      text-align: center;
-      border-bottom: 2px solid #232d3b;
-      flex-shrink: 0;
-      letter-spacing: 0.03em;
-    }
-
-    .column-header-title .sub {
-      font-size: 0.6vw;
-      color: #6b7c93;
-      display: block;
-      font-weight: 700;
-      font-family: Helvetica, Arial, sans-serif;
-    }
-
-    .table-head {
-      display: grid;
-      grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr;
-      background: #1b2330;
-      padding: 0.3vw 0.4vw;
-      font-size: 0.65vw;
-      font-weight: 800;
-      color: #cbd5e1;
-      text-align: center;
-      border-bottom: 1px solid #2b3648;
-      flex-shrink: 0;
-    }
-
-    .table-head span {
-      display: block;
-      font-size: 0.5vw;
-      color: #718096;
-      font-weight: 700;
-      font-family: Helvetica, Arial, sans-serif;
-    }
-
-    .column-scroll-wrapper {
-      flex-grow: 1;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .column-body {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      padding: 3px;
-      position: absolute;
-      width: 100%;
-      top: 0;
-      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-
-    .route-row {
-      display: grid;
-      grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr;
-      align-items: center;
-      padding: 0.35vw 0.3vw;
-      background: #0d121a;
-      border-radius: 2px;
-      height: 3.5vw;
-      border-bottom: 1px solid #161e2b;
-    }
-
-    .order-col { text-align: center; }
-    .order-hk { font-size: 0.85vw; color: #ffffff; font-weight: 900; }
-    .order-en { font-size: 0.5vw; color: #64748b; font-weight: 700; font-family: Helvetica, Arial, sans-serif; }
-
-    .type-badge {
-      font-size: 1vw;
-      font-weight: 900;
-      padding: 0.2vw 0;
-      border-radius: 2px;
-      color: #ffffff;
-      text-align: center;
-      width: 92%;
-      margin: 0 auto;
-      font-family: Helvetica, Arial, "M PLUS 1p", sans-serif;
-    }
-    .type-rapid { background: #e11d48; }
-    .type-express { background: #0284c7; }
-    .type-semi { background: #16a34a; }
-    .type-local { background: #475569; }
-
-    .dest-col { text-align: left; padding-left: 0.4vw; overflow: hidden; }
-    .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
-    .dest-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; font-family: Helvetica, Arial, sans-serif; white-space: nowrap; }
-
-    .time-col { text-align: right; padding-right: 0.4vw; }
-
-    .time-main {
-      font-size: 1.3vw;
-      font-weight: 900;
-      color: #38bdf8;
-      font-family: Helvetica, Arial, sans-serif;
-      line-height: 1;
-    }
-
-    .time-sub {
-      font-size: 0.55vw;
-      color: #fbbf24;
-      font-weight: 800;
-      margin-top: 2px;
-    }
-
-    .lcd-ticker {
-      height: 2.2vw;
-      background: #000000;
-      border: 2px solid #232d3b;
-      border-radius: 4px;
-      margin-top: 0.4vw;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      padding: 0 1vw;
-      flex-shrink: 0;
-    }
-
-    .ticker-tag {
-      background: #dc2626;
-      color: #ffffff;
-      font-size: 0.65vw;
-      font-weight: 900;
-      padding: 0.15vw 0.5vw;
-      border-radius: 2px;
-      margin-right: 1vw;
-      flex-shrink: 0;
-    }
-
-    .ticker-text {
-      font-size: 0.9vw;
-      color: #f1f5f9;
-      white-space: nowrap;
-      font-weight: 700;
-      animation: ticker 28s linear infinite;
-    }
-
-    @keyframes ticker {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="lcd-header">
-    <div class="platform-box">3</div>
-    <div class="header-title-box">
-      <div class="header-main-title">觀塘東 方面巴士發車導覽</div>
-      <div class="header-sub-title">Kwun Tong East Area Bus Departure Information</div>
-    </div>
-    <div class="header-time-box">
-      <div class="header-time-label">現時時間 Current Time</div>
-      <div class="header-time-val" id="clock">00:00</div>
-    </div>
-  </div>
-
-  <div class="grid-container">
-    <div class="column-board">
-      <div class="column-header-title">
-        ❶ 和樂邨 (南行：往觀塘/市區)
-        <span class="sub">Wo Lok Estate Southbound</span>
-      </div>
-      <div class="table-head">
-        <div>班次<span>Order</span></div>
-        <div>路線<span>Route</span></div>
-        <div>目的地<span>Destination</span></div>
-        <div>開出時間<span>Dep. Time</span></div>
-      </div>
-      <div class="column-scroll-wrapper" id="wrap-1">
-        <div class="column-body" id="col-1"></div>
-      </div>
-    </div>
-
-    <div class="column-board">
-      <div class="column-header-title">
-        ❷ 和樂邨 (北行：往秀茂坪/將軍澳)
-        <span class="sub">Wo Lok Estate Northbound</span>
-      </div>
-      <div class="table-head">
-        <div>班次<span>Order</span></div>
-        <div>路線<span>Route</span></div>
-        <div>目的地<span>Destination</span></div>
-        <div>開出時間<span>Dep. Time</span></div>
-      </div>
-      <div class="column-scroll-wrapper" id="wrap-2">
-        <div class="column-body" id="col-2"></div>
-      </div>
-    </div>
-
-    <div class="column-board">
-      <div class="column-header-title">
-        ❸ 翠屏北邨/寶佩苑 (往市區/沙田)
-        <span class="sub">Tsui Ping North (Urban Bound)</span>
-      </div>
-      <div class="table-head">
-        <div>班次<span>Order</span></div>
-        <div>路線<span>Route</span></div>
-        <div>目的地<span>Destination</span></div>
-        <div>開出時間<span>Dep. Time</span></div>
-      </div>
-      <div class="column-scroll-wrapper" id="wrap-3">
-        <div class="column-body" id="col-3"></div>
-      </div>
-    </div>
-
-    <div class="column-board">
-      <div class="column-header-title">
-        ❹ 翠屏北邨/寶佩苑 (往山上/藍田)
-        <span class="sub">Tsui Ping North (Hills Bound)</span>
-      </div>
-      <div class="table-head">
-        <div>班次<span>Order</span></div>
-        <div>路線<span>Route</span></div>
-        <div>目的地<span>Destination</span></div>
-        <div>開出時間<span>Dep. Time</span></div>
-      </div>
-      <div class="column-scroll-wrapper" id="wrap-4">
-        <div class="column-body" id="col-4"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="lcd-ticker">
-    <div class="ticker-tag">運行情報</div>
-    <div class="ticker-text">
-      歡迎使用觀塘東實時巴士發車情報看板。數據每 20 秒自動同步九巴官方 API，請注意候車安全。
-    </div>
-  </div>
-
-  <script>
-    // 配置對應的車站 ID (stop_id) 確保數據精準
+<script>
     const COLUMNS_CONFIG = [
       {
         elementId: "col-1", wrapperId: "wrap-1", colKey: "col1",
@@ -418,7 +79,7 @@
         fullDataStore[col.colKey] = {};
 
         col.routes.forEach((r, idx) => {
-          fullDataStore[col.colKey][r.route] = { targetTime: null, rmk: '' };
+          fullDataStore[col.colKey][r.route] = { targetTime: null };
           const order = getOrderLabel(idx);
 
           const row = document.createElement('div');
@@ -481,27 +142,29 @@
       });
     }
 
-    // 採用九巴「路線-車站 API」獲得準確該站 ETA 數據
+    // 採用分批 API 請求，防範 API 頻率限制
     async function fetchAPIData() {
       for (const col of COLUMNS_CONFIG) {
         for (const r of col.routes) {
           try {
-            const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/eta/${r.stopId}/${r.route}/1`);
+            // 使用更寬鬆的九巴車站 ETA API 查詢
+            const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${r.stopId}`;
+            const res = await fetch(url);
+            if (!res.ok) continue;
+            
             const json = await res.json();
 
             if (json.data && json.data.length > 0) {
-              // 過濾出方向與有時間數據的項目
-              const validEta = json.data.find(item => item.dir === r.dir && item.eta);
-              if (validEta && validEta.eta) {
-                fullDataStore[col.colKey][r.route].targetTime = new Date(validEta.eta);
+              // 篩選出匹配該路線且有時間數據的第一班車
+              const match = json.data.find(item => item.route === r.route && item.eta);
+              if (match && match.eta) {
+                fullDataStore[col.colKey][r.route].targetTime = new Date(match.eta);
               } else {
                 fullDataStore[col.colKey][r.route].targetTime = null;
               }
-            } else {
-              fullDataStore[col.colKey][r.route].targetTime = null;
             }
           } catch (e) {
-            console.error(`路線 ${r.route} 數據獲取失敗:`, e);
+            console.warn(`獲取 ${r.route} 數據出錯:`, e);
           }
         }
       }
@@ -535,6 +198,3 @@
     setInterval(fetchAPIData, 20000);
     setInterval(autoScrollEngine, 4000);
   </script>
-
-</body>
-</html>
