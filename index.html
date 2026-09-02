@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東 巴士到站發車看板 - 全路線滾動版</title>
+  <title>觀塘東 巴士到站發車看板 - 全路線完全體</title>
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <style>
     body {
@@ -18,7 +18,7 @@
       overflow: hidden;
     }
 
-    /* 頂部 JR 頂欄 */
+    /* 頂部車站金屬質感頂欄 */
     .shinkansen-header {
       display: flex;
       justify-content: space-between;
@@ -51,6 +51,7 @@
       letter-spacing: 1px;
     }
 
+    /* JR 新幹線風格 LED 數碼時鐘 */
     .shinkansen-clock {
       font-family: 'VT323', monospace;
       font-size: 3.2vw;
@@ -207,7 +208,7 @@
 
   <div class="shinkansen-header">
     <div class="header-title">
-      <span class="jr-tag">KMB ETA</span>
+      <span class="jr-tag">KMB / CTB ETA</span>
       觀塘東 巴士到站時間看板 (全路線實時滾動)
     </div>
     <div class="shinkansen-clock" id="clock">00:00:00</div>
@@ -216,8 +217,8 @@
   <div class="grid-container">
     <div class="column-board">
       <div class="column-title">
-        ❶ 和樂邨 (往觀塘站/市區)
-        <span class="column-title-en">Wo Lok Estate (Urban Bound)</span>
+        ❶ 和樂邨 (南行：往觀塘/市區/港島)
+        <span class="column-title-en">Wo Lok Estate Southbound (Urban / HK Island Bound)</span>
       </div>
       <div class="column-scroll-wrapper" id="wrap-1">
         <div class="column-body" id="col-1"></div>
@@ -226,8 +227,8 @@
 
     <div class="column-board">
       <div class="column-title">
-        ❷ 和樂邨 (往秀茂坪/山上)
-        <span class="column-title-en">Wo Lok Estate (Hills Bound)</span>
+        ❷ 和樂邨 (北行：往秀茂坪/將軍澳/順利)
+        <span class="column-title-en">Wo Lok Estate Northbound (Hills / TKO Bound)</span>
       </div>
       <div class="column-scroll-wrapper" id="wrap-2">
         <div class="column-body" id="col-2"></div>
@@ -236,7 +237,7 @@
 
     <div class="column-board">
       <div class="column-title">
-        ❸ 翠屏北邨/寶佩苑 (往市區)
+        ❸ 翠屏北邨/寶佩苑 (往市區/沙田)
         <span class="column-title-en">Tsui Ping North / Po Peui Court (Urban Bound)</span>
       </div>
       <div class="column-scroll-wrapper" id="wrap-3">
@@ -256,50 +257,144 @@
   </div>
 
   <script>
+    // 嚴格對照圖片與實際站點硬編碼路線名單
     const COLUMNS_CONFIG = [
-      { elementId: "col-1", wrapperId: "wrap-1", stopId: "2F781DA610D69539" }, // 和樂邨 往市區
-      { elementId: "col-2", wrapperId: "wrap-2", stopId: "A28469C365DE1A45" }, // 和樂邨 往山上
-      { elementId: "col-3", wrapperId: "wrap-3", stopId: "18492910339410B1" }, // 翠屏 往市區
-      { elementId: "col-4", wrapperId: "wrap-4", stopId: "5A519E870D1CD1D8" }  // 翠屏 往山上
+      {
+        elementId: "col-1",
+        wrapperId: "wrap-1",
+        stopId: "2F781DA610D69539", // 和樂邨 南行 (HI04-S-1250-0 / 1200-0 / 1150-0)
+        routes: [
+          { route: "1A", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
+          { route: "11X", dest: "紅磡站", destEn: "Hung Hom Station" },
+          { route: "13D", dest: "維港灣", destEn: "Island Harbourview" },
+          { route: "13M", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong (Elegance Rd)" },
+          { route: "13P", dest: "長沙灣 (麗閣邨)", destEn: "Cheung Sha Wan" },
+          { route: "23", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
+          { route: "23M", dest: "樂華", destEn: "Lok Wah" },
+          { route: "26M", dest: "觀塘", destEn: "Kwun Tong" },
+          { route: "28B", dest: "啟德 (啟晴邨)", destEn: "Kai Tak" },
+          { route: "89", dest: "瀝源", destEn: "Lek Yuen" },
+          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" },
+          { route: "93A", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
+          { route: "93K", dest: "旺角東站", destEn: "Mong Kok East Station" },
+          { route: "601", dest: "金鐘 (東)", destEn: "Admiralty (East)" },
+          { route: "601P", dest: "上環", destEn: "Sheung Wan" },
+          { route: "N293", dest: "旺角 (柏景灣)", destEn: "Mong Kok (Park Avenue)" }
+        ]
+      },
+      {
+        elementId: "col-2",
+        wrapperId: "wrap-2",
+        stopId: "A28469C365DE1A45", // 和樂邨 北行 (HI04-N-1175-0 至 1000-0)
+        routes: [
+          { route: "1A", dest: "中秀茂坪", destEn: "Sau Mau Ping (Central)" },
+          { route: "11X", dest: "安泰 (北)", destEn: "On Tai (North)" },
+          { route: "13D", dest: "寶達", destEn: "Po Tat" },
+          { route: "14H", dest: "順利 (經聯合醫院)", destEn: "Shun Lee (via UCH)" },
+          { route: "23", dest: "順利", destEn: "Shun Lee" },
+          { route: "23M", dest: "順利", destEn: "Shun Lee" },
+          { route: "26M", dest: "彩虹", destEn: "Choi Hung" },
+          { route: "28B", dest: "彩福", destEn: "Choi Fook" },
+          { route: "93A", dest: "寶林", destEn: "Po Lam" },
+          { route: "93K", dest: "翠林", destEn: "Tsui Lam" },
+          { route: "601", dest: "寶達", destEn: "Po Tat" },
+          { route: "601P", dest: "寶達", destEn: "Po Tat" },
+          { route: "N293", dest: "尚德", destEn: "Sheung Tak" }
+        ]
+      },
+      {
+        elementId: "col-3",
+        wrapperId: "wrap-3",
+        stopId: "18492910339410B1", // 翠屏北邨/寶佩苑 往市區
+        routes: [
+          { route: "11B", dest: "九龍城碼頭", destEn: "Kowloon City Ferry" },
+          { route: "11C", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
+          { route: "89C", dest: "恆安", destEn: "Heng On" },
+          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" }
+        ]
+      },
+      {
+        elementId: "col-4",
+        wrapperId: "wrap-4",
+        stopId: "5A519E870D1CD1D8", // 翠屏北邨/寶佩苑 往山上/藍田
+        routes: [
+          { route: "11B", dest: "觀塘翠屏道", destEn: "Kwun Tong Tsui Ping Rd" },
+          { route: "11C", dest: "上秀茂坪", destEn: "Sau Mau Ping (Upper)" },
+          { route: "13M", dest: "寶達", destEn: "Po Tat" },
+          { route: "89C", dest: "觀塘翠屏道", destEn: "Kwun Tong Tsui Ping Rd" }
+        ]
+      }
     ];
 
-    let fullDataStore = {}; 
+    let fullDataStore = {};
     let scrollOffsets = { "col-1": 0, "col-2": 0, "col-3": 0, "col-4": 0 };
 
-    // 隨機配對 JR 新幹線樣式
     function getBadgeClass(route) {
-      if (route.includes("A") || route.includes("X")) return "type-nozomi";
+      if (route.includes("A") || route.includes("X") || route.startsWith("6")) return "type-nozomi";
       if (route.startsWith("8") || route.startsWith("2")) return "type-hikari";
-      if (route.startsWith("13") || route.startsWith("11")) return "type-kodama";
+      if (route.startsWith("13") || route.startsWith("11") || route.startsWith("14")) return "type-kodama";
       return "type-local";
     }
 
-    // 秒級更新時鐘與倒數
+    // 初始化渲染 DOM 結構
+    function initDOM() {
+      COLUMNS_CONFIG.forEach(col => {
+        const container = document.getElementById(col.elementId);
+        container.innerHTML = '';
+
+        fullDataStore[col.stopId] = {};
+
+        col.routes.forEach(r => {
+          fullDataStore[col.stopId][r.route] = {
+            targetTime: null
+          };
+
+          const row = document.createElement('div');
+          row.className = 'route-row';
+          row.innerHTML = `
+            <div class="badge-col">
+              <span class="shinkansen-badge ${getBadgeClass(r.route)}">${r.route}</span>
+            </div>
+            <div class="dest-col">
+              <div class="dest-main">往 ${r.dest}</div>
+              <div class="dest-sub">FOR ${r.destEn.toUpperCase()}</div>
+            </div>
+            <div class="eta-col no-service" id="eta-${col.stopId}-${r.route}">暫無預定班次</div>
+          `;
+          container.appendChild(row);
+        });
+      });
+    }
+
+    // 每秒動態計時與文字更新
     function tickRealtime() {
       const now = new Date();
       document.getElementById('clock').innerText = now.toLocaleTimeString('zh-HK', { hour12: false });
 
       COLUMNS_CONFIG.forEach(col => {
-        const routesObj = fullDataStore[col.stopId] || {};
-        
-        Object.keys(routesObj).forEach(route => {
-          const item = routesObj[route];
-          const elem = document.getElementById(`eta-${col.stopId}-${route}`);
+        col.routes.forEach(r => {
+          const item = fullDataStore[col.stopId]?.[r.route];
+          const elem = document.getElementById(`eta-${col.stopId}-${r.route}`);
 
           if (elem) {
-            if (item.targetTime) {
+            if (item && item.targetTime) {
               const diffSecs = Math.floor((item.targetTime - now) / 1000);
               const diffMins = Math.floor(diffSecs / 60);
 
-              if (diffSecs <= 30) {
-                elem.innerText = "即將到達";
-                elem.className = "eta-col arriving";
+              if (diffSecs > 0 && diffMins <= 60) {
+                if (diffSecs <= 30) {
+                  elem.innerText = "即將到達";
+                  elem.className = "eta-col arriving";
+                } else {
+                  elem.innerText = `${diffMins} MIN`;
+                  elem.className = "eta-col";
+                }
               } else {
-                elem.innerText = `${diffMins} MIN`;
-                elem.className = "eta-col";
+                elem.innerText = "暫無預定班次";
+                elem.className = "eta-col no-service";
               }
             } else {
-              elem.innerText = "暫無預定";
+              elem.innerText = "暫無預定班次";
               elem.className = "eta-col no-service";
             }
           }
@@ -307,83 +402,68 @@
       });
     }
 
-    // 抓取全途經路線數據
+    // 同時查詢九巴與城巴 API
     async function fetchAPIData() {
       const now = new Date();
 
       for (const col of COLUMNS_CONFIG) {
         try {
-          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`);
-          const json = await res.json();
+          // 1. 抓取九巴 API
+          const resKmb = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`);
+          const jsonKmb = await resKmb.json();
 
-          if (json.data) {
-            let routesMap = {};
+          // 重置時間
+          col.routes.forEach(r => {
+            fullDataStore[col.stopId][r.route].targetTime = null;
+          });
 
-            json.data.forEach(item => {
-              const route = item.route;
-              if (!routesMap[route]) {
-                routesMap[route] = {
-                  route: route,
-                  dest: item.dest_tc || "未知目的地",
-                  destEn: item.dest_en || item.dest_tc || "DESTINATION",
-                  targetTime: null
-                };
+          const updateEtaIfEarlier = (route, etaStr) => {
+            if (!etaStr) return;
+            const etaTime = new Date(etaStr);
+            const diffMins = Math.floor((etaTime - now) / 60000);
+
+            if (diffMins >= 0 && diffMins <= 60) {
+              const currentTarget = fullDataStore[col.stopId][route].targetTime;
+              if (!currentTarget || new Date(currentTarget) > etaTime) {
+                fullDataStore[col.stopId][route].targetTime = etaTime;
               }
+            }
+          };
 
-              if (item.eta) {
-                const etaTime = new Date(item.eta);
-                if (etaTime > now) {
-                  if (!routesMap[route].targetTime || new Date(routesMap[route].targetTime) > etaTime) {
-                    routesMap[route].targetTime = etaTime;
-                  }
-                }
+          if (jsonKmb.data) {
+            jsonKmb.data.forEach(item => {
+              if (fullDataStore[col.stopId][item.route]) {
+                updateEtaIfEarlier(item.route, item.eta);
               }
             });
-
-            fullDataStore[col.stopId] = routesMap;
-            renderColumnDOM(col);
           }
+
+          // 2. 針對城巴合營路線 (601, 601P) 補抓城巴 API
+          const ctbRoutes = ["601", "601P"];
+          for (const r of ctbRoutes) {
+            if (col.routes.some(x => x.route === r)) {
+              try {
+                const resCtb = await fetch(`https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/${col.stopId}/${r}`);
+                const jsonCtb = await resCtb.json();
+                if (jsonCtb.data) {
+                  jsonCtb.data.forEach(item => {
+                    updateEtaIfEarlier(r, item.eta);
+                  });
+                }
+              } catch (errCtb) {
+                // 城巴 API 抓取失敗時靜默忽略
+              }
+            }
+          }
+
         } catch (e) {
-          console.error("API 載入失敗", e);
+          console.error("抓取到站時間失敗:", e);
         }
       }
       tickRealtime();
     }
 
-    // 動態渲染 HTML
-    function renderColumnDOM(col) {
-      const container = document.getElementById(col.elementId);
-      const routesObj = fullDataStore[col.stopId] || {};
-      const routesList = Object.values(routesObj);
-
-      // 按路線名稱排序 (例如 1A, 11B, 89X)
-      routesList.sort((a, b) => a.route.localeCompare(b.route, undefined, { numeric: true, sensitivity: 'base' }));
-
-      container.innerHTML = '';
-
-      if (routesList.length === 0) {
-        container.innerHTML = '<div class="route-row"><div class="dest-col" style="grid-column: span 3; text-align:center; color:#64748b;">暫無巴士資料</div></div>';
-        return;
-      }
-
-      routesList.forEach(r => {
-        const row = document.createElement('div');
-        row.className = 'route-row';
-        row.innerHTML = `
-          <div class="badge-col">
-            <span class="shinkansen-badge ${getBadgeClass(r.route)}">${r.route}</span>
-          </div>
-          <div class="dest-col">
-            <div class="dest-main">往 ${r.dest}</div>
-            <div class="dest-sub">FOR ${r.destEn.toUpperCase()}</div>
-          </div>
-          <div class="eta-col no-service" id="eta-${col.stopId}-${r.route}">計算中...</div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    // 超出高度時自動平滑滾動（Auto-scroll Engine）
+    // 自動平滑滾動引擎
     function autoScrollEngine() {
       COLUMNS_CONFIG.forEach(col => {
         const wrapper = document.getElementById(col.wrapperId);
@@ -394,14 +474,12 @@
         const wrapperHeight = wrapper.clientHeight;
         const containerHeight = container.scrollHeight;
 
-        // 如果內容高度 > 容器高度，啟動滾動
         if (containerHeight > wrapperHeight) {
           const maxScroll = containerHeight - wrapperHeight + 10;
-          
-          scrollOffsets[col.elementId] += 60; // 每次滾動一步距離
+          scrollOffsets[col.elementId] += 60;
 
           if (scrollOffsets[col.elementId] > maxScroll) {
-            scrollOffsets[col.elementId] = 0; // 滾到底部後回到頂部
+            scrollOffsets[col.elementId] = 0;
           }
 
           container.style.transform = `translateY(-${scrollOffsets[col.elementId]}px)`;
@@ -412,11 +490,11 @@
       });
     }
 
-    // 啟動程序
+    initDOM();
     fetchAPIData();
-    setInterval(tickRealtime, 1000);     // 1秒實時時鐘
-    setInterval(fetchAPIData, 20000);    // 20秒更新 API
-    setInterval(autoScrollEngine, 4000);  // 4秒自動滾動一格
+    setInterval(tickRealtime, 1000);
+    setInterval(fetchAPIData, 20000);
+    setInterval(autoScrollEngine, 4000);
   </script>
 
 </body>
