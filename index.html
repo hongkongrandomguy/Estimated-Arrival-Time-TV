@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>和樂邨 & 翠屏邨 實時巴士看板</title>
   <style>
-    /* 黑底高對比，適合電視大螢幕顯示 */
     body {
       margin: 0;
       padding: 2vw;
@@ -30,7 +29,6 @@
       gap: 1.2vw;
     }
 
-    /* 單一路線欄位 */
     .route-row {
       display: flex;
       align-items: center;
@@ -47,7 +45,6 @@
       gap: 1.5vw;
     }
 
-    /* 巴士號碼牌 */
     .route-badge {
       font-size: 3vw;
       font-weight: 900;
@@ -55,18 +52,17 @@
       color: #000;
       padding: 0.3vw 1vw;
       border-radius: 0.5vw;
-      min-width: 5vw;
+      min-width: 5.5vw;
       text-align: center;
     }
 
-    /* 車站與目的地 */
     .station-info {
       display: flex;
       flex-direction: column;
     }
 
     .station-name {
-      font-size: 1.5vw;
+      font-size: 1.4vw;
       color: #888;
     }
 
@@ -76,14 +72,12 @@
       color: #ffffff;
     }
 
-    /* 到站時間字體 */
     .time-box {
       font-size: 3.5vw;
       font-weight: 900;
       color: #00e676;
     }
 
-    /* 即將到站醒目提示 */
     .arriving {
       color: #ff3d00 !important;
       animation: blink 1.2s infinite;
@@ -97,16 +91,16 @@
 <body>
 
   <div class="header">
-    <span>和樂邨 / 翠屏邨 巴士看板</span>
+    <span>和樂邨 / 翠屏邨 巴士看板 (僅顯示下一班)</span>
     <span id="clock">00:00</span>
   </div>
 
   <div class="board" id="board">
-    <div style="font-size: 2vw; color: #888;">正從九巴 API 載入車站資料...</div>
+    <div style="font-size: 2vw; color: #888;">正更新最新班次...</div>
   </div>
 
   <script>
-    // 觀塘協和街（和樂邨雙向）& 翠屏道（翠屏邨所有站）九巴官方 ID
+    // 車站設定
     const STATIONS = [
       { id: "A28469C365DE1A45", name: "和樂邨 (往觀塘/秀茂坪)" },
       { id: "2F781DA610D69539", name: "和樂邨 (往九龍灣/旺角)" },
@@ -116,14 +110,16 @@
       { id: "3D5413D39943DC18", name: "觀塘(翠屏道)總站" }
     ];
 
+    // 途經和樂邨/翠屏邨的真實路線白名單 (自動過濾雜訊路線)
+    const VALID_ROUTES = ["1A", "11B", "11C", "11X", "13M", "13P", "89", "89X", "234C", "234D"];
+
     async function fetchAllETA() {
-      // 1. 更新電視右上角時鐘
       const now = new Date();
       document.getElementById('clock').innerText = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
 
-      let allArrivals = [];
+      // 用 Map 來確保「每條路線在每個車站」只保留【下一趟】（最快到的那一班）
+      const nextBusesMap = new Map();
 
-      // 2. 抓取所有指定車站的全線班次資訊
       for (const station of STATIONS) {
         try {
           const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.id}`);
@@ -131,33 +127,35 @@
 
           if (json.data) {
             json.data.forEach(item => {
-              if (item.eta) {
+              // 1. 檢查路線是否為途經的真實路線
+              if (item.eta && VALID_ROUTES.includes(item.route)) {
                 const etaTime = new Date(item.eta);
                 const diffMins = Math.floor((etaTime - now) / 60000);
 
-                // 只過濾出未來 60 分鐘內到達的車
                 if (diffMins >= 0 && diffMins <= 60) {
-                  allArrivals.push({
-                    route: item.route,
-                    dest: item.dest_tc,
-                    stationName: station.name,
-                    mins: diffMins,
-                    etaTime: etaTime
-                  });
+                  // 建立唯一 key：路線 + 目的地 + 車站
+                  const key = `${item.route}-${item.dest_tc}-${station.name}`;
+
+                  // 2. 核心 logic：只保留時間最小（最近）的那一班
+                  if (!nextBusesMap.has(key) || diffMins < nextBusesMap.get(key).mins) {
+                    nextBusesMap.set(key, {
+                      route: item.route,
+                      dest: item.dest_tc,
+                      stationName: station.name,
+                      mins: diffMins
+                    });
+                  }
                 }
               }
             });
           }
         } catch (err) {
-          console.error("抓取車站失敗:", station.name, err);
+          console.error("抓取失敗:", station.name, err);
         }
       }
 
-      // 3. 按照到達時間「剩餘幾分鐘」進行排序 (最快到的排最上面)
-      allArrivals.sort((a, b) => a.mins - b.mins);
-
-      // 4. 只取最快到達的前 8 條班次（電視一竪列最佳閱讀數量）
-      const displayItems = allArrivals.slice(0, 8);
+      // 轉為陣列並按剩餘時間由近到遠排序
+      const displayItems = Array.from(nextBusesMap.values()).sort((a, b) => a.mins - b.mins);
       const board = document.getElementById('board');
       board.innerHTML = '';
 
@@ -166,7 +164,7 @@
         return;
       }
 
-      // 5. 渲染大字體字卡
+      // 渲染畫面（每條路線只佔一行）
       displayItems.forEach(item => {
         let timeText = item.mins <= 0 ? "即將到達" : `${item.mins} 分鐘`;
         let isArriving = item.mins <= 0;
@@ -187,7 +185,6 @@
       });
     }
 
-    // 初次載入與每 20 秒自動刷新
     fetchAllETA();
     setInterval(fetchAllETA, 20000);
   </script>
