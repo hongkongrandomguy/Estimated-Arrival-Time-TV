@@ -12,7 +12,6 @@
       height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
     }
     
-    /* 修正後的頂部資訊欄，採用網格確保各區塊不互相擠壓 */
     .lcd-header {
       display: grid;
       grid-template-columns: auto 1fr auto auto;
@@ -29,25 +28,23 @@
     .header-main-title { font-size: 1.3vw; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 0.8vw; }
     .header-sub-title { font-size: 0.65vw; color: #8a99ad; font-weight: 700; }
     
-    /* 天氣與日期區塊 */
     .header-info-box {
       background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: center;
     }
     .header-info-label { font-size: 0.5vw; color: #8a99ad; font-weight: 700; }
     .header-info-val { font-size: 0.95vw; font-weight: 900; color: #f59e0b; }
 
-    /* 時間區塊 */
     .header-time-box { background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: right; min-width: 6.5vw; }
     .header-time-label { font-size: 0.5vw; color: #8a99ad; font-weight: 700; }
     .header-time-val { font-size: 1.5vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
     
-    /* 警告圖標 */
+    /* 警告圖標樣式容器 */
     .warning-badges { display: flex; gap: 0.3vw; align-items: center; }
     .warn-badge {
-      background: #dc2626; color: #ffffff; font-size: 0.6vw; font-weight: 900;
-      padding: 0.1vw 0.4vw; border-radius: 2px; display: inline-block; white-space: nowrap;
-      animation: pulse-warn 1.5s infinite;
+      font-size: 0.6vw; font-weight: 900; padding: 0.15vw 0.4vw; border-radius: 2px;
+      display: inline-flex; align-items: center; gap: 0.2vw; white-space: nowrap; animation: pulse-warn 1.5s infinite;
     }
+    .warn-badge img { width: 0.9vw; height: 0.9vw; object-fit: contain; }
     @keyframes pulse-warn { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
     .grid-container {
@@ -112,7 +109,7 @@
     </div>
 
     <div class="header-info-box">
-      <div class="header-info-label" id="date-label">日期 Date</div>
+      <div class="header-info-label">日期 Date</div>
       <div class="header-info-val" id="date-text">----/--/--</div>
     </div>
 
@@ -275,6 +272,30 @@
       if (subElem) subElem.innerText = subVal;
     }
 
+    // ==========================================
+    // 💡【官方天氣警告名稱對應設定】
+    // ==========================================
+    function getCustomWarningStyle(message) {
+      if (message.includes("一號戒備信號") || message.includes("三號強風信號") || message.includes("八號") || message.includes("九號") || message.includes("十號")) {
+        return { icon: "icons/typhoon.png", text: "熱帶氣旋", bg: "#e11d48" };
+      } else if (message.includes("強烈季候風信號")) {
+        return { icon: "icons/wind.png", text: "強烈季候風", bg: "#059669" };
+      } else if (message.includes("暴雨警告信號")) {
+        return { icon: "icons/rain.png", text: "暴雨警告", bg: "#0284c7" };
+      } else if (message.includes("雷暴警告")) {
+        return { icon: "icons/thunder.png", text: "雷暴警告", bg: "#d97706" };
+      } else if (message.includes("寒冷天氣警告") || message.includes("酷熱天氣警告") || message.includes("霜凍警告")) {
+        return { icon: "icons/temp.png", text: "天氣溫度", bg: "#7c3aed" };
+      } else if (message.includes("火災危險警告")) {
+        return { icon: "icons/warning.png", text: "火災危險", bg: "#dc2626" };
+      } else if (message.includes("山泥傾瀉警告")) {
+        return { icon: "icons/warning.png", text: "山泥傾瀉", bg: "#b45309" };
+      } else if (message.includes("新界北部水浸特別報告")) {
+        return { icon: "icons/rain.png", text: "新界水浸", bg: "#2563eb" };
+      }
+      return { icon: "icons/warning.png", text: message, bg: "#dc2626" };
+    }
+
     async function fetchWeatherData() {
       try {
         const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
@@ -296,9 +317,13 @@
           warnContainer.innerHTML = '';
           if (data.warningMessage && Array.isArray(data.warningMessage) && data.warningMessage.length > 0) {
             data.warningMessage.forEach(msg => {
+              const custom = getCustomWarningStyle(msg);
               const badge = document.createElement('div');
               badge.className = 'warn-badge';
-              badge.innerText = msg;
+              badge.style.backgroundColor = custom.bg;
+              
+              badge.innerHTML = `<img src="${custom.icon}" alt="icon"> <span>${custom.text}</span>`;
+              badge.title = msg;
               warnContainer.appendChild(badge);
             });
           }
@@ -365,7 +390,7 @@
             }
           }
         } catch (e) {
-          // 網路錯誤維持暫無資料，絕不造假
+          // 網路錯誤保持暫無資料
         }
       }
       tickRealtime();
