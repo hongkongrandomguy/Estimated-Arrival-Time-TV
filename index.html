@@ -159,7 +159,7 @@
 <body>
 
   <div class="lcd-header">
-    <div class="platform-box">測試中 僅供參考 Testing For Reference Only</div>
+    <div class="platform-box">KTMC</div>
     
     <div class="header-title-box">
       <div class="header-main-title">
@@ -225,7 +225,7 @@
     <div class="ticker-tag">Info</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        Thank you for using the KTMC Wo Lok Estate Bus Estimated Arrival Time Display System!
+        測試中 僅供參考 | TESTING IN PROGRESS | FOR REFERENCE ONLY | Thank you for using the KTMC Wo Lok Estate Bus Estimated Arrival Time Display System!
       </div>
     </div>
   </div>
@@ -336,10 +336,15 @@
         
         const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
         
+        // Sort stops by latitude descending to accurately separate Northbound (uphill/higher lat) vs Southbound (downhill/lower lat) stops
+        woLokStops.sort((a, b) => b.lat - a.lat);
+        const midLat = woLokStops.length > 1 ? (woLokStops[0].lat + woLokStops[woLokStops.length - 1].lat) / 2 : 0;
+        
         let apiEtas = [];
         const northKeywords = ["順利", "秀茂坪", "寶達", "安泰", "寶林", "翠林", "康盛", "將軍澳", "彩虹", "彩福", "中秀茂坪", "尚德"];
 
         for (const station of woLokStops) {
+          const isStopNorth = station.lat >= midLat;
           const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stop}`;
           const res = await fetch(url);
           if (res.ok) {
@@ -347,8 +352,13 @@
             if (json.data && Array.isArray(json.data)) {
               json.data.forEach(item => {
                 if (item.eta && item.route) {
-                  const destTextTc = item.dest_tc || "";
-                  const isNorth = northKeywords.some(kw => destTextTc.includes(kw));
+                  // For circular/loop routes like 23M and 26M, destination text is fixed (e.g. "順利"), 
+                  // so physical stop location (isStopNorth) is used to correctly differentiate directions.
+                  let isNorth = isStopNorth;
+                  if (item.route !== "23M" && item.route !== "26M") {
+                    const destTextTc = item.dest_tc || "";
+                    isNorth = northKeywords.some(kw => destTextTc.includes(kw)) || isStopNorth;
+                  }
                   apiEtas.push({
                     route: item.route,
                     isNorth: isNorth,
