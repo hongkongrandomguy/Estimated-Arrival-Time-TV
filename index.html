@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東巴士發車情報看板</title>
+  <title>觀塘東 鐵道風巴士發車情報看板</title>
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -47,44 +47,64 @@
     .warn-badge img { width: 1.8vw; height: 1.8vw; object-fit: contain; background: rgba(0,0,0,0.2); padding: 0.1vw; border-radius: 2px; }
     @keyframes pulse-warn { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
+    /* 雙直列容器設定 */
     .board-container {
-      border: 2px solid #232d3b; border-radius: 4px; background: #05080f; display: flex; flex-direction: column; flex-grow: 1; overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6vw;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    .column-pane {
+      border: 2px solid #232d3b; border-radius: 4px; background: #05080f; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    .column-title {
+      background: #141c28;
+      padding: 0.4vw 0.8vw;
+      font-size: 0.85vw;
+      font-weight: 900;
+      color: #38bdf8;
+      border-bottom: 2px solid #283548;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      letter-spacing: 0.05vw;
     }
     
     .table-head {
       display: grid; 
-      grid-template-columns: 1.2fr 1fr 1.2fr 3fr 1fr 1.5fr; 
-      background: #141c28; 
-      padding: 0.4vw 0.8vw; 
-      font-size: 0.75vw; 
+      grid-template-columns: 1fr 1.1fr 2.2fr 1fr 1.3fr; 
+      background: #101722; 
+      padding: 0.35vw 0.6vw; 
+      font-size: 0.7vw; 
       font-weight: 800; 
       color: #cbd5e1; 
       align-items: center;
-      border-bottom: 2px solid #283548; 
+      border-bottom: 1px solid #283548; 
       flex-shrink: 0;
     }
     .table-head div { display: flex; flex-direction: column; }
-    .table-head span { font-size: 0.5vw; color: #718096; font-weight: 700; text-transform: uppercase; }
+    .table-head span { font-size: 0.45vw; color: #718096; font-weight: 700; text-transform: uppercase; }
 
     .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
     .board-body { display: flex; flex-direction: column; gap: 4px; padding: 4px; position: absolute; width: 100%; top: 0; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
     
     .train-row {
       display: grid; 
-      grid-template-columns: 1.2fr 1fr 1.2fr 3fr 1fr 1.5fr; 
+      grid-template-columns: 1fr 1.1fr 2.2fr 1fr 1.3fr; 
       align-items: center; 
-      padding: 0.4vw 0.8vw; 
+      padding: 0.35vw 0.6vw; 
       background: #0a0f18; 
       border-radius: 3px; 
-      height: 4vw; 
+      height: 3.8vw; 
       border-bottom: 1px solid #131b26;
     }
-    
-    .stop-col { font-size: 0.75vw; font-weight: 800; color: #94a3b8; }
-    .stop-sub { font-size: 0.5vw; color: #64748b; }
 
     .train-badge { 
-      font-size: 1.1vw; font-weight: 900; padding: 0.2vw 0.4vw; border-radius: 3px; 
+      font-size: 1vw; font-weight: 900; padding: 0.15vw 0.3vw; border-radius: 3px; 
       color: #ffffff; text-align: center; width: 85%; display: flex; align-items: center; justify-content: center;
       box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
     }
@@ -94,23 +114,23 @@
     .type-local   { background: #475569; }
 
     .time-col { display: flex; flex-direction: column; }
-    .time-main { font-size: 1.4vw; font-weight: 900; color: #38bdf8; line-height: 1.1; letter-spacing: 0.05vw; }
-    .time-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; }
+    .time-main { font-size: 1.25vw; font-weight: 900; color: #38bdf8; line-height: 1.1; letter-spacing: 0.05vw; }
+    .time-sub { font-size: 0.5vw; color: #94a3b8; font-weight: 700; }
 
-    .dest-col { overflow: hidden; padding-right: 0.5vw; }
-    .dest-main { font-size: 1.2vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
-    .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05vw; }
+    .dest-col { overflow: hidden; padding-right: 0.4vw; }
+    .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .dest-sub { font-size: 0.5vw; color: #94a3b8; white-space: nowrap; text-transform: uppercase; }
 
     .track-col { display: flex; justify-content: center; }
     .track-box {
-      background: #ffffff; color: #000000; font-weight: 900; font-size: 1.3vw;
-      padding: 0.1vw 0.6vw; border-radius: 3px; text-align: center; min-width: 2.2vw;
+      background: #ffffff; color: #000000; font-weight: 900; font-size: 1.1vw;
+      padding: 0.1vw 0.5vw; border-radius: 3px; text-align: center; min-width: 1.8vw;
       box-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
     .status-col { text-align: right; }
-    .status-main { font-size: 1.1vw; font-weight: 900; color: #facc15; }
-    .status-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; }
+    .status-main { font-size: 1vw; font-weight: 900; color: #facc15; }
+    .status-sub { font-size: 0.5vw; color: #94a3b8; font-weight: 700; }
 
     .lcd-ticker {
       height: 2.2vw; background: #000000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.5vw; display: flex; align-items: center; position: relative; overflow: hidden; flex-shrink: 0;
@@ -130,7 +150,7 @@
     
     <div class="header-title-box">
       <div class="header-main-title">
-        巴士發車情報看板
+        觀塘東 巴士發車情報看板
         <div class="warning-badges" id="warning-container"></div>
       </div>
       <div class="header-sub-title">KWUN TONG EAST BUS DEPARTURE INFORMATION BOARD</div>
@@ -147,22 +167,46 @@
     </div>
 
     <div class="header-time-box">
-      <div class="header-info-label">時間 TIME</div>
+      <div class="header-info-label">時刻 TIME</div>
       <div class="header-time-val" id="clock">00:00</div>
     </div>
   </div>
 
   <div class="board-container">
-    <div class="table-head">
-      <div>站位 <span>Location</span></div>
-      <div>路線 <span>Route</span></div>
-      <div>時間 <span>Time</span></div>
-      <div>目的地 <span>Destination</span></div>
-      <div>月台 <span>Track</span></div>
-      <div style="text-align: right;">運行狀態 <span>Status</span></div>
+    <!-- 第一列：和樂邨南行 -->
+    <div class="column-pane">
+      <div class="column-title">
+        <span>和樂邨南行 (SOUTHBOUND)</span>
+        <span style="font-size: 0.7vw; color: #94a3b8;">往九龍/港島方向</span>
+      </div>
+      <div class="table-head">
+        <div>路線 <span>Route</span></div>
+        <div>時刻 <span>Time</span></div>
+        <div>行先 <span>Destination</span></div>
+        <div>月台 <span>Track</span></div>
+        <div style="text-align: right;">運行狀態 <span>Status</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="south-wrap">
+        <div class="board-body" id="south-body"></div>
+      </div>
     </div>
-    <div class="board-scroll-wrapper" id="board-wrap">
-      <div class="board-body" id="board-body"></div>
+
+    <!-- 第二列：和樂邨北行 -->
+    <div class="column-pane">
+      <div class="column-title">
+        <span>和樂邨北行 (NORTHBOUND)</span>
+        <span style="font-size: 0.7vw; color: #94a3b8;">往秀茂坪/寶林方向</span>
+      </div>
+      <div class="table-head">
+        <div>路線 <span>Route</span></div>
+        <div>時刻 <span>Time</span></div>
+        <div>行先 <span>Destination</span></div>
+        <div>月台 <span>Track</span></div>
+        <div style="text-align: right;">運行狀態 <span>Status</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="north-wrap">
+        <div class="board-body" id="north-body"></div>
+      </div>
     </div>
   </div>
 
@@ -170,14 +214,16 @@
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用實時巴士發車情報看板。系統自動同步九巴官方 API 數據，請留意上落車安全。
+        歡迎使用觀塘東鐵道風實時巴士發車情報看板。系統自動同步九巴官方 API 數據，時刻表依據即時交通情況調整，請留意上落車安全。
       </div>
     </div>
   </div>
 
   <script>
-    let allDepartures = [];
-    let scrollOffset = 0;
+    let southDepartures = [];
+    let northDepartures = [];
+    let southScrollOffset = 0;
+    let northScrollOffset = 0;
     let isDataLoaded = false;
 
     function getBadgeClass(route) {
@@ -198,7 +244,7 @@
       if (message.includes("雷暴")) return { icon: "thunder.png", text: "雷暴警告", bg: "#d97706" };
       if (message.includes("寒冷")) return { icon: "cold.png", text: "寒冷天氣", bg: "#2563eb" };
       if (message.includes("酷熱")) return { icon: "hot.png", text: "酷熱天氣", bg: "#d97706" };
-      if (message.includes("水浸")) return { icon: "nt-flood.png", text: "新界北區水浸", bg: "#2563eb" };
+      if (message.includes("水浸")) return { icon: "nt-flood.png", text: "新界水浸", bg: "#2563eb" };
       return { icon: "t1.png", text: message, bg: "#dc2626" };
     }
 
@@ -238,14 +284,14 @@
 
     async function fetchAPIData() {
       try {
-        // 動態獲取九巴所有站點，篩選出所有「和樂邨」相關站點
         const stopRes = await fetch('https://data.etabus.gov.hk/v1/transport/kmb/stop');
         if (!stopRes.ok) return;
         const stopJson = await stopRes.json();
         
         const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
-        let fetchedList = [];
-        let trackIdx = 1;
+        
+        let southList = [];
+        let northList = [];
 
         for (const station of woLokStops) {
           const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stop}`;
@@ -255,48 +301,63 @@
             if (json.data && Array.isArray(json.data)) {
               json.data.forEach(item => {
                 if (item.eta) {
-                  fetchedList.push({
-                    stopName: station.name_tc,
-                    stopEn: station.name_en || "Wo Lok Est",
-                    track: String(trackIdx),
+                  const entry = {
                     route: item.route,
                     dest: item.dest_tc || "指定目的地",
                     destEn: item.dest_en || "DESTINATION",
+                    track: station.stop,
                     etaTime: new Date(item.eta)
-                  });
+                  };
+
+                  // 依據地理緯度分流南北行
+                  if (station.lat) {
+                    if (Number(station.lat) < 22.316) {
+                      southList.push(entry);
+                    } else {
+                      northList.push(entry);
+                    }
+                  } else {
+                    southList.push(entry);
+                  }
                 }
               });
             }
           }
-          trackIdx++;
         }
 
-        fetchedList.sort((a, b) => a.etaTime - b.etaTime);
-        allDepartures = fetchedList;
+        // 獨立進行排序與過濾重複班次
+        southDepartures = cleanAndDeduplicate(southList);
+        northDepartures = cleanAndDeduplicate(northList);
         isDataLoaded = true;
-        renderBoard();
+        renderBoards();
       } catch (e) {
         console.error("API Fetch Error:", e);
       }
     }
 
-    function renderBoard() {
-      const container = document.getElementById('board-body');
-      if (!container) return;
-      container.innerHTML = '';
+    function cleanAndDeduplicate(list) {
+      list.sort((a, b) => a.etaTime - b.etaTime);
+      const seen = new Set();
+      return list.filter(item => {
+        const timeKey = Math.floor(item.etaTime.getTime() / 30000); // 30秒內的重複班次自動過濾
+        const key = `${item.route}-${item.dest}-${timeKey}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
 
+    function renderBoardHTML(departures) {
       if (!isDataLoaded) {
-        container.innerHTML = `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:700;">正在動態同步和樂邨全線班次資訊...</div>`;
-        return;
+        return `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:700;">載入中...</div>`;
       }
-
-      if (allDepartures.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-weight:700; font-size:1vw;">現時該站點暫無實時班次開出 (No Active Departures)</div>`;
-        return;
+      if (departures.length === 0) {
+        return `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-weight:700; font-size:0.9vw;">暫無實時班次</div>`;
       }
 
       const now = new Date();
-      allDepartures.forEach(item => {
+      let html = '';
+      departures.forEach(item => {
         const diffSecs = Math.floor((item.etaTime - now) / 1000);
         const diffMins = Math.floor(diffSecs / 60);
         let statusMain = "";
@@ -314,34 +375,35 @@
           statusSub = `${diffSecs % 60} 秒`;
         }
 
-        const row = document.createElement('div');
-        row.className = 'train-row';
-        row.innerHTML = `
-          <div class="stop-col">
-            <div>${item.stopName}</div>
-            <div class="stop-sub">${item.stopEn}</div>
-          </div>
-          <div>
-            <div class="train-badge ${getBadgeClass(item.route)}">${item.route}</div>
-          </div>
-          <div class="time-col">
-            <div class="time-main">${timeStr}</div>
-            <div class="time-sub">定刻 SCHEDULE</div>
-          </div>
-          <div class="dest-col">
-            <div class="dest-main">${item.dest}</div>
-            <div class="dest-sub">${item.destEn}</div>
-          </div>
-          <div class="track-col">
-            <div class="track-box">${item.track}</div>
-          </div>
-          <div class="status-col">
-            <div class="status-main">${statusMain}</div>
-            <div class="status-sub">${statusSub}</div>
+        html += `
+          <div class="train-row">
+            <div>
+              <div class="train-badge ${getBadgeClass(item.route)}">${item.route}</div>
+            </div>
+            <div class="time-col">
+              <div class="time-main">${timeStr}</div>
+              <div class="time-sub">定刻</div>
+            </div>
+            <div class="dest-col">
+              <div class="dest-main">${item.dest}</div>
+              <div class="dest-sub">${item.destEn}</div>
+            </div>
+            <div class="track-col">
+              <div class="track-box">${item.track.slice(-2)}</div>
+            </div>
+            <div class="status-col">
+              <div class="status-main">${statusMain}</div>
+              <div class="status-sub">${statusSub}</div>
+            </div>
           </div>
         `;
-        container.appendChild(row);
       });
+      return html;
+    }
+
+    function renderBoards() {
+      document.getElementById('south-body').innerHTML = renderBoardHTML(southDepartures);
+      document.getElementById('north-body').innerHTML = renderBoardHTML(northDepartures);
     }
 
     function tickRealtime() {
@@ -349,27 +411,28 @@
       document.getElementById('clock').innerText = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
       document.getElementById('date-text').innerText = now.toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric', weekday: 'short' });
       
-      if (allDepartures.length > 0) {
-        renderBoard();
+      if (isDataLoaded) {
+        renderBoards();
       }
     }
 
     function autoScrollEngine() {
-      const wrapper = document.getElementById('board-wrap');
-      const container = document.getElementById('board-body');
-      if (!wrapper || !container) return;
+      const sWrap = document.getElementById('south-wrap');
+      const sBody = document.getElementById('south-body');
+      if (sWrap && sBody && sBody.scrollHeight > sWrap.clientHeight) {
+        const maxScroll = sBody.scrollHeight - sWrap.clientHeight + 10;
+        southScrollOffset += 64;
+        if (southScrollOffset > maxScroll) southScrollOffset = 0;
+        sBody.style.transform = `translateY(-${southScrollOffset}px)`;
+      }
 
-      const wrapperHeight = wrapper.clientHeight;
-      const containerHeight = container.scrollHeight;
-
-      if (containerHeight > wrapperHeight) {
-        const maxScroll = containerHeight - wrapperHeight + 10;
-        scrollOffset += 68;
-        if (scrollOffset > maxScroll) scrollOffset = 0;
-        container.style.transform = `translateY(-${scrollOffset}px)`;
-      } else {
-        container.style.transform = `translateY(0px)`;
-        scrollOffset = 0;
+      const nWrap = document.getElementById('north-wrap');
+      const nBody = document.getElementById('north-body');
+      if (nWrap && nBody && nBody.scrollHeight > nWrap.clientHeight) {
+        const maxScroll = nBody.scrollHeight - nWrap.clientHeight + 10;
+        northScrollOffset += 64;
+        if (northScrollOffset > maxScroll) northScrollOffset = 0;
+        nBody.style.transform = `translateY(-${northScrollOffset}px)`;
       }
     }
 
