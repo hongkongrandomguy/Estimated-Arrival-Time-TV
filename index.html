@@ -189,7 +189,7 @@
     <div class="column-pane">
       <div class="column-title">
         <span>Southbound (Wo Lok Estate)</span>
-        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨南行 (往觀塘市中心/九龍/港島方向)</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨南行 (KT535, KT536, KT537)</span>
       </div>
       <div class="table-head">
         <div>Route <span>路線</span></div>
@@ -206,7 +206,7 @@
     <div class="column-pane">
       <div class="column-title">
         <span>Northbound (Wo Lok Estate)</span>
-        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨北行 (往順天/順利/秀茂坪/寶林方向)</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨北行 (KT255 - KT260)</span>
       </div>
       <div class="table-head">
         <div>Route <span>路線</span></div>
@@ -328,17 +328,22 @@
       }
     }
 
-    async function fetchStopEtas(stopId) {
-      try {
-        const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stopId}`);
-        if (res.ok) {
-          const json = await res.json();
-          return json.data || [];
+    async function fetchEtasForStopIds(stopIds) {
+      let allEtas = [];
+      for (const stopId of stopIds) {
+        try {
+          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stopId}`);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.data && Array.isArray(json.data)) {
+              allEtas = allEtas.concat(json.data);
+            }
+          }
+        } catch (e) {
+          console.error(`Error fetching stop ${stopId}:`, e);
         }
-      } catch (e) {
-        console.error(`Error fetching ETA for stop ${stopId}:`, e);
       }
-      return [];
+      return allEtas;
     }
 
     function buildRouteList(routeConfig, stopEtas) {
@@ -361,30 +366,19 @@
           dest: configItem.dest,
           destZh: configItem.destZh,
           track: configItem.track,
-           etaTime: bestEta
+          etaTime: bestEta
         };
       }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
     }
 
     async function fetchAPIData() {
       try {
-        // 動態抓取九巴所有站點，精準找出和樂邨南北行的真實九巴 Stop ID
-        const stopRes = await fetch('https://data.etabus.gov.hk/v1/transport/kmb/stop');
-        if (!stopRes.ok) return;
-        const stopJson = await stopRes.json();
-        
-        const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
-        if (woLokStops.length === 0) return;
+        const northStopIds = ["KT255", "KT256", "KT257", "KT258", "KT259", "KT260"];
+        const southStopIds = ["KT535", "KT536", "KT537"];
 
-        // 依緯度排序：緯度較高（山上）為北行站，緯度較低（山下）為南行站
-        woLokStops.sort((a, b) => b.lat - a.lat);
-        const northStopId = woLokStops[0].stop;
-        const southStopId = woLokStops[woLokStops.length - 1].stop;
-
-        // 同步獨立抓取南北行實際站點的即時 ETA 數據
         const [northEtas, southEtas] = await Promise.all([
-          fetchStopEtas(northStopId),
-          fetchStopEtas(southStopId)
+          fetchEtasForStopIds(northStopIds),
+          fetchEtasForStopIds(southStopIds)
         ]);
 
         northDepartures = buildRouteList(NORTH_ROUTES, northEtas);
