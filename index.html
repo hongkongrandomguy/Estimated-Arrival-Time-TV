@@ -106,9 +106,18 @@
     }
 
     .train-badge { 
-      font-size: 1.05vw; font-weight: 500; padding: 0.15vw 0.3vw; border-radius: 3px; 
-      color: #ffffff; text-align: center; width: 85%; display: flex; align-items: center; justify-content: center;
-      box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
+      font-size: 1.55vw; 
+      font-weight: 700; 
+      padding: 0.2vw 0.4vw; 
+      border-radius: 4px; 
+      color: #ffffff; 
+      text-align: center; 
+      width: 95%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
+      letter-spacing: 0.05vw;
     }
     .type-nozomi { background: #16a34a; }
     .type-hikari  { background: #e11d48; }
@@ -132,6 +141,7 @@
 
     .status-col { text-align: right; }
     .status-main { font-size: 1.02vw; font-weight: 400; color: #facc15; }
+    .status-num { font-size: 1.35vw; font-weight: 500; } /* 分鐘數字放大 */
     .status-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; text-transform: uppercase; }
     .status-none { color: #64748b !important; }
 
@@ -149,7 +159,7 @@
 <body>
 
   <div class="lcd-header">
-    <div class="platform-box">E</div>
+    <div class="platform-box">KTMC</div>
     
     <div class="header-title-box">
       <div class="header-main-title">
@@ -411,7 +421,7 @@
             statusMain = "Arriving";
             statusSub = "ARRIVING";
           } else {
-            statusMain = `${diffMins} min${diffMins === 1 ? '' : 's'}`;
+            statusMain = `<span class="status-num">${diffMins}</span> min${diffMins === 1 ? '' : 's'}`;
             statusSub = `${Math.max(0, diffSecs % 60)} sec`;
           }
         }
