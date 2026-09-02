@@ -2,191 +2,316 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>和樂邨 & 翠屏邨 實時巴士看板</title>
+  <title>JR 新幹線 4豎列發車情報 - 和樂邨 & 翠屏</title>
   <style>
     body {
       margin: 0;
-      padding: 2vw;
-      background-color: #0d0d0d;
+      padding: 1vw;
+      background-color: #030303;
       color: #ffffff;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: "Hiragino Kaku Gothic ProN", "Microsoft JhengHei", sans-serif;
+      box-sizing: border-box;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    .header {
+    /* 頂部 JR 頂欄 */
+    .shinkansen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(180deg, #1f252d 0%, #0d1015 100%);
+      border: 2px solid #3a4659;
+      border-radius: 6px;
+      padding: 0.5vw 1.5vw;
+      margin-bottom: 0.8vw;
+    }
+
+    .header-title {
+      font-size: 1.8vw;
+      font-weight: 900;
+      color: #e0f7fa;
+      display: flex;
+      align-items: center;
+      gap: 0.8vw;
+    }
+
+    .jr-tag {
+      background: #0080ff;
+      color: #fff;
+      font-size: 1vw;
+      padding: 0.2vw 0.6vw;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+
+    .shinkansen-clock {
+      font-family: 'Consolas', 'Courier New', monospace;
       font-size: 2.5vw;
-      font-weight: 800;
-      color: #aaa;
-      margin-bottom: 1.5vw;
-      border-bottom: 2px solid #333;
-      padding-bottom: 0.8vw;
-      display: flex;
-      justify-content: space-between;
+      font-weight: bold;
+      color: #00ffcc;
+      text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
     }
 
-    .board {
+    /* 四豎列主容器 */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.8vw;
+      flex-grow: 1;
+    }
+
+    /* 單一豎列看板 */
+    .column-board {
+      border: 2px solid #2a3442;
+      border-radius: 6px;
+      background: #080a0f;
       display: flex;
       flex-direction: column;
-      gap: 1.2vw;
+      overflow: hidden;
     }
 
-    .route-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #1a1a1a;
-      padding: 1.2vw 2vw;
-      border-radius: 0.8vw;
-      border-left: 0.8vw solid #00d26a;
-    }
-
-    .route-info {
-      display: flex;
-      align-items: center;
-      gap: 1.5vw;
-    }
-
-    .route-badge {
-      font-size: 3vw;
-      font-weight: 900;
-      background: #ffd600;
-      color: #000;
-      padding: 0.3vw 1vw;
-      border-radius: 0.5vw;
-      min-width: 5.5vw;
+    /* 欄位頂部標題 */
+    .column-title {
+      background: #161c24;
+      color: #00e5ff;
+      font-size: 1.2vw;
+      font-weight: bold;
+      padding: 0.6vw;
       text-align: center;
+      border-bottom: 2px solid #2a3442;
     }
 
-    .station-info {
+    .column-body {
       display: flex;
       flex-direction: column;
+      gap: 4px;
+      padding: 4px;
+      flex-grow: 1;
     }
 
-    .station-name {
+    /* 卡片行（單一路線） */
+    .route-row {
+      display: grid;
+      grid-template-columns: 0.8fr 1.8fr 1fr;
+      align-items: center;
+      padding: 0.6vw;
+      background: #0d121a;
+      border-bottom: 1px solid #1a222d;
+      border-radius: 4px;
+    }
+
+    .badge-col {
+      display: flex;
+      justify-content: center;
+    }
+
+    .shinkansen-badge {
       font-size: 1.4vw;
-      color: #888;
+      font-weight: 900;
+      padding: 0.2vw 0.6vw;
+      border-radius: 3px;
+      color: #ffffff;
+      text-align: center;
+      min-width: 2.5vw;
     }
 
-    .dest-name {
-      font-size: 2.2vw;
-      font-weight: 700;
+    .type-nozomi { background: linear-gradient(135deg, #dd2c00, #ff6d00); }
+    .type-hikari { background: linear-gradient(135deg, #0091ea, #00b0ff); }
+    .type-kodama { background: linear-gradient(135deg, #002244, #0088cc); }
+    .type-local  { background: linear-gradient(135deg, #2e7d32, #4caf50); }
+
+    .dest-col {
+      text-align: left;
+      padding-left: 0.3vw;
+    }
+
+    .dest-main {
+      font-size: 1.2vw;
+      font-weight: bold;
       color: #ffffff;
     }
 
-    .time-box {
-      font-size: 3.5vw;
-      font-weight: 900;
+    .dest-sub {
+      font-size: 0.7vw;
+      color: #64748b;
+    }
+
+    .eta-col {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 1.4vw;
+      font-weight: bold;
       color: #00e676;
+      text-align: right;
+    }
+
+    .no-service {
+      font-size: 0.9vw;
+      color: #64748b !important;
+      font-weight: normal;
     }
 
     .arriving {
-      color: #ff3d00 !important;
-      animation: blink 1.2s infinite;
+      color: #ff1744 !important;
+      text-shadow: 0 0 6px rgba(255, 23, 68, 0.8);
+      animation: blink 1s infinite;
     }
 
-    @keyframes blink {
-      50% { opacity: 0.3; }
-    }
+    @keyframes blink { 50% { opacity: 0.2; } }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <span>和樂邨 / 翠屏邨 巴士看板 (僅顯示下一班)</span>
-    <span id="clock">00:00</span>
+  <div class="shinkansen-header">
+    <div class="header-title">
+      <span class="jr-tag">SHINKANSEN</span>
+      觀塘東 巴士發車情報看板
+    </div>
+    <div class="shinkansen-clock" id="clock">00:00:00</div>
   </div>
 
-  <div class="board" id="board">
-    <div style="font-size: 2vw; color: #888;">正更新最新班次...</div>
+  <div class="grid-container">
+    <!-- 第一列 -->
+    <div class="column-board">
+      <div class="column-title">❶ 和樂邨 (往觀塘站方向)</div>
+      <div class="column-body" id="col-1"></div>
+    </div>
+    <!-- 第二列 -->
+    <div class="column-board">
+      <div class="column-title">❷ 和樂邨 (往秀茂坪方向)</div>
+      <div class="column-body" id="col-2"></div>
+    </div>
+    <!-- 第三列 -->
+    <div class="column-board">
+      <div class="column-title">❸ 翠屏北邨/寶佩苑 (往觀塘/市區)</div>
+      <div class="column-body" id="col-3"></div>
+    </div>
+    <!-- 第四列 -->
+    <div class="column-board">
+      <div class="column-title">❹ 翠屏北邨/寶佩苑 (往山上/藍田)</div>
+      <div class="column-body" id="col-4"></div>
+    </div>
   </div>
 
   <script>
-    // 車站設定
-    const STATIONS = [
-      { id: "A28469C365DE1A45", name: "和樂邨 (往觀塘/秀茂坪)" },
-      { id: "2F781DA610D69539", name: "和樂邨 (往九龍灣/旺角)" },
-      { id: "18492910339410B1", name: "翠屏邨翠桃樓" },
-      { id: "5A519E870D1CD1D8", name: "翠屏邨翠柏樓" },
-      { id: "C32A8A96E780653B", name: "翠屏邨翠桉樓" },
-      { id: "3D5413D39943DC18", name: "觀塘(翠屏道)總站" }
+    // 定義 4 欄各自要固定顯示的【常態化路線名單】
+    const COLUMNS_CONFIG = [
+      {
+        elementId: "col-1",
+        stopId: "2F781DA610D69539", // 和樂邨 往觀塘站/市區
+        routes: [
+          { route: "1A", dest: "尖沙咀碼頭", class: "type-nozomi" },
+          { route: "11X", dest: "紅磡站", class: "type-hikari" },
+          { route: "13M", dest: "觀塘站", class: "type-kodama" },
+          { route: "89", dest: "瀝源", class: "type-hikari" },
+          { route: "89X", dest: "沙田站", class: "type-nozomi" }
+        ]
+      },
+      {
+        elementId: "col-2",
+        stopId: "A28469C365DE1A45", // 和樂邨 往秀茂坪
+        routes: [
+          { route: "1A", dest: "中秀茂坪", class: "type-nozomi" },
+          { route: "11X", dest: "上秀茂坪", class: "type-hikari" },
+          { route: "13M", dest: "寶達", class: "type-kodama" },
+          { route: "89", dest: "觀塘翠屏道", class: "type-hikari" },
+          { route: "89X", dest: "觀塘翠屏道", class: "type-nozomi" }
+        ]
+      },
+      {
+        elementId: "col-3",
+        stopId: "18492910339410B1", // 翠屏北邨翠桃樓/寶佩苑 (往市區)
+        routes: [
+          { route: "11B", dest: "九龍城碼頭", class: "type-local" },
+          { route: "11C", dest: "竹園邨", class: "type-local" },
+          { route: "89C", dest: "恆安", class: "type-hikari" },
+          { route: "89X", dest: "沙田站", class: "type-nozomi" }
+        ]
+      },
+      {
+        elementId: "col-4",
+        stopId: "5A519E870D1CD1D8", // 翠屏北邨/寶佩苑 (往山上/藍田)
+        routes: [
+          { route: "11B", dest: "觀塘翠屏道", class: "type-local" },
+          { route: "11C", dest: "上秀茂坪", class: "type-local" },
+          { route: "13M", dest: "寶達", class: "type-kodama" },
+          { route: "89C", dest: "觀塘翠屏道", class: "type-hikari" }
+        ]
+      }
     ];
 
-    // 途經和樂邨/翠屏邨的真實路線白名單 (自動過濾雜訊路線)
-    const VALID_ROUTES = ["1A", "11B", "11C", "11X", "13M", "13P", "89", "89X", "234C", "234D"];
-
-    async function fetchAllETA() {
+    async function updateBoard() {
       const now = new Date();
-      document.getElementById('clock').innerText = now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('clock').innerText = now.toLocaleTimeString('zh-TW', { hour12: false });
 
-      // 用 Map 來確保「每條路線在每個車站」只保留【下一趟】（最快到的那一班）
-      const nextBusesMap = new Map();
+      for (const col of COLUMNS_CONFIG) {
+        const container = document.getElementById(col.elementId);
+        let apiDataMap = new Map();
 
-      for (const station of STATIONS) {
+        // 呼叫 API 抓取資料
         try {
-          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.id}`);
+          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`);
           const json = await res.json();
 
           if (json.data) {
             json.data.forEach(item => {
-              // 1. 檢查路線是否為途經的真實路線
-              if (item.eta && VALID_ROUTES.includes(item.route)) {
+              if (item.eta) {
                 const etaTime = new Date(item.eta);
                 const diffMins = Math.floor((etaTime - now) / 60000);
 
                 if (diffMins >= 0 && diffMins <= 60) {
-                  // 建立唯一 key：路線 + 目的地 + 車站
-                  const key = `${item.route}-${item.dest_tc}-${station.name}`;
-
-                  // 2. 核心 logic：只保留時間最小（最近）的那一班
-                  if (!nextBusesMap.has(key) || diffMins < nextBusesMap.get(key).mins) {
-                    nextBusesMap.set(key, {
-                      route: item.route,
-                      dest: item.dest_tc,
-                      stationName: station.name,
-                      mins: diffMins
-                    });
+                  // 每條路線只保留【最近的下一班】
+                  if (!apiDataMap.has(item.route) || diffMins < apiDataMap.get(item.route)) {
+                    apiDataMap.set(item.route, diffMins);
                   }
                 }
               }
             });
           }
-        } catch (err) {
-          console.error("抓取失敗:", station.name, err);
+        } catch (e) {
+          console.error("API 載入失敗", e);
         }
-      }
 
-      // 轉為陣列並按剩餘時間由近到遠排序
-      const displayItems = Array.from(nextBusesMap.values()).sort((a, b) => a.mins - b.mins);
-      const board = document.getElementById('board');
-      board.innerHTML = '';
+        // 清空容器並【常態化渲染每一條指定路線】
+        container.innerHTML = '';
 
-      if (displayItems.length === 0) {
-        board.innerHTML = '<div style="font-size: 2vw; color: #888;">目前暫無即將到達的班次</div>';
-        return;
-      }
+        col.routes.forEach(r => {
+          const hasData = apiDataMap.has(r.route);
+          const mins = hasData ? apiDataMap.get(r.route) : null;
 
-      // 渲染畫面（每條路線只佔一行）
-      displayItems.forEach(item => {
-        let timeText = item.mins <= 0 ? "即將到達" : `${item.mins} 分鐘`;
-        let isArriving = item.mins <= 0;
+          let timeText = "暫無預定";
+          let timeClass = "no-service";
 
-        const row = document.createElement('div');
-        row.className = 'route-row';
-        row.innerHTML = `
-          <div class="route-info">
-            <span class="route-badge">${item.route}</span>
-            <div class="station-info">
-              <span class="dest-name">往 ${item.dest}</span>
-              <span class="station-name">上車點：${item.stationName}</span>
+          if (hasData) {
+            if (mins <= 0) {
+              timeText = "先發";
+              timeClass = "arriving";
+            } else {
+              timeText = `${mins}分`;
+              timeClass = "";
+            }
+          }
+
+          const row = document.createElement('div');
+          row.className = 'route-row';
+          row.innerHTML = `
+            <div class="badge-col">
+              <span class="shinkansen-badge ${r.class}">${r.route}</span>
             </div>
-          </div>
-          <div class="time-box ${isArriving ? 'arriving' : ''}">${timeText}</div>
-        `;
-        board.appendChild(row);
-      });
+            <div class="dest-col">
+              <div class="dest-main">往 ${r.dest}</div>
+              <div class="dest-sub">FOR ${r.dest}</div>
+            </div>
+            <div class="eta-col ${timeClass}">${timeText}</div>
+          `;
+          container.innerHTML += row.outerHTML;
+        });
+      }
     }
 
-    fetchAllETA();
-    setInterval(fetchAllETA, 20000);
+    updateBoard();
+    setInterval(updateBoard, 15000);
   </script>
 
 </body>
