@@ -58,9 +58,11 @@
     .dest-col { text-align: left; padding-left: 0.4vw; overflow: hidden; }
     .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
     .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
+    
+    /* 主次對換：上方改為大字倒數時間，下方為小字到達時間 */
     .time-col { text-align: right; padding-right: 0.4vw; }
-    .time-main { font-size: 1.3vw; font-weight: 900; color: #38bdf8; line-height: 1; }
-    .time-sub { font-size: 0.55vw; color: #fbbf24; font-weight: 800; margin-top: 2px; }
+    .time-main { font-size: 1.3vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
+    .time-sub { font-size: 0.65vw; color: #94a3b8; font-weight: 700; margin-top: 1px; }
 
     .lcd-ticker {
       height: 2.2vw; background: #000000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.4vw; display: flex; align-items: center; position: relative; overflow: hidden; flex-shrink: 0;
@@ -90,22 +92,22 @@
   <div class="grid-container">
     <div class="column-board">
       <div class="column-header-title">❶ 和樂邨 (南行：往觀塘/市區)<span class="sub">Wo Lok Estate Southbound</span></div>
-      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>開出時間<span>Dep. Time</span></div></div>
+      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>預定時間<span>Dep. Time</span></div></div>
       <div class="column-scroll-wrapper" id="wrap-1"><div class="column-body" id="col-1"></div></div>
     </div>
     <div class="column-board">
       <div class="column-header-title">❷ 和樂邨 (北行：往秀茂坪/將軍澳)<span class="sub">Wo Lok Estate Northbound</span></div>
-      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>開出時間<span>Dep. Time</span></div></div>
+      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>預定時間<span>Dep. Time</span></div></div>
       <div class="column-scroll-wrapper" id="wrap-2"><div class="column-body" id="col-2"></div></div>
     </div>
     <div class="column-board">
       <div class="column-header-title">❸ 翠屏北邨/寶佩苑 (往市區/沙田)<span class="sub">Tsui Ping North (Urban Bound)</span></div>
-      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>開出時間<span>Dep. Time</span></div></div>
+      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>預定時間<span>Dep. Time</span></div></div>
       <div class="column-scroll-wrapper" id="wrap-3"><div class="column-body" id="col-3"></div></div>
     </div>
     <div class="column-board">
       <div class="column-header-title">❹ 翠屏北邨/寶佩苑 (往山上/藍田)<span class="sub">Tsui Ping North (Hills Bound)</span></div>
-      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>開出時間<span>Dep. Time</span></div></div>
+      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>預定時間<span>Dep. Time</span></div></div>
       <div class="column-scroll-wrapper" id="wrap-4"><div class="column-body" id="col-4"></div></div>
     </div>
   </div>
@@ -251,10 +253,11 @@
 
             if (diffSecs > -30) {
               if (diffSecs <= 30) {
-                updateLCDValue(col.colKey, r.route, "即將", "即將到站");
+                updateLCDValue(col.colKey, r.route, "即將到站", "---");
               } else {
                 const depTimeStr = item.targetTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-                updateLCDValue(col.colKey, r.route, depTimeStr, `${diffMins} 分鐘`);
+                // 上方主字：幾分鐘；下方副字：實際到達時間
+                updateLCDValue(col.colKey, r.route, `${diffMins} 分鐘`, depTimeStr);
               }
             } else {
               updateLCDValue(col.colKey, r.route, "--:--", "無預定");
@@ -273,7 +276,6 @@
             const json = await res.json();
             if (json.data && Array.isArray(json.data)) {
               col.routes.forEach(r => {
-                // 找出該路線的第一班有 eta 的資料
                 const match = json.data.find(item => item.route === r.route && item.eta);
                 if (match && match.eta) {
                   fullDataStore[col.colKey][r.route].targetTime = new Date(match.eta);
