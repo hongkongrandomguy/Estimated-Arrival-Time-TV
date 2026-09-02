@@ -20,11 +20,29 @@
       padding: 0.1vw 0.8vw; border-radius: 3px; margin-right: 1.2vw;
     }
     .header-title-box { flex-grow: 1; }
-    .header-main-title { font-size: 1.5vw; font-weight: 900; color: #ffffff; }
+    .header-main-title { font-size: 1.5vw; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 1vw; }
     .header-sub-title { font-size: 0.7vw; color: #8a99ad; font-weight: 700; }
-    .header-time-box { background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: right; }
+    
+    /* 天氣與時間資訊區塊 */
+    .header-info-group { display: flex; align-items: center; gap: 0.6vw; }
+    .header-weather-box {
+      background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: right;
+    }
+    .header-weather-label { font-size: 0.55vw; color: #8a99ad; font-weight: 700; }
+    .header-weather-val { font-size: 1vw; font-weight: 900; color: #f59e0b; }
+    
+    /* 警告圖標容器 */
+    .warning-badges { display: flex; gap: 0.3vw; align-items: center; }
+    .warn-badge {
+      background: #dc2626; color: #ffffff; font-size: 0.65vw; font-weight: 900;
+      padding: 0.15vw 0.4vw; border-radius: 2px; display: none; white-space: nowrap;
+      animation: pulse-warn 1.5s infinite;
+    }
+    @keyframes pulse-warn { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+    .header-time-box { background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: right; min-width: 7vw; }
     .header-time-label { font-size: 0.55vw; color: #8a99ad; font-weight: 700; }
-    .header-time-val { font-size: 1.7vw; font-weight: 900; color: #38bdf8; }
+    .header-time-val { font-size: 1.7vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
     
     .grid-container {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6vw; flex-grow: 1; height: calc(100vh - 8.5vw); overflow: hidden;
@@ -59,7 +77,6 @@
     .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
     .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
     
-    /* 主次對換：上方大字倒數時間，下方小字實際到達時間 */
     .time-col { text-align: right; padding-right: 0.4vw; }
     .time-main { font-size: 1.3vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
     .time-sub { font-size: 0.65vw; color: #94a3b8; font-weight: 700; margin-top: 1px; }
@@ -80,12 +97,24 @@
   <div class="lcd-header">
     <div class="platform-box">3</div>
     <div class="header-title-box">
-      <div class="header-main-title">觀塘東 方面巴士發車導覽</div>
-      <div class="header-sub-title">Kwun Tong East Area Bus Departure Information</div>
+      <div class="header-main-title">
+        觀塘東 方面巴士發車導覽
+        <div class="warning-badges" id="warning-container">
+          <!-- 動態載入天氣警告圖標 -->
+        </div>
+      </div>
+      <div class="header-sub-title" id="date-text">2026年9月2日 星期三 | Kwun Tong East Area Bus Departure Information</div>
     </div>
-    <div class="header-time-box">
-      <div class="header-time-label">現時時間 Current Time</div>
-      <div class="header-time-val" id="clock">00:00</div>
+    
+    <div class="header-info-group">
+      <div class="header-weather-box">
+        <div class="header-weather-label" id="weather-desc">天氣狀況</div>
+        <div class="header-weather-val" id="temp-text">--°C</div>
+      </div>
+      <div class="header-time-box">
+        <div class="header-time-label">現時時間 Current Time</div>
+        <div class="header-time-val" id="clock">00:00</div>
+      </div>
     </div>
   </div>
 
@@ -237,11 +266,64 @@
       if (subElem) subElem.innerText = subVal;
     }
 
+    // 抓取香港天文台實時天氣與警告資料
+    async function fetchWeatherData() {
+      try {
+        const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+        if (res.ok) {
+          const data = await res.json();
+          
+          // 更新氣溫
+          if (data.temperature && data.temperature.data) {
+            const hkoTemp = data.temperature.data.find(t => t.place === "香港天文台");
+            if (hkoTemp) {
+              document.getElementById('temp-text').innerText = `${hkoTemp.value}°C`;
+            }
+          }
+
+          // 更新天氣狀況描述 (例如：大致多雲)
+          if (data.icon && data.icon.length > 0) {
+            // 可透過 icon 代號或直接使用文字描述
+          }
+          if (data.mintainWeather && data.mintainWeather.length > 0) {
+            document.getElementById('weather-desc').innerText = data.mintainWeather[0];
+          } else if (data.weatherIcon) {
+            document.getElementById('weather-desc').innerText = "實時天氣";
+          }
+
+          // 更新天氣警告圖標
+          const warnContainer = document.getElementById('warning-container');
+          warnContainer.innerHTML = '';
+          if (data.warningMessage && Array.isArray(data.warningMessage) && data.warningMessage.length > 0) {
+            data.warningMessage.forEach(msg => {
+              const badge = document.createElement('div');
+              badge.className = 'warn-badge';
+              badge.style.display = 'block';
+              badge.innerText = msg;
+              warnContainer.appendChild(badge);
+            });
+          }
+        }
+      } catch (e) {
+        // 略過氣象聯線錯誤
+      }
+    }
+
     function tickRealtime() {
       const now = new Date();
+      
+      // 更新時鐘
       const clockElem = document.getElementById('clock');
       if (clockElem) {
         clockElem.innerText = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+      }
+
+      // 更新日期與星期
+      const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+      const dateStr = now.toLocaleDateString('zh-HK', options);
+      const dateElem = document.getElementById('date-text');
+      if (dateElem) {
+        dateElem.innerText = `${dateStr} | Kwun Tong East Area Bus Departure Information`;
       }
 
       COLUMNS_CONFIG.forEach(col => {
@@ -286,7 +368,7 @@
             }
           }
         } catch (e) {
-          // 網路錯誤時保持原樣或顯示暫無資料
+          // 網路錯誤略過
         }
       }
       tickRealtime();
@@ -316,8 +398,10 @@
     window.addEventListener('DOMContentLoaded', () => {
       initDOM();
       fetchAPIData();
+      fetchWeatherData();
       setInterval(tickRealtime, 1000);
       setInterval(fetchAPIData, 20000);
+      setInterval(fetchWeatherData, 60000); // 每分鐘更新一次天氣
       setInterval(autoScrollEngine, 4000);
     });
   </script>
