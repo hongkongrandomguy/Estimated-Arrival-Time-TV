@@ -59,7 +59,7 @@
     .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
     .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
     
-    /* 主次對換：上方改為大字倒數時間，下方為小字到達時間 */
+    /* 主次對換：上方大字倒數時間，下方小字實際到達時間 */
     .time-col { text-align: right; padding-right: 0.4vw; }
     .time-main { font-size: 1.3vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
     .time-sub { font-size: 0.65vw; color: #94a3b8; font-weight: 700; margin-top: 1px; }
@@ -222,7 +222,7 @@
             </div>
             <div class="time-col">
               <div class="time-main" id="time-${col.colKey}-${r.route}">--:--</div>
-              <div class="time-sub" id="sub-${col.colKey}-${r.route}">無預定</div>
+              <div class="time-sub" id="sub-${col.colKey}-${r.route}">暫無資料</div>
             </div>
           `;
           container.appendChild(row);
@@ -256,11 +256,10 @@
                 updateLCDValue(col.colKey, r.route, "即將到站", "---");
               } else {
                 const depTimeStr = item.targetTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-                // 上方主字：幾分鐘；下方副字：實際到達時間
                 updateLCDValue(col.colKey, r.route, `${diffMins} 分鐘`, depTimeStr);
               }
             } else {
-              updateLCDValue(col.colKey, r.route, "--:--", "無預定");
+              updateLCDValue(col.colKey, r.route, "--:--", "已開出");
             }
           }
         });
@@ -281,13 +280,13 @@
                   fullDataStore[col.colKey][r.route].targetTime = new Date(match.eta);
                 } else {
                   fullDataStore[col.colKey][r.route].targetTime = null;
-                  updateLCDValue(col.colKey, r.route, "--:--", "無預定");
+                  updateLCDValue(col.colKey, r.route, "--:--", "暫無資料");
                 }
               });
             }
           }
         } catch (e) {
-          // 網路錯誤略過
+          // 網路錯誤時保持原樣或顯示暫無資料
         }
       }
       tickRealtime();
