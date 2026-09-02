@@ -141,7 +141,7 @@
 
     .status-col { text-align: right; }
     .status-main { font-size: 1.02vw; font-weight: 400; color: #facc15; }
-    .status-num { font-size: 1.35vw; font-weight: 500; } /* 分鐘數字放大 */
+    .status-num { font-size: 1.35vw; font-weight: 500; }
     .status-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; text-transform: uppercase; }
     .status-none { color: #64748b !important; }
 
@@ -240,7 +240,7 @@
       { route: "23", dest: "Kwun Tong Ferry", destZh: "觀塘碼頭", track: "KT535" },
       { route: "23M", dest: "Lok Wah", destZh: "樂華", track: "KT535" },
       { route: "26M", dest: "Kwun Tong ↺", destZh: "觀塘 ↺", track: "KT535" },
-      { route: "28B", dest: "Kai Tak (Kai Ching Estate)", destZh: "啟德（啟晴邨）", track: "KT536" },
+      { route: "28B", dest: "Kai Tak (Kai Ching Est)", destZh: "啟德（啟晴邨）", track: "KT536" },
       { route: "601", dest: "Admiralty (East)", destZh: "金鐘（東）", track: "KT536" },
       { route: "601P", dest: "Sheung Wan", destZh: "上環", track: "KT536" },
       { route: "89", dest: "Lek Yuen", destZh: "瀝源", track: "KT535" },
@@ -335,16 +335,14 @@
         const stopJson = await stopRes.json();
         
         const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
-        
-        // Sort stops by latitude descending to accurately separate Northbound (uphill/higher lat) vs Southbound (downhill/lower lat) stops
         woLokStops.sort((a, b) => b.lat - a.lat);
         const midLat = woLokStops.length > 1 ? (woLokStops[0].lat + woLokStops[woLokStops.length - 1].lat) / 2 : 0;
         
         let apiEtas = [];
-        const northKeywords = ["順利", "秀茂坪", "寶達", "安泰", "寶林", "翠林", "康盛", "將軍澳", "彩虹", "彩福", "中秀茂坪", "尚德"];
+        const northKeywords = ["順利", "秀茂坪", "寶達", "安泰", "寶林", "翠林", "康盛", "將軍澳", "彩虹", "彩福", "中秀茂坪", "尚德", "樂華"];
+        const southKeywords = ["觀塘碼頭", "尖沙咀", "紅磡", "維港灣", "觀塘（雅麗道）", "長沙灣", "金鐘", "上環", "瀝源", "沙田", "旺角", "啟德", "柏景灣", "雅麗道"];
 
         for (const station of woLokStops) {
-          const isStopNorth = station.lat >= midLat;
           const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stop}`;
           const res = await fetch(url);
           if (res.ok) {
@@ -352,13 +350,16 @@
             if (json.data && Array.isArray(json.data)) {
               json.data.forEach(item => {
                 if (item.eta && item.route) {
-                  // For circular/loop routes like 23M and 26M, destination text is fixed (e.g. "順利"), 
-                  // so physical stop location (isStopNorth) is used to correctly differentiate directions.
-                  let isNorth = isStopNorth;
-                  if (item.route !== "23M" && item.route !== "26M") {
-                    const destTextTc = item.dest_tc || "";
-                    isNorth = northKeywords.some(kw => destTextTc.includes(kw)) || isStopNorth;
+                  const destTextTc = item.dest_tc || "";
+                  
+                  // 精確根據目的地關鍵字判定南北行，避免循環線方向混淆
+                  let isNorth = northKeywords.some(kw => destTextTc.includes(kw));
+                  let isSouth = southKeywords.some(kw => destTextTc.includes(kw));
+                  
+                  if (!isNorth && !isSouth) {
+                    isNorth = station.lat >= midLat;
                   }
+
                   apiEtas.push({
                     route: item.route,
                     isNorth: isNorth,
