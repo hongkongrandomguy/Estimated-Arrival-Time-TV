@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘巴士發車情報看板</title>
+  <title>觀塘東 巴士發車情報看板</title>
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -150,7 +150,7 @@
     
     <div class="header-title-box">
       <div class="header-main-title">
-        觀塘巴士發車情報看板
+        觀塘東 巴士發車情報看板
         <div class="warning-badges" id="warning-container"></div>
       </div>
       <div class="header-sub-title">KWUN TONG EAST BUS DEPARTURE INFORMATION BOARD</div>
@@ -167,7 +167,7 @@
     </div>
 
     <div class="header-time-box">
-      <div class="header-info-label">時刻 TIME</div>
+      <div class="header-info-label">時間 TIME</div>
       <div class="header-time-val" id="clock">00:00</div>
     </div>
   </div>
@@ -181,10 +181,10 @@
       </div>
       <div class="table-head">
         <div>路線 <span>Route</span></div>
-        <div>時刻 <span>Time</span></div>
-        <div>行先 <span>Destination</span></div>
-        <div>站位 <span>Stop ID</span></div>
-        <div style="text-align: right;">運行狀態 <span>Status</span></div>
+        <div>時間 <span>Time</span></div>
+        <div>目的地 <span>Destination</span></div>
+        <div>月台 <span>Track</span></div>
+        <div style="text-align: right;">實時狀態 <span>Status</span></div>
       </div>
       <div class="board-scroll-wrapper" id="south-wrap">
         <div class="board-body" id="south-body"></div>
@@ -199,10 +199,10 @@
       </div>
       <div class="table-head">
         <div>路線 <span>Route</span></div>
-        <div>時刻 <span>Time</span></div>
-        <div>行先 <span>Destination</span></div>
-        <div>站位 <span>Stop ID</span></div>
-        <div style="text-align: right;">運行狀態 <span>Status</span></div>
+        <div>時間 <span>Time</span></div>
+        <div>目的地 <span>Destination</span></div>
+        <div>月台 <span>Track</span></div>
+        <div style="text-align: right;">實時狀態 <span>Status</span></div>
       </div>
       <div class="board-scroll-wrapper" id="north-wrap">
         <div class="board-body" id="north-body"></div>
@@ -214,7 +214,7 @@
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用實時巴士發車情報看板。系統自動同步九巴官方 API 數據，請留意上落車安全。
+        歡迎使用觀塘東實時巴士發車情報看板。系統自動同步九巴官方 API 數據，時刻表依據即時交通情況調整，請留意上落車安全。
       </div>
     </div>
   </div>
@@ -231,6 +231,25 @@
       if (route.startsWith("8") || route.startsWith("2")) return "type-hikari";
       if (route.startsWith("14") || route.startsWith("11")) return "type-kodama";
       return "type-local";
+    }
+
+    // 依據參考圖片設定的北行路線月台對應
+    function getNorthTrack(route) {
+      if (route === "93A") return "KT260";
+      if (route === "93K" || route === "N293") return "KT259";
+      if (["14H", "23", "23M", "26M"].includes(route)) return "KT258";
+      if (route === "28B") return "KT257";
+      if (route === "1A") return "KT256";
+      if (["11X", "13D", "601", "601P"].includes(route)) return "KT255";
+      return "KT250";
+    }
+
+    // 依據參考圖片設定的南行路線月台對應
+    function getSouthTrack(route) {
+      if (["1A", "13D", "13P", "93K"].includes(route)) return "KT537";
+      if (["28B", "601", "601P", "N293"].includes(route)) return "KT536";
+      if (["11X", "13M", "23", "23M", "26M", "89", "89X", "93A"].includes(route)) return "KT535";
+      return "KT530";
     }
 
     function getCustomWarningStyle(message) {
@@ -304,15 +323,16 @@
               json.data.forEach(item => {
                 if (item.eta) {
                   const destText = item.dest_tc || "指定目的地";
+                  const isNorth = northKeywords.some(kw => destText.includes(kw));
+                  
                   const entry = {
                     route: item.route,
                     dest: destText,
                     destEn: item.dest_en || "DESTINATION",
-                    track: station.stop,
+                    track: isNorth ? getNorthTrack(item.route) : getSouthTrack(item.route),
                     etaTime: new Date(item.eta)
                   };
 
-                  const isNorth = northKeywords.some(kw => destText.includes(kw));
                   if (isNorth) {
                     northList.push(entry);
                   } else {
@@ -324,9 +344,9 @@
           }
         }
 
-        // 各線路常態化顯示：每條路線只保留當前最快的一趟
-        southDepartures = filterNextTripPerRoute(southList);
-        northDepartures = filterNextTripPerRoute(northList);
+        // 各線路常態化顯示，並按照路線號碼排序
+        southDepartures = processAndSortRoutes(southList);
+        northDepartures = processAndSortRoutes(northList);
         isDataLoaded = true;
         renderBoards();
       } catch (e) {
@@ -334,15 +354,23 @@
       }
     }
 
-    function filterNextTripPerRoute(list) {
-      list.sort((a, b) => a.etaTime - b.etaTime);
+    function processAndSortRoutes(list) {
+      // 保留每條路線當前最快的一趟
       const routeMap = new Map();
       list.forEach(item => {
         if (!routeMap.has(item.route)) {
           routeMap.set(item.route, item);
+        } else {
+          // 如果已有該路線，比較時間取更早的班次
+          if (item.etaTime < routeMap.get(item.route).etaTime) {
+            routeMap.set(item.route, item);
+          }
         }
       });
-      return Array.from(routeMap.values()).sort((a, b) => a.etaTime - b.etaTime);
+      const uniqueList = Array.from(routeMap.values());
+      // 按照路線號碼進行字面/數字排序
+      uniqueList.sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
+      return uniqueList;
     }
 
     function renderBoardHTML(departures) {
@@ -380,7 +408,7 @@
             </div>
             <div class="time-col">
               <div class="time-main">${timeStr}</div>
-              <div class="time-sub">定刻</div>
+              <div class="time-sub">預定</div>
             </div>
             <div class="dest-col">
               <div class="dest-main">${item.dest}</div>
