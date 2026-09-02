@@ -2,81 +2,89 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東 巴士發車情報看板 - 京急風格（港化版）</title>
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <title>觀塘東 巴士發車情報看板 - 日本鐵道純正字體版</title>
+  <!-- 導入最接近日本新ゴ（Shin Go）鐵道字體風格的 M PLUS 1p -->
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      padding: 0.8vw;
-      background-color: #0b0d10;
+      padding: 0.6vw;
+      background-color: #030508;
       color: #ffffff;
-      font-family: "PingFang HK", "Helvetica Neue", "Microsoft JhengHei", Arial, sans-serif;
+      /* 優先調用日系標準無襯線體，搭配 Helvetica 數字 */
+      font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, "Arial", "Hiragino Kaku Gothic ProN", sans-serif;
       height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* 京急風格頂欄 */
-    .keikyu-header {
+    /* 日式 LCD 頂欄 */
+    .lcd-header {
       display: flex;
       align-items: center;
-      background: #181c24;
-      border: 2px solid #2e3646;
+      background: linear-gradient(180deg, #1b222d, #0f151d);
+      border: 2px solid #333f50;
       border-radius: 4px;
       padding: 0.4vw 1vw;
       margin-bottom: 0.6vw;
       flex-shrink: 0;
     }
 
-    .platform-num {
-      font-size: 3.5vw;
+    .platform-box {
+      background: #00d66c;
+      color: #000000;
+      font-weight: 900;
+      font-size: 2.2vw;
+      padding: 0.1vw 0.8vw;
+      border-radius: 3px;
+      margin-right: 1.2vw;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    .header-title-box { flex-grow: 1; }
+
+    .header-main-title {
+      font-size: 1.5vw;
       font-weight: 900;
       color: #ffffff;
-      line-height: 1;
-      padding-right: 1vw;
-      border-right: 2px solid #3a4558;
-      margin-right: 1vw;
-      font-family: 'Arial', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    .header-sub-title {
+      font-size: 0.7vw;
+      color: #8a99ad;
+      font-weight: 700;
+      font-family: Helvetica, Arial, sans-serif;
     }
 
     .header-time-box {
-      display: flex;
-      align-items: center;
-      background: #000;
-      border: 1px solid #444;
-      padding: 0.1vw 0.6vw;
+      background: #000000;
+      border: 1px solid #3a4859;
+      padding: 0.2vw 0.8vw;
       border-radius: 3px;
-      margin-right: 1.5vw;
+      text-align: right;
     }
 
     .header-time-label {
-      font-size: 0.65vw;
-      color: #aaa;
-      margin-right: 0.5vw;
-      line-height: 1.1;
+      font-size: 0.55vw;
+      color: #8a99ad;
+      font-weight: 700;
     }
 
     .header-time-val {
-      font-family: 'VT323', monospace;
-      font-size: 2vw;
-      color: #ffaa00;
-      letter-spacing: 1px;
+      font-size: 1.7vw;
+      font-weight: 900;
+      color: #38bdf8;
+      font-family: Helvetica, Arial, sans-serif;
+      letter-spacing: 0.05em;
     }
 
-    .header-dest-info {
-      font-size: 1.5vw;
-      font-weight: bold;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 0.8vw;
-      flex-grow: 1;
-    }
-
-    /* 四豎列容器 */
+    /* 四豎列主容器 */
     .grid-container {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -87,50 +95,54 @@
     }
 
     .column-board {
-      border: 2px solid #2e3646;
+      border: 2px solid #232d3b;
       border-radius: 4px;
-      background: #000000;
+      background: #070a0f;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
     }
 
     .column-header-title {
-      background: #181c24;
-      color: #38bdf8;
-      font-size: 1vw;
-      font-weight: bold;
+      background: #131a24;
+      color: #f3f4f6;
+      font-size: 0.9vw;
+      font-weight: 800;
       padding: 0.5vw;
       text-align: center;
-      border-bottom: 2px solid #2e3646;
-      z-index: 10;
+      border-bottom: 2px solid #232d3b;
       flex-shrink: 0;
+      letter-spacing: 0.03em;
     }
 
     .column-header-title .sub {
       font-size: 0.6vw;
-      color: #64748b;
+      color: #6b7c93;
       display: block;
+      font-weight: 700;
+      font-family: Helvetica, Arial, sans-serif;
     }
 
-    /* 欄位標頭：改為繁體中文（香港） */
+    /* 表頭：日式標準黑底灰欄 */
     .table-head {
       display: grid;
-      grid-template-columns: 0.8fr 1fr 1.6fr 1.1fr;
-      background: #1e2530;
+      grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr;
+      background: #1b2330;
       padding: 0.3vw 0.4vw;
       font-size: 0.65vw;
+      font-weight: 800;
       color: #cbd5e1;
       text-align: center;
-      border-bottom: 1px solid #334155;
+      border-bottom: 1px solid #2b3648;
       flex-shrink: 0;
     }
 
-    .table-head div span {
+    .table-head span {
       display: block;
       font-size: 0.5vw;
-      color: #64748b;
+      color: #718096;
+      font-weight: 700;
+      font-family: Helvetica, Arial, sans-serif;
     }
 
     .column-scroll-wrapper {
@@ -142,126 +154,78 @@
     .column-body {
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      padding: 2px;
+      gap: 3px;
+      padding: 3px;
       position: absolute;
       width: 100%;
       top: 0;
-      box-sizing: border-box;
-      transition: transform 0.8s ease-in-out;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
+    /* 列車數據列：日鐵視覺強調 */
     .route-row {
       display: grid;
-      grid-template-columns: 0.8fr 1fr 1.6fr 1.1fr;
+      grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr;
       align-items: center;
-      padding: 0.3vw 0.3vw;
-      background: #0d1117;
-      border-bottom: 1px solid #1a2332;
-      height: 3.4vw;
+      padding: 0.35vw 0.3vw;
+      background: #0d121a;
+      border-radius: 2px;
+      height: 3.5vw;
+      border-bottom: 1px solid #161e2b;
     }
 
-    .order-col { text-align: center; line-height: 1; }
-    .order-hk { font-size: 0.75vw; color: #e2e8f0; font-weight: bold; }
-    .order-en { font-size: 0.55vw; color: #64748b; }
+    .order-col { text-align: center; }
+    .order-hk { font-size: 0.85vw; color: #ffffff; font-weight: 900; }
+    .order-en { font-size: 0.5vw; color: #64748b; font-weight: 700; font-family: Helvetica, Arial, sans-serif; }
 
+    /* 全彩種別色塊（日式高濃縮粗體字） */
     .type-badge {
-      font-size: 0.9vw;
+      font-size: 1vw;
       font-weight: 900;
       padding: 0.2vw 0;
       border-radius: 2px;
       color: #ffffff;
       text-align: center;
-      width: 90%;
+      width: 92%;
       margin: 0 auto;
+      font-family: Helvetica, Arial, "M PLUS 1p", sans-serif;
+      letter-spacing: -0.02em;
     }
-    .type-rapid { background: linear-gradient(180deg, #ff3366, #ff6600); }
-    .type-express { background: linear-gradient(180deg, #0044ff, #0000aa); }
-    .type-local { background: linear-gradient(180deg, #444444, #111111); border: 1px solid #555; }
-    .type-semi { background: linear-gradient(180deg, #00aa55, #006633); }
+    .type-rapid { background: #e11d48; }   /* 快車/特急：日式亮紅 */
+    .type-express { background: #0284c7; } /* 急行/幹線：日式靛藍 */
+    .type-semi { background: #16a34a; }    /* 準急/區間：深綠 */
+    .type-local { background: #475569; }   /* 各站停車：深灰 */
 
-    .dest-col { text-align: left; padding-left: 0.2vw; overflow: hidden; }
-    .dest-main { font-size: 0.95vw; font-weight: bold; color: #ffffff; white-space: nowrap; }
-    .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
+    .dest-col { text-align: left; padding-left: 0.4vw; overflow: hidden; }
+    .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: 0.02em; }
+    .dest-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; font-family: Helvetica, Arial, sans-serif; white-space: nowrap; }
 
-    .flap-board {
-      perspective: 300px;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: flex-end;
-      justify-content: center;
-    }
-
-    .flip-card {
-      position: relative;
-      width: 4.8vw;
-      height: 1.8vw;
-      background: #111;
-      border-radius: 3px;
-      font-family: 'VT323', monospace;
-      font-size: 1.5vw;
-      color: #00ffcc;
-      text-shadow: 0 0 5px rgba(0, 255, 204, 0.6);
-      border: 1px solid #222;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.8);
-    }
-
-    .flip-card::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: #000;
-      z-index: 10;
-      transform: translateY(-50%);
-    }
-
-    .flip-card .top, .flip-card .bottom {
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 50%;
-      overflow: hidden;
-      text-align: center;
-      background: #181818;
-    }
-
-    .flip-card .top {
-      top: 0;
-      line-height: 1.8vw;
-      border-top-left-radius: 3px;
-      border-top-right-radius: 3px;
-    }
-
-    .flip-card .bottom {
-      bottom: 0;
-      line-height: 0vw;
-      border-bottom-left-radius: 3px;
-      border-bottom-right-radius: 3px;
-    }
-
-    .flip-card.flipping .top {
-      animation: flipTop 0.3s ease-in forwards;
-    }
-
-    @keyframes flipTop {
-      0% { transform: rotateX(0deg); }
-      100% { transform: rotateX(-90deg); }
-    }
-
-    .eta-cars {
-      font-size: 0.55vw;
-      color: #94a3b8;
+    .time-col {
       text-align: right;
-      margin-top: 1px;
+      padding-right: 0.4vw;
     }
 
-    .keikyu-ticker {
-      height: 2vw;
+    .time-main {
+      font-size: 1.3vw;
+      font-weight: 900;
+      color: #38bdf8;
+      font-family: Helvetica, Arial, sans-serif;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .time-sub {
+      font-size: 0.55vw;
+      color: #fbbf24;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    /* 跑馬燈 */
+    .lcd-ticker {
+      height: 2.2vw;
       background: #000000;
-      border: 2px solid #2e3646;
+      border: 2px solid #232d3b;
       border-radius: 4px;
       margin-top: 0.4vw;
       display: flex;
@@ -271,12 +235,23 @@
       flex-shrink: 0;
     }
 
+    .ticker-tag {
+      background: #dc2626;
+      color: #ffffff;
+      font-size: 0.65vw;
+      font-weight: 900;
+      padding: 0.15vw 0.5vw;
+      border-radius: 2px;
+      margin-right: 1vw;
+      flex-shrink: 0;
+    }
+
     .ticker-text {
-      font-size: 1vw;
-      color: #ffaa00;
+      font-size: 0.9vw;
+      color: #f1f5f9;
       white-space: nowrap;
-      font-weight: bold;
-      animation: ticker 25s linear infinite;
+      font-weight: 700;
+      animation: ticker 28s linear infinite;
     }
 
     @keyframes ticker {
@@ -287,14 +262,15 @@
 </head>
 <body>
 
-  <div class="keikyu-header">
-    <div class="platform-num">3</div>
-    <div class="header-time-box">
-      <div class="header-time-label">現時時間<br>Current Time</div>
-      <div class="header-time-val" id="clock">00:00</div>
+  <div class="lcd-header">
+    <div class="platform-box">3</div>
+    <div class="header-title-box">
+      <div class="header-main-title">觀塘東 方面巴士發車導覽</div>
+      <div class="header-sub-title">Kwun Tong East Area Bus Departure Information</div>
     </div>
-    <div class="header-dest-info">
-      觀塘東 方向 / ✈ 巴士發車指南
+    <div class="header-time-box">
+      <div class="header-time-label">現時時間 Current Time</div>
+      <div class="header-time-val" id="clock">00:00</div>
     </div>
   </div>
 
@@ -364,9 +340,10 @@
     </div>
   </div>
 
-  <div class="keikyu-ticker">
+  <div class="lcd-ticker">
+    <div class="ticker-tag">運行情報</div>
     <div class="ticker-text">
-      歡迎使用觀塘東實時巴士發車情報看板。請注意月台安全，切勿超越黃線。
+      歡迎使用觀塘東實時巴士發車情報看板。數據每 25 秒自動更新，路線班次隨時調整，請注意候車安全。
     </div>
   </div>
 
@@ -437,11 +414,10 @@
       return "type-local";
     }
 
-    // 將日語「先発/次発/次々発」轉換為香港用語「即班/下一班/第三班/普通」
     function getOrderLabel(index) {
-      if (index === 0) return { hk: "即班", en: "1st." };
-      if (index === 1) return { hk: "下班", en: "2nd." };
-      if (index === 2) return { hk: "後班", en: "3rd." };
+      if (index === 0) return { hk: "即班", en: "1st" };
+      if (index === 1) return { hk: "下班", en: "2nd" };
+      if (index === 2) return { hk: "後班", en: "3rd" };
       return { hk: "普通", en: `${index + 1}th` };
     }
 
@@ -459,8 +435,8 @@
           row.className = 'route-row';
           row.innerHTML = `
             <div class="order-col">
-              <span class="order-hk">${order.hk}</span>
-              <span class="order-en">${order.en}</span>
+              <div class="order-hk">${order.hk}</div>
+              <div class="order-en">${order.en}</div>
             </div>
             <div>
               <div class="type-badge ${getBadgeClass(r.route)}">${r.route}</div>
@@ -469,12 +445,9 @@
               <div class="dest-main">${r.dest}</div>
               <div class="dest-sub">${r.destEn.toUpperCase()}</div>
             </div>
-            <div class="flap-board">
-              <div class="flip-card" id="card-${col.colKey}-${r.route}">
-                <div class="top">----</div>
-                <div class="bottom">----</div>
-              </div>
-              <div class="eta-cars" id="sub-${col.colKey}-${r.route}">無預定</div>
+            <div class="time-col">
+              <div class="time-main" id="time-${col.colKey}-${r.route}">--:--</div>
+              <div class="time-sub" id="sub-${col.colKey}-${r.route}">無預定</div>
             </div>
           `;
           container.appendChild(row);
@@ -482,23 +455,10 @@
       });
     }
 
-    function updateFlapValue(colKey, route, newVal, subVal) {
-      const card = document.getElementById(`card-${colKey}-${route}`);
+    function updateLCDValue(colKey, route, timeVal, subVal) {
+      const timeElem = document.getElementById(`time-${colKey}-${route}`);
       const subElem = document.getElementById(`sub-${colKey}-${route}`);
-      if (!card) return;
-
-      const top = card.querySelector('.top');
-      const bottom = card.querySelector('.bottom');
-
-      if (top.innerText !== newVal) {
-        card.classList.add('flipping');
-        setTimeout(() => {
-          top.innerText = newVal;
-          bottom.innerText = newVal;
-          card.classList.remove('flipping');
-        }, 150);
-      }
-
+      if (timeElem) timeElem.innerText = timeVal;
       if (subElem) subElem.innerText = subVal;
     }
 
@@ -516,24 +476,22 @@
 
             if (diffSecs > 0 && diffMins <= 60) {
               if (diffSecs <= 30) {
-                updateFlapValue(col.colKey, r.route, "即將", "即將到站");
+                updateLCDValue(col.colKey, r.route, "即將", "即將到站");
               } else {
                 const depTimeStr = item.targetTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-                updateFlapValue(col.colKey, r.route, depTimeStr, `${diffMins} 分鐘`);
+                updateLCDValue(col.colKey, r.route, depTimeStr, `${diffMins} 分鐘`);
               }
             } else {
-              updateFlapValue(col.colKey, r.route, "----", "無預定");
+              updateLCDValue(col.colKey, r.route, "--:--", "無預定");
             }
           } else {
-            updateFlapValue(col.colKey, r.route, "----", "無預定");
+            updateLCDValue(col.colKey, r.route, "--:--", "無預定");
           }
         });
       });
     }
 
     async function fetchAPIData() {
-      const now = new Date();
-
       for (const col of COLUMNS_CONFIG) {
         for (const r of col.routes) {
           try {
@@ -567,7 +525,7 @@
 
         if (containerHeight > wrapperHeight) {
           const maxScroll = containerHeight - wrapperHeight + 10;
-          scrollOffsets[col.elementId] += 55;
+          scrollOffsets[col.elementId] += 58;
           if (scrollOffsets[col.elementId] > maxScroll) scrollOffsets[col.elementId] = 0;
           container.style.transform = `translateY(-${scrollOffsets[col.elementId]}px)`;
         } else {
