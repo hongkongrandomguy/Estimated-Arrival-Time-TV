@@ -231,39 +231,41 @@
   </div>
 
   <script>
+    // 南行路線組態 (對應和樂邨南行專屬站點編號，如 KT535/KT537 等)
     const SOUTH_ROUTES = [
-      { route: "1A", dest: "Star Ferry", destZh: "尖沙咀碼頭", track: "KT537" },
-      { route: "11X", dest: "Hung Hom Station", destZh: "紅磡站", track: "KT535" },
-      { route: "13D", dest: "Metropark / Olympic", destZh: "維港灣", track: "KT537" },
-      { route: "13M", dest: "Kwun Tong (Elegance Lane)", destZh: "觀塘（雅麗道）", track: "KT535" },
-      { route: "13P", dest: "Cheung Sha Wan", destZh: "長沙灣（麗閣邨）", track: "KT537" },
-      { route: "23", dest: "Kwun Tong Ferry", destZh: "觀塘碼頭", track: "KT535" },
-      { route: "23M", dest: "Lok Wah", destZh: "樂華", track: "KT535" },
-      { route: "26M", dest: "Kwun Tong ↺", destZh: "觀塘 ↺", track: "KT535" },
-      { route: "28B", dest: "Kai Tak (Kai Ching Est)", destZh: "啟德（啟晴邨）", track: "KT536" },
-      { route: "601", dest: "Admiralty (East)", destZh: "金鐘（東）", track: "KT536" },
-      { route: "601P", dest: "Sheung Wan", destZh: "上環", track: "KT536" },
-      { route: "89", dest: "Lek Yuen", destZh: "瀝源", track: "KT535" },
-      { route: "89X", dest: "Sha Tin Station", destZh: "沙田站", track: "KT535" },
-      { route: "93A", dest: "Kwun Tong Ferry", destZh: "觀塘碼頭", track: "KT535" },
-      { route: "93K", dest: "Mong Kok East Station", destZh: "旺角東站", track: "KT537" },
-      { route: "N293", dest: "Mong Kok (Park Central)", destZh: "旺角（柏景灣）", track: "KT536" }
+      { route: "1A", dest: "Star Ferry", destZh: "尖沙咀碼頭", track: "KT537", stops: ["003185", "KT537"] },
+      { route: "11X", dest: "Hung Hom Station", destZh: "紅磡站", track: "KT535", stops: ["KT535"] },
+      { route: "13D", dest: "Metropark / Olympic", destZh: "維港灣", track: "KT537", stops: ["KT537"] },
+      { route: "13M", dest: "Kwun Tong (Elegance Lane)", destZh: "觀塘（雅麗道）", track: "KT535", stops: ["KT535"] },
+      { route: "13P", dest: "Cheung Sha Wan", destZh: "長沙灣（麗閣邨）", track: "KT537", stops: ["KT537"] },
+      { route: "23", dest: "Kwun Tong Ferry", destZh: "觀塘碼頭", track: "KT535", stops: ["KT535"] },
+      { route: "23M", dest: "Lok Wah", destZh: "樂華", track: "KT535", stops: ["KT535"] },
+      { route: "26M", dest: "Kwun Tong ↺", destZh: "觀塘 ↺", track: "KT535", stops: ["KT535"] },
+      { route: "28B", dest: "Kai Tak (Kai Ching Est)", destZh: "啟德（啟晴邨）", track: "KT536", stops: ["KT536"] },
+      { route: "601", dest: "Admiralty (East)", destZh: "金鐘（東）", track: "KT536", stops: ["KT536"] },
+      { route: "601P", dest: "Sheung Wan", destZh: "上環", track: "KT536", stops: ["KT536"] },
+      { route: "89", dest: "Lek Yuen", destZh: "瀝源", track: "KT535", stops: ["KT535"] },
+      { route: "89X", dest: "Sha Tin Station", destZh: "沙田站", track: "KT535", stops: ["KT535"] },
+      { route: "93A", dest: "Kwun Tong Ferry", destZh: "觀塘碼頭", track: "KT535", stops: ["KT535"] },
+      { route: "93K", dest: "Mong Kok East Station", destZh: "旺角東站", track: "KT537", stops: ["KT537"] },
+      { route: "N293", dest: "Mong Kok (Park Central)", destZh: "旺角（柏景灣）", track: "KT536", stops: ["KT536"] }
     ];
 
+    // 北行路線組態 (對應和樂邨北行專屬站點編號，如 KT258/KT255 等)
     const NORTH_ROUTES = [
-      { route: "1A", dest: "Central Sau Mau Ping", destZh: "中秀茂坪", track: "KT256" },
-      { route: "11X", dest: "On Tat (North)", destZh: "安泰（北）", track: "KT255" },
-      { route: "13D", dest: "Po Tat", destZh: "寶達", track: "KT255" },
-      { route: "14H", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258" },
-      { route: "23", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258" },
-      { route: "23M", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258" },
-      { route: "26M", dest: "Choi Hung", destZh: "彩虹", track: "KT258" },
-      { route: "28B", dest: "Choi Fuk", destZh: "彩福", track: "KT257" },
-      { route: "601", dest: "Po Tat", destZh: "寶達", track: "KT255" },
-      { route: "601P", dest: "Po Tat", destZh: "寶達", track: "KT255" },
-      { route: "93A", dest: "Po Lam", destZh: "寶林", track: "KT260" },
-      { route: "93K", dest: "Tsui Lam", destZh: "翠林", track: "KT259" },
-      { route: "N293", dest: "Sheung Tak", destZh: "尚德", track: "KT259" }
+      { route: "1A", dest: "Central Sau Mau Ping", destZh: "中秀茂坪", track: "KT256", stops: ["KT256"] },
+      { route: "11X", dest: "On Tat (North)", destZh: "安泰（北）", track: "KT255", stops: ["KT255"] },
+      { route: "13D", dest: "Po Tat", destZh: "寶達", track: "KT255", stops: ["KT255"] },
+      { route: "14H", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258", stops: ["KT258"] },
+      { route: "23", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258", stops: ["KT258"] },
+      { route: "23M", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258", stops: ["KT258"] },
+      { route: "26M", dest: "Choi Hung", destZh: "彩虹", track: "KT258", stops: ["KT258"] },
+      { route: "28B", dest: "Choi Fuk", destZh: "彩福", track: "KT257", stops: ["KT257"] },
+      { route: "601", dest: "Po Tat", destZh: "寶達", track: "KT255", stops: ["KT255"] },
+      { route: "601P", dest: "Po Tat", destZh: "寶達", track: "KT255", stops: ["KT255"] },
+      { route: "93A", dest: "Po Lam", destZh: "寶林", track: "KT260", stops: ["KT260"] },
+      { route: "93K", dest: "Tsui Lam", destZh: "翠林", track: "KT259", stops: ["KT259"] },
+      { route: "N293", dest: "Sheung Tak", destZh: "尚德", track: "KT259", stops: ["KT259"] }
     ];
 
     let southDepartures = [];
@@ -328,82 +330,76 @@
       }
     }
 
-    async function fetchAPIData() {
-      try {
-        const stopRes = await fetch('https://data.etabus.gov.hk/v1/transport/kmb/stop');
-        if (!stopRes.ok) return;
-        const stopJson = await stopRes.json();
-        
-        const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
-        woLokStops.sort((a, b) => b.lat - a.lat);
-        const midLat = woLokStops.length > 1 ? (woLokStops[0].lat + woLokStops[woLokStops.length - 1].lat) / 2 : 0;
-        
-        let apiEtas = [];
-        const northKeywords = ["順利", "秀茂坪", "寶達", "安泰", "寶林", "翠林", "康盛", "將軍澳", "彩虹", "彩福", "中秀茂坪", "尚德", "樂華"];
-        const southKeywords = ["觀塘碼頭", "尖沙咀", "紅磡", "維港灣", "觀塘（雅麗道）", "長沙灣", "金鐘", "上環", "瀝源", "沙田", "旺角", "啟德", "柏景灣", "雅麗道"];
+    // 透過具體的 Stop ID 清單抓取 ETA 資料
+    async function fetchEtasForRoutes(routeConfig) {
+      const now = new Date();
+      const results = [];
 
-        for (const station of woLokStops) {
-          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stop}`;
-          const res = await fetch(url);
+      // 收集所有需要查詢的唯一 Stop ID
+      const stopIds = new Set();
+      routeConfig.forEach(item => item.stops.forEach(s => stopIds.add(s)));
+
+      // 暫存每個 stop ID 對應的 API 原始資料
+      const stopEtasMap = {};
+      for (const stopId of stopIds) {
+        try {
+          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stopId}`);
           if (res.ok) {
             const json = await res.json();
             if (json.data && Array.isArray(json.data)) {
-              json.data.forEach(item => {
-                if (item.eta && item.route) {
-                  const destTextTc = item.dest_tc || "";
-                  
-                  // 精確根據目的地關鍵字判定南北行，避免循環線方向混淆
-                  let isNorth = northKeywords.some(kw => destTextTc.includes(kw));
-                  let isSouth = southKeywords.some(kw => destTextTc.includes(kw));
-                  
-                  if (!isNorth && !isSouth) {
-                    isNorth = station.lat >= midLat;
-                  }
-
-                  apiEtas.push({
-                    route: item.route,
-                    isNorth: isNorth,
-                    etaTime: new Date(item.eta)
-                  });
-                }
-              });
+              stopEtasMap[stopId] = json.data;
             }
           }
+        } catch (err) {
+          console.error(`Error fetching stop ${stopId}:`, err);
+        }
+      }
+
+      // 針對每條路線配對最接近的時間
+      for (const configItem of routeConfig) {
+        let bestEta = null;
+        let allMatches = [];
+
+        for (const stopId of configItem.stops) {
+          const items = stopEtasMap[stopId] || [];
+          items.forEach(item => {
+            if (item.route === configItem.route && item.eta) {
+              const etaDate = new Date(item.eta);
+              if (etaDate.getTime() >= now.getTime() - 15000) {
+                allMatches.push(etaDate);
+              }
+            }
+          });
         }
 
-        southDepartures = buildNormalizedList(SOUTH_ROUTES, apiEtas, false);
-        northDepartures = buildNormalizedList(NORTH_ROUTES, apiEtas, true);
+        if (allMatches.length > 0) {
+          allMatches.sort((a, b) => a - b);
+          bestEta = allMatches[0];
+        }
+
+        results.push({
+          route: configItem.route,
+          dest: configItem.dest,
+          destZh: configItem.destZh,
+          track: configItem.track,
+          etaTime: bestEta
+        });
+      }
+
+      return results.sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
+    }
+
+    async function fetchAPIData() {
+      try {
+        // 分別獨立抓取南行與北行清單，徹底解決混淆問題
+        southDepartures = await fetchEtasForRoutes(SOUTH_ROUTES);
+        northDepartures = await fetchEtasForRoutes(NORTH_ROUTES);
         
         isDataLoaded = true;
         renderBoards();
       } catch (e) {
         console.error("API Fetch Error:", e);
       }
-    }
-
-    function buildNormalizedList(routeConfig, apiEtas, isNorthDirection) {
-      const now = new Date();
-      return routeConfig.map(configItem => {
-        const matches = apiEtas.filter(e => 
-          e.route === configItem.route && 
-          e.isNorth === isNorthDirection && 
-          e.etaTime.getTime() >= now.getTime() - 10000
-        );
-        
-        let bestEta = null;
-        if (matches.length > 0) {
-          matches.sort((a, b) => a.etaTime - b.etaTime);
-          bestEta = matches[0].etaTime;
-        }
-
-        return {
-          route: configItem.route,
-          dest: configItem.dest,
-          destZh: configItem.destZh,
-          track: configItem.track,
-          etaTime: bestEta
-        };
-      }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
     }
 
     function renderBoardHTML(departures) {
