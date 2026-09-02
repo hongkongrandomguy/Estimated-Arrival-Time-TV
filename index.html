@@ -328,61 +328,74 @@
       }
     }
 
-    async function fetchEtasForStopIds(stopIds) {
-      let allEtas = [];
-      for (const stopId of stopIds) {
-        try {
-          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stopId}`);
+    async function fetchAPIData() {
+      try {
+        // 自動動態尋找九巴和樂邨真實的 16 位數 Stop ID
+        const stopRes = await fetch('https://data.etabus.gov.hk/v1/transport/kmb/stop');
+        if (!stopRes.ok) return;
+        const stopJson = await stopRes.json();
+        
+        const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
+        if (woLokStops.length === 0) return;
+
+        // 撈取所有和樂邨真實站點的即時 ETA 數據
+        let allEtas = [];
+        for (const stop of woLokStops) {
+          const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stop.stop}`);
           if (res.ok) {
             const json = await res.json();
             if (json.data && Array.isArray(json.data)) {
               allEtas = allEtas.concat(json.data);
             }
           }
-        } catch (e) {
-          console.error(`Error fetching stop ${stopId}:`, e);
-        }
-      }
-      return allEtas;
-    }
-
-    function buildRouteList(routeConfig, stopEtas) {
-      const now = new Date();
-      return routeConfig.map(configItem => {
-        const matches = stopEtas.filter(item => 
-          item.route === configItem.route && 
-          item.eta && 
-          new Date(item.eta).getTime() >= now.getTime() - 15000
-        );
-
-        let bestEta = null;
-        if (matches.length > 0) {
-          matches.sort((a, b) => new Date(a.eta) - new Date(b.eta));
-          bestEta = new Date(matches[0].eta);
         }
 
-        return {
-          route: configItem.route,
-          dest: configItem.dest,
-          destZh: configItem.destZh,
-          track: configItem.track,
-          etaTime: bestEta
-        };
-      }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
-    }
+        const now = new Date();
+        
+        // 依照用戶指定的固定月台編號（KT255-260 為北，KT535-537 為南）來配對渲染資料
+        northDepartures = NORTH_ROUTES.map(configItem => {
+          const matches = allEtas.filter(item => 
+            item.route === configItem.route && 
+            item.eta && 
+            new Date(item.eta).getTime() >= now.getTime() - 15000
+          );
 
-    async function fetchAPIData() {
-      try {
-        const northStopIds = ["KT255", "KT256", "KT257", "KT258", "KT259", "KT260"];
-        const southStopIds = ["KT535", "KT536", "KT537"];
+          let bestEta = null;
+          if (matches.length > 0) {
+            matches.sort((a, b) => new Date(a.eta) - new Date(b.eta));
+            bestEta = new Date(matches[0].eta);
+          }
 
-        const [northEtas, southEtas] = await Promise.all([
-          fetchEtasForStopIds(northStopIds),
-          fetchEtasForStopIds(southStopIds)
-        ]);
+          return {
+            route: configItem.route,
+            dest: configItem.dest,
+            destZh: configItem.destZh,
+            track: configItem.track,
+            etaTime: bestEta
+          };
+        }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
 
-        northDepartures = buildRouteList(NORTH_ROUTES, northEtas);
-        southDepartures = buildRouteList(SOUTH_ROUTES, southEtas);
+        southDepartures = SOUTH_ROUTES.map(configItem => {
+          const matches = allEtas.filter(item => 
+            item.route === configItem.route && 
+            item.eta && 
+            new Date(item.eta).getTime() >= now.getTime() - 15000
+          );
+
+          let bestEta = null;
+          if (matches.length > 0) {
+            matches.sort((a, b) => new Date(a.eta) - new Date(b.eta));
+            bestEta = new Date(matches[0].eta);
+          }
+
+          return {
+            route: configItem.route,
+            dest: configItem.dest,
+            destZh: configItem.destZh,
+            track: configItem.track,
+            etaTime: bestEta
+          };
+        }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
         
         isDataLoaded = true;
         renderBoards();
