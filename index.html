@@ -273,23 +273,29 @@
     }
 
     // ==========================================
-    // 💡【官方天氣警告名稱對應設定】
+    // 💡【已對應指定的 11 種官方天氣警告設定】
     // ==========================================
     function getCustomWarningStyle(message) {
-      if (message.includes("一號戒備信號") || message.includes("三號強風信號") || message.includes("八號") || message.includes("九號") || message.includes("十號")) {
-        return { icon: "icons/typhoon.png", text: "熱帶氣旋", bg: "#e11d48" };
+      if (message.includes("一號戒備信號")) {
+        return { icon: "icons/typhoon-1.png", text: "一號戒備", bg: "#e11d48" };
+      } else if (message.includes("三號強風信號")) {
+        return { icon: "icons/typhoon-3.png", text: "三號強風", bg: "#e11d48" };
       } else if (message.includes("強烈季候風信號")) {
         return { icon: "icons/wind.png", text: "強烈季候風", bg: "#059669" };
       } else if (message.includes("暴雨警告信號")) {
         return { icon: "icons/rain.png", text: "暴雨警告", bg: "#0284c7" };
-      } else if (message.includes("雷暴警告")) {
-        return { icon: "icons/thunder.png", text: "雷暴警告", bg: "#d97706" };
-      } else if (message.includes("寒冷天氣警告") || message.includes("酷熱天氣警告") || message.includes("霜凍警告")) {
-        return { icon: "icons/temp.png", text: "天氣溫度", bg: "#7c3aed" };
-      } else if (message.includes("火災危險警告")) {
-        return { icon: "icons/warning.png", text: "火災危險", bg: "#dc2626" };
       } else if (message.includes("山泥傾瀉警告")) {
         return { icon: "icons/warning.png", text: "山泥傾瀉", bg: "#b45309" };
+      } else if (message.includes("雷暴警告")) {
+        return { icon: "icons/thunder.png", text: "雷暴警告", bg: "#d97706" };
+      } else if (message.includes("火災危險警告")) {
+        return { icon: "icons/warning.png", text: "火災危險", bg: "#dc2626" };
+      } else if (message.includes("霜凍警告")) {
+        return { icon: "icons/temp.png", text: "霜凍警告", bg: "#0284c7" };
+      } else if (message.includes("寒冷天氣警告")) {
+        return { icon: "icons/temp.png", text: "寒冷天氣", bg: "#2563eb" };
+      } else if (message.includes("酷熱天氣警告")) {
+        return { icon: "icons/temp.png", text: "酷熱天氣", bg: "#d97706" };
       } else if (message.includes("新界北部水浸特別報告")) {
         return { icon: "icons/rain.png", text: "新界水浸", bg: "#2563eb" };
       }
