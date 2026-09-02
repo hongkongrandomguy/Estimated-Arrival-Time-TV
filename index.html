@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>KTMC Wo Lok Estate Bus Estimated Arrival Time Display System</title>
@@ -32,11 +32,11 @@
     .header-info-box {
       background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: center;
     }
-    .header-info-label { font-size: 0.62vw; color: #8a99ad; font-weight: 400; }
+    .header-info-label { font-size: 0.62vw; color: #8a99ad; font-weight: 400; text-transform: uppercase; }
     .header-info-val { font-size: 1vw; font-weight: 500; color: #f59e0b; }
 
     .header-time-box { background: #000000; border: 1px solid #3a4859; padding: 0.2vw 1vw; border-radius: 3px; text-align: right; min-width: 7vw; }
-    .header-time-label { font-size: 0.62vw; color: #8a99ad; font-weight: 400; }
+    .header-time-label { font-size: 0.62vw; color: #8a99ad; font-weight: 400; text-transform: uppercase; }
     .header-time-val { font-size: 1.6vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
     
     .warning-badges { display: flex; gap: 0.5vw; align-items: center; }
@@ -48,7 +48,7 @@
     .warn-badge img { width: 1.8vw; height: 1.8vw; object-fit: contain; background: rgba(0,0,0,0.2); padding: 0.1vw; border-radius: 2px; }
     @keyframes pulse-warn { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-    /* 雙直列容器設定 */
+    /* Dual Column Layout */
     .board-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -86,9 +86,10 @@
       align-items: center;
       border-bottom: 1px solid #283548; 
       flex-shrink: 0;
+      text-transform: uppercase;
     }
     .table-head div { display: flex; flex-direction: column; }
-    .table-head span { font-size: 0.58vw; color: #718096; font-weight: 400; text-transform: uppercase; }
+    .table-head span { font-size: 0.58vw; color: #718096; font-weight: 400; }
 
     .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
     .board-body { display: flex; flex-direction: column; gap: 4px; padding: 4px; position: absolute; width: 100%; top: 0; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
@@ -116,11 +117,11 @@
 
     .time-col { display: flex; flex-direction: column; }
     .time-main { font-size: 1.25vw; font-weight: 500; color: #38bdf8; line-height: 1.1; letter-spacing: 0.05vw; }
-    .time-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; }
+    .time-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; text-transform: uppercase; }
 
     .dest-col { overflow: hidden; padding-right: 0.4vw; }
     .dest-main { font-size: 1.05vw; font-weight: 400; color: #ffffff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; text-transform: uppercase; font-weight: 400; }
+    .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; font-weight: 400; }
 
     .track-col { display: flex; justify-content: center; }
     .track-box {
@@ -131,80 +132,78 @@
 
     .status-col { text-align: right; }
     .status-main { font-size: 1.02vw; font-weight: 400; color: #facc15; }
-    .status-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; }
+    .status-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; text-transform: uppercase; }
     .status-none { color: #64748b !important; }
 
     .lcd-ticker {
       height: 2.2vw; background: #000000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.5vw; display: flex; align-items: center; position: relative; overflow: hidden; flex-shrink: 0;
     }
     .ticker-tag {
-      background: #dc2626; color: #ffffff; font-size: 0.68vw; font-weight: 400; padding: 0.2vw 1vw; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; letter-spacing: 0.1vw;
+      background: #dc2626; color: #ffffff; font-size: 0.68vw; font-weight: 400; padding: 0.2vw 1vw; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; letter-spacing: 0.1vw; text-transform: uppercase;
     }
     .ticker-text-wrapper { flex-grow: 1; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; }
-    .ticker-text { font-size: 0.88vw; color: #f1f5f9; white-space: nowrap; font-weight: 400; position: absolute; animation: ticker 30s linear infinite; }
+    .ticker-text { font-size: 0.88vw; color: #f1f5f9; white-space: nowrap; font-weight: 400; position: absolute; animation: ticker 35s linear infinite; }
     @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
   </style>
 </head>
 <body>
 
   <div class="lcd-header">
-    <div class="platform-box">東</div>
+    <div class="platform-box">E</div>
     
     <div class="header-title-box">
       <div class="header-main-title">
-        KTMC Wo Lok Estate Bus Estimated Arrival Time Display System
+        Wo Lok Estate Bus Estimated Arrival Time Display System
         <div class="warning-badges" id="warning-container"></div>
       </div>
-      <div class="header-sub-title">KWUN TONG EAST BUS DEPARTURE INFORMATION BOARD</div>
+      <div class="header-sub-title">觀瑪和樂邨巴士路綫預計到達時間顯示系統</div>
     </div>
 
     <div class="header-info-box">
-      <div class="header-info-label">日期 DATE</div>
+      <div class="header-info-label">Date</div>
       <div class="header-info-val" id="date-text">----/--/--</div>
     </div>
 
     <div class="header-info-box">
-      <div class="header-info-label" id="weather-desc">天氣 WEATHER</div>
+      <div class="header-info-label" id="weather-desc">Weather</div>
       <div class="header-info-val" id="temp-text">--°C</div>
     </div>
 
     <div class="header-time-box">
-      <div class="header-info-label">時間 TIME</div>
+      <div class="header-info-label">Time</div>
       <div class="header-time-val" id="clock">00:00</div>
     </div>
   </div>
 
   <div class="board-container">
-    <!-- 第一列：和樂邨南行 -->
     <div class="column-pane">
       <div class="column-title">
-        <span>和樂邨南行 WO LOK ESTATE SOUTHBOUND</span>
-        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">往觀塘市中心/九龍/港島方向</span>
+        <span>Southbound (Wo Lok Estate)</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨南行 (往觀塘市中心/九龍/港島方向)</span>
       </div>
       <div class="table-head">
-        <div>路線 <span>Route</span></div>
-        <div>時間 <span>Time</span></div>
-        <div>目的地 <span>Destination</span></div>
-        <div>月台 <span>Platform</span></div>
-        <div style="text-align: right;">實時狀態 <span>Status</span></div>
+        <div>Route <span>路線</span></div>
+        <div>Time <span>時間</span></div>
+        <div>Destination <span>目的地</span></div>
+        <div>Track <span>月台</span></div>
+        <div style="text-align: right;">Status <span>實時狀態</span></div>
       </div>
       <div class="board-scroll-wrapper" id="south-wrap">
         <div class="board-body" id="south-body"></div>
       </div>
     </div>
 
-    <!-- 第二列：和樂邨北行 -->
     <div class="column-pane">
       <div class="column-title">
-        <span>和樂邨北行 WO LOK ESTATE NORTHBOUND</span>
-        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">往順天/順利/秀茂坪/寶林方向</span>
+        <span>Northbound (Wo Lok Estate)</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨北行 (往順天/順利/秀茂坪/寶林方向)</span>
       </div>
       <div class="table-head">
-        <div>路線 <span>Route</span></div>
-        <div>時間 <span>Time</span></div>
-        <div>目的地 <span>Destination</span></div>
-        <div>月台 <span>Platform</span></div>
-        <div style="text-align: right;">實時狀態 <span>Status</span></div>
+        <div>Route <span>路線</span></div>
+        <div>Time <span>時間</span></div>
+        <div>Destination <span>目的地</span></div>
+        <div>Track <span>月台</span></div>
+        <div style="text-align: right;">Status <span>實時狀態</span></div>
       </div>
       <div class="board-scroll-wrapper" id="north-wrap">
         <div class="board-body" id="north-body"></div>
@@ -213,48 +212,48 @@
   </div>
 
   <div class="lcd-ticker">
-    <div class="ticker-tag">運行情報 MESSAGES</div>
+    <div class="ticker-tag">Info</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        Thank you for using KTMC Wo Lok Estate Bus Estimated Arrival Time Display System!
+        Thank you for using the KTMC Wo Lok Estate Bus Estimated Arrival Time Display System!
       </div>
     </div>
   </div>
 
   <script>
     const SOUTH_ROUTES = [
-      { route: "1A", dest: "尖沙咀碼頭", destEn: "STAR FERRY", track: "KT537" },
-      { route: "11X", dest: "紅磡站", destEn: "HUNG HOM STATION", track: "KT535" },
-      { route: "13D", dest: "維港灣", destEn: "METROPARK / OLYMPIC", track: "KT537" },
-      { route: "13M", dest: "觀塘（雅麗道）", destEn: "KWUN TONG (ELEGANCE LANE)", track: "KT535" },
-      { route: "13P", dest: "長沙灣（麗閣邨）", destEn: "CHEUNG SHA WAN", track: "KT537" },
-      { route: "23", dest: "觀塘碼頭", destEn: "KWUN TONG FERRY", track: "KT535" },
-      { route: "23M", dest: "樂華", destEn: "LOK WAH", track: "KT535" },
-      { route: "26M", dest: "觀塘↺", destEn: "KWUN TONG", track: "KT535" },
-      { route: "28B", dest: "啟德（啟晴邨）", destEn: "KAI TAK", track: "KT536" },
-      { route: "601", dest: "金鐘（東）", destEn: "ADMIRALTY (EAST)", track: "KT536" },
-      { route: "601P", dest: "上環", destEn: "SHEUNG WAN", track: "KT536" },
-      { route: "89", dest: "瀝源", destEn: "LEK YUEN", track: "KT535" },
-      { route: "89X", dest: "沙田站", destEn: "SHATIN STATION", track: "KT535" },
-      { route: "93A", dest: "觀塘碼頭", destEn: "KWUN TONG FERRY", track: "KT535" },
-      { route: "93K", dest: "旺角東站", destEn: "MONG KOK EAST STN", track: "KT537" },
-      { route: "N293", dest: "旺角（柏景灣）", destEn: "MONG KOK", track: "KT536" }
+      { route: "1A", dest: "Star Ferry", destZh: "尖沙咀碼頭", track: "KT537" },
+      { route: "11X", dest: "Hung Hom Station", destZh: "紅磡站", track: "KT535" },
+      { route: "13D", dest: "Metropark / Olympic", destZh: "維港灣", track: "KT537" },
+      { route: "13M", dest: "Kwun Tong (Elegance Lane)", destZh: "觀塘（雅麗道）", track: "KT535" },
+      { route: "13P", dest: "Cheung Sha Wan", destZh: "長沙灣（麗閣邨）", track: "KT537" },
+      { route: "23", dest: "Kwun Tong Ferry", destZh: "觀塘碼頭", track: "KT535" },
+      { route: "23M", dest: "Lok Wah", destZh: "樂華", track: "KT535" },
+      { route: "26M", dest: "Kwun Tong ↺", destZh: "觀塘 ↺", track: "KT535" },
+      { route: "28B", dest: "Kai Tak (Kai Ching Est)", destZh: "啟德（啟晴邨）", track: "KT536" },
+      { route: "601", dest: "Admiralty (East)", destZh: "金鐘（東）", track: "KT536" },
+      { route: "601P", dest: "Sheung Wan", destZh: "上環", track: "KT536" },
+      { route: "89", dest: "Lek Yuen", destZh: "瀝源", track: "KT535" },
+      { route: "89X", dest: "Shatin Station", destZh: "沙田站", track: "KT535" },
+      { route: "93A", dest: "Kwun Tong Ferry", destZh: "觀塘碼頭", track: "KT535" },
+      { route: "93K", dest: "Mong Kok East Stn", destZh: "旺角東站", track: "KT537" },
+      { route: "N293", dest: "Mong Kok (Park Central)", destZh: "旺角（柏景灣）", track: "KT536" }
     ];
 
     const NORTH_ROUTES = [
-      { route: "1A", dest: "中秀茂坪", destEn: "CENTRAL SAU MAU PING", track: "KT256" },
-      { route: "11X", dest: "安泰（北）", destEn: "ON TAT (NORTH)", track: "KT255" },
-      { route: "13D", dest: "寶達", destEn: "PO TAT", track: "KT255" },
-      { route: "14H", dest: "順利↺", destEn: "SHUN LEE", track: "KT258" },
-      { route: "23", dest: "順利↺", destEn: "SHUN LEE", track: "KT258" },
-      { route: "23M", dest: "順利↺", destEn: "SHUN LEE", track: "KT258" },
-      { route: "26M", dest: "彩虹", destEn: "CHOI HUNG", track: "KT258" },
-      { route: "28B", dest: "彩福", destEn: "CHOI FUK", track: "KT257" },
-      { route: "601", dest: "寶達", destEn: "PO TAT", track: "KT255" },
-      { route: "601P", dest: "寶達", destEn: "PO TAT", track: "KT255" },
-      { route: "93A", dest: "寶林", destEn: "PO LAM", track: "KT260" },
-      { route: "93K", dest: "翠林", destEn: "TSUI LAM", track: "KT259" },
-      { route: "N293", dest: "尚德", destEn: "SHEUNG TAK", track: "KT259" }
+      { route: "1A", dest: "Central Sau Mau Ping", destZh: "中秀茂坪", track: "KT256" },
+      { route: "11X", dest: "On Tat (North)", destZh: "安泰（北）", track: "KT255" },
+      { route: "13D", dest: "Po Tat", destZh: "寶達", track: "KT255" },
+      { route: "14H", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258" },
+      { route: "23", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258" },
+      { route: "23M", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258" },
+      { route: "26M", dest: "Choi Hung", destZh: "彩虹", track: "KT258" },
+      { route: "28B", dest: "Choi Fuk", destZh: "彩福", track: "KT257" },
+      { route: "601", dest: "Po Tat", destZh: "寶達", track: "KT255" },
+      { route: "601P", dest: "Po Tat", destZh: "寶達", track: "KT255" },
+      { route: "93A", dest: "Po Lam", destZh: "寶林", track: "KT260" },
+      { route: "93K", dest: "Tsui Lam", destZh: "翠林", track: "KT259" },
+      { route: "N293", dest: "Sheung Tak", destZh: "尚德", track: "KT259" }
     ];
 
     let southDepartures = [];
@@ -271,33 +270,33 @@
     }
 
     function getCustomWarningStyle(message) {
-      if (message.includes("一號")) return { icon: "t1.png", text: "一號戒備", bg: "#e11d48" };
-      if (message.includes("三號")) return { icon: "t3.png", text: "三號強風", bg: "#e11d48" };
-      if (message.includes("季候風")) return { icon: "monsoon.png", text: "強烈季候風", bg: "#059669" };
-      if (message.includes("黃色暴雨")) return { icon: "yellow-rain.png", text: "黃雨警告", bg: "#ca8a04" };
-      if (message.includes("紅色暴雨")) return { icon: "red-rain.png", text: "紅雨警告", bg: "#dc2626" };
-      if (message.includes("黑色暴雨")) return { icon: "black-rain.png", text: "黑雨警告", bg: "#111827" };
-      if (message.includes("山泥傾瀉")) return { icon: "landslip.png", text: "山泥傾瀉", bg: "#b45309" };
-      if (message.includes("雷暴")) return { icon: "thunder.png", text: "雷暴警告", bg: "#d97706" };
-      if (message.includes("寒冷")) return { icon: "cold.png", text: "寒冷天氣", bg: "#2563eb" };
-      if (message.includes("酷熱")) return { icon: "hot.png", text: "酷熱天氣", bg: "#d97706" };
-      if (message.includes("水浸")) return { icon: "nt-flood.png", text: "新界水浸", bg: "#2563eb" };
+      if (message.includes("一號")) return { icon: "t1.png", text: "Signal No. 1", bg: "#e11d48" };
+      if (message.includes("三號")) return { icon: "t3.png", text: "Signal No. 3", bg: "#e11d48" };
+      if (message.includes("季候風")) return { icon: "monsoon.png", text: "Monsoon Wind", bg: "#059669" };
+      if (message.includes("黃色暴雨")) return { icon: "yellow-rain.png", text: "Amber Rainstorm", bg: "#ca8a04" };
+      if (message.includes("紅色暴雨")) return { icon: "red-rain.png", text: "Red Rainstorm", bg: "#dc2626" };
+      if (message.includes("黑色暴雨")) return { icon: "black-rain.png", text: "Black Rainstorm", bg: "#111827" };
+      if (message.includes("山泥傾瀉")) return { icon: "landslip.png", text: "Landslip Warning", bg: "#b45309" };
+      if (message.includes("雷暴")) return { icon: "thunder.png", text: "Thunderstorm", bg: "#d97706" };
+      if (message.includes("寒冷")) return { icon: "cold.png", text: "Cold Weather", bg: "#2563eb" };
+      if (message.includes("酷熱")) return { icon: "hot.png", text: "Very Hot Weather", bg: "#d97706" };
+      if (message.includes("水浸")) return { icon: "nt-flood.png", text: "Flooding Warning", bg: "#2563eb" };
       return { icon: "t1.png", text: message, bg: "#dc2626" };
     }
 
     async function fetchWeatherData() {
       try {
-        const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+        const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en');
         if (res.ok) {
           const data = await res.json();
           if (data.temperature && data.temperature.data) {
-            const hkoTemp = data.temperature.data.find(t => t.place === "香港天文台");
+            const hkoTemp = data.temperature.data.find(t => t.place === "Hong Kong Observatory");
             if (hkoTemp) document.getElementById('temp-text').innerText = `${hkoTemp.value}°C`;
           }
           if (data.mintainWeather && data.mintainWeather.length > 0) {
             document.getElementById('weather-desc').innerText = data.mintainWeather[0];
           } else {
-            document.getElementById('weather-desc').innerText = "天氣 WEATHER";
+            document.getElementById('weather-desc').innerText = "Weather";
           }
 
           const warnContainer = document.getElementById('warning-container');
@@ -315,7 +314,7 @@
           }
         }
       } catch (e) {
-        document.getElementById('weather-desc').innerText = "氣象通訊中斷";
+        document.getElementById('weather-desc').innerText = "Weather Offline";
       }
     }
 
@@ -338,13 +337,12 @@
             if (json.data && Array.isArray(json.data)) {
               json.data.forEach(item => {
                 if (item.eta && item.route) {
-                  const destText = item.dest_tc || "";
-                  const isNorth = northKeywords.some(kw => destText.includes(kw));
+                  const destTextTc = item.dest_tc || "";
+                  const isNorth = northKeywords.some(kw => destTextTc.includes(kw));
                   apiEtas.push({
                     route: item.route,
                     isNorth: isNorth,
-                    etaTime: new Date(item.eta),
-                    dest: destText
+                    etaTime: new Date(item.eta)
                   });
                 }
               });
@@ -365,7 +363,6 @@
     function buildNormalizedList(routeConfig, apiEtas, isNorthDirection) {
       const now = new Date();
       return routeConfig.map(configItem => {
-        // 只選取未來或剛好到站（保留微小緩衝避免瞬間閃爍）的班次，開出後自動切換至下一班
         const matches = apiEtas.filter(e => 
           e.route === configItem.route && 
           e.isNorth === isNorthDirection && 
@@ -381,7 +378,7 @@
         return {
           route: configItem.route,
           dest: configItem.dest,
-          destEn: configItem.destEn,
+          destZh: configItem.destZh,
           track: configItem.track,
           etaTime: bestEta
         };
@@ -390,32 +387,32 @@
 
     function renderBoardHTML(departures) {
       if (!isDataLoaded) {
-        return `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:400;">載入中...</div>`;
+        return `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:400;">Loading...</div>`;
       }
       if (departures.length === 0) {
-        return `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-weight:400; font-size:0.9vw;">暫無資料</div>`;
+        return `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-weight:400; font-size:0.9vw;">No Data Available</div>`;
       }
 
       const now = new Date();
       let html = '';
       departures.forEach(item => {
         let timeStr = "--:--";
-        let statusMain = "暫無資訊";
-        let statusSub = "NO INFO";
+        let statusMain = "No Info";
+        let statusSub = "N/A";
         let statusClass = "status-none";
 
         if (item.etaTime) {
           const diffSecs = Math.floor((item.etaTime - now) / 1000);
           const diffMins = Math.floor(diffSecs / 60);
-          timeStr = item.etaTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+          timeStr = item.etaTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
           statusClass = "";
 
           if (diffSecs <= 30 && diffSecs >= -10) {
-            statusMain = "即將到站";
+            statusMain = "Arriving";
             statusSub = "ARRIVING";
           } else {
-            statusMain = `${diffMins} 分鐘`;
-            statusSub = `${Math.max(0, diffSecs % 60)} 秒`;
+            statusMain = `${diffMins} min${diffMins === 1 ? '' : 's'}`;
+            statusSub = `${Math.max(0, diffSecs % 60)} sec`;
           }
         }
 
@@ -426,11 +423,11 @@
             </div>
             <div class="time-col">
               <div class="time-main">${timeStr}</div>
-              <div class="time-sub">${item.etaTime ? '預定' : '--'}</div>
+              <div class="time-sub">${item.etaTime ? 'Scheduled' : '--'}</div>
             </div>
             <div class="dest-col">
               <div class="dest-main">${item.dest}</div>
-              <div class="dest-sub">${item.destEn}</div>
+              <div class="dest-sub">${item.destZh}</div>
             </div>
             <div class="track-col">
               <div class="track-box">${item.track}</div>
@@ -452,11 +449,10 @@
 
     function tickRealtime() {
       const now = new Date();
-      document.getElementById('clock').innerText = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-      document.getElementById('date-text').innerText = now.toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric', weekday: 'short' });
+      document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+      document.getElementById('date-text').innerText = now.toLocaleDateString('en-GB', { month: 'numeric', day: 'numeric', weekday: 'short' });
       
       if (isDataLoaded) {
-        // 每秒實時刷新時間顯示，當班次開出後若API已有下一班，即刻自動切換
         renderBoards();
       }
     }
@@ -485,7 +481,7 @@
       fetchAPIData();
       fetchWeatherData();
       setInterval(tickRealtime, 1000);
-      setInterval(fetchAPIData, 15000); // 頻繁同步API確保下一班資料準確
+      setInterval(fetchAPIData, 15000);
       setInterval(fetchWeatherData, 60000);
       setInterval(autoScrollEngine, 5000);
     });
