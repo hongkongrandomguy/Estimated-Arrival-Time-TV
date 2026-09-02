@@ -132,6 +132,7 @@
 
     .status-col { text-align: right; }
     .status-main { font-size: 1.02vw; font-weight: 400; color: #facc15; }
+    .status-num { font-size: 1.35vw; font-weight: 500; } /* 分鐘數字放大 */
     .status-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; text-transform: uppercase; }
     .status-none { color: #64748b !important; }
 
@@ -185,7 +186,7 @@
         <div>Route <span>路線</span></div>
         <div>Time <span>時間</span></div>
         <div>Destination <span>目的地</span></div>
-        <div>Track <span>月台</span></div>
+        <div>Platform <span>月台</span></div>
         <div style="text-align: right;">Status <span>實時狀態</span></div>
       </div>
       <div class="board-scroll-wrapper" id="south-wrap">
@@ -202,7 +203,7 @@
         <div>Route <span>路線</span></div>
         <div>Time <span>時間</span></div>
         <div>Destination <span>目的地</span></div>
-        <div>Track <span>月台</span></div>
+        <div>Platform <span>月台</span></div>
         <div style="text-align: right;">Status <span>實時狀態</span></div>
       </div>
       <div class="board-scroll-wrapper" id="north-wrap">
@@ -411,7 +412,7 @@
             statusMain = "Arriving";
             statusSub = "ARRIVING";
           } else {
-            statusMain = `${diffMins} min${diffMins === 1 ? '' : 's'}`;
+            statusMain = `<span class="status-num">${diffMins}</span> min${diffMins === 1 ? '' : 's'}`;
             statusSub = `${Math.max(0, diffSecs % 60)} sec`;
           }
         }
