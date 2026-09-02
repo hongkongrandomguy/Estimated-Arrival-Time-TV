@@ -222,7 +222,6 @@
   </div>
 
   <script>
-    // 常態化定義和樂邨南行與北行的完整路線清單
     const SOUTH_ROUTES = [
       { route: "1A", dest: "中秀茂坪", destEn: "CENTRAL SAU MAU PING", track: "KT537" },
       { route: "11X", dest: "九龍城碼頭", destEn: "KOWLOON CITY FERRY", track: "KT535" },
@@ -353,7 +352,6 @@
           }
         }
 
-        // 將實時 ETA 數據對應至常態化路線清單
         southDepartures = buildNormalizedList(SOUTH_ROUTES, apiEtas, false);
         northDepartures = buildNormalizedList(NORTH_ROUTES, apiEtas, true);
         
@@ -365,9 +363,15 @@
     }
 
     function buildNormalizedList(routeConfig, apiEtas, isNorthDirection) {
+      const now = new Date();
       return routeConfig.map(configItem => {
-        // 尋找該路線最接近的實時班次
-        const matches = apiEtas.filter(e => e.route === configItem.route && e.isNorth === isNorthDirection);
+        // 只選取未來或剛好到站（保留微小緩衝避免瞬間閃爍）的班次，開出後自動切換至下一班
+        const matches = apiEtas.filter(e => 
+          e.route === configItem.route && 
+          e.isNorth === isNorthDirection && 
+          e.etaTime.getTime() >= now.getTime() - 10000
+        );
+        
         let bestEta = null;
         if (matches.length > 0) {
           matches.sort((a, b) => a.etaTime - b.etaTime);
@@ -406,15 +410,12 @@
           timeStr = item.etaTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
           statusClass = "";
 
-          if (diffSecs <= 30 && diffSecs > -30) {
+          if (diffSecs <= 30 && diffSecs >= -10) {
             statusMain = "即將到站";
             statusSub = "ARRIVING";
-          } else if (diffSecs <= -30) {
-            statusMain = "已開出";
-            statusSub = "DEPARTED";
           } else {
             statusMain = `${diffMins} 分鐘`;
-            statusSub = `${diffSecs % 60} 秒`;
+            statusSub = `${Math.max(0, diffSecs % 60)} 秒`;
           }
         }
 
@@ -455,6 +456,7 @@
       document.getElementById('date-text').innerText = now.toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric', weekday: 'short' });
       
       if (isDataLoaded) {
+        // 每秒實時刷新時間顯示，當班次開出後若API已有下一班，即刻自動切換
         renderBoards();
       }
     }
@@ -483,7 +485,7 @@
       fetchAPIData();
       fetchWeatherData();
       setInterval(tickRealtime, 1000);
-      setInterval(fetchAPIData, 20000);
+      setInterval(fetchAPIData, 15000); // 頻繁同步API確保下一班資料準確
       setInterval(fetchWeatherData, 60000);
       setInterval(autoScrollEngine, 5000);
     });
