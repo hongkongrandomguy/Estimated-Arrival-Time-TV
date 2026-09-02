@@ -114,35 +114,51 @@
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用觀塘東實時巴士發車情報看板。系統已啟動安全容錯機制，確保畫面穩定運行，請注意候車安全。
+        歡迎使用觀塘東實時巴士發車情報看板。系統每 20 秒自動同步九巴官方 API 數據，請注意候車安全。
       </div>
     </div>
   </div>
 
   <script>
+    // 這裡使用九巴官方正確的指定站點代碼 (stop id)
     const COLUMNS_CONFIG = [
       {
-        elementId: "col-1", wrapperId: "wrap-1", colKey: "col1",
+        elementId: "col-1", wrapperId: "wrap-1", colKey: "col1", stopId: "003265", // 和樂邨南行
         routes: [
           { route: "1A", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
           { route: "11X", dest: "紅磡站", destEn: "Hung Hom Station" },
           { route: "13D", dest: "維港灣", destEn: "Island Harbourview" },
           { route: "13M", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong" },
+          { route: "13P", dest: "長沙灣 (麗閣邨)", destEn: "Cheung Sha Wan" },
+          { route: "23", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
           { route: "23M", dest: "樂華", destEn: "Lok Wah" },
-          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" }
+          { route: "26M", dest: "觀塘", destEn: "Kwun Tong" },
+          { route: "28B", dest: "啟德 (啟晴邨)", destEn: "Kai Tak" },
+          { route: "89", dest: "瀝源", destEn: "Lek Yuen" },
+          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" },
+          { route: "93A", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
+          { route: "93K", dest: "旺角東站", destEn: "Mong Kok East" },
+          { route: "N293", dest: "旺角 (柏景灣)", destEn: "Mong Kok" }
         ]
       },
       {
-        elementId: "col-2", wrapperId: "wrap-2", colKey: "col2",
+        elementId: "col-2", wrapperId: "wrap-2", colKey: "col2", stopId: "003348", // 和樂邨北行
         routes: [
           { route: "1A", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
           { route: "11X", dest: "安泰 (北)", destEn: "On Tai (North)" },
+          { route: "13D", dest: "寶達", destEn: "Po Tat" },
           { route: "14H", dest: "順利", destEn: "Shun Lee" },
-          { route: "23", dest: "順利", destEn: "Shun Lee" }
+          { route: "23", dest: "順利", destEn: "Shun Lee" },
+          { route: "23M", dest: "順利", destEn: "Shun Lee" },
+          { route: "26M", dest: "彩虹", destEn: "Choi Hung" },
+          { route: "28B", dest: "彩福", destEn: "Choi Fook" },
+          { route: "93A", dest: "寶林", destEn: "Po Lam" },
+          { route: "93K", dest: "翠林", destEn: "Tsui Lam" },
+          { route: "N293", dest: "尚德", destEn: "Sheung Tak" }
         ]
       },
       {
-        elementId: "col-3", wrapperId: "wrap-3", colKey: "col3",
+        elementId: "col-3", wrapperId: "wrap-3", colKey: "col3", stopId: "003347", // 翠屏北邨往市區
         routes: [
           { route: "11B", dest: "九龍城碼頭", destEn: "Kowloon City" },
           { route: "11C", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
@@ -151,7 +167,7 @@
         ]
       },
       {
-        elementId: "col-4", wrapperId: "wrap-4", colKey: "col4",
+        elementId: "col-4", wrapperId: "wrap-4", colKey: "col4", stopId: "003349", // 翠屏北邨往山上
         routes: [
           { route: "11B", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
           { route: "11C", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
@@ -179,42 +195,45 @@
     }
 
     function initDOM() {
-      try {
-        COLUMNS_CONFIG.forEach(col => {
-          const container = document.getElementById(col.elementId);
-          if (!container) return;
-          container.innerHTML = '';
-          fullDataStore[col.colKey] = {};
+      COLUMNS_CONFIG.forEach(col => {
+        const container = document.getElementById(col.elementId);
+        if (!container) return;
+        container.innerHTML = '';
+        fullDataStore[col.colKey] = {};
 
-          col.routes.forEach((r, idx) => {
-            fullDataStore[col.colKey][r.route] = { targetTime: null };
-            const order = getOrderLabel(idx);
+        col.routes.forEach((r, idx) => {
+          fullDataStore[col.colKey][r.route] = { targetTime: null };
+          const order = getOrderLabel(idx);
 
-            const row = document.createElement('div');
-            row.className = 'route-row';
-            row.innerHTML = `
-              <div class="order-col">
-                <div class="order-hk">${order.hk}</div>
-                <div class="order-en">${order.en}</div>
-              </div>
-              <div>
-                <div class="type-badge ${getBadgeClass(r.route)}">${r.route}</div>
-              </div>
-              <div class="dest-col">
-                <div class="dest-main">${r.dest}</div>
-                <div class="dest-sub">${r.destEn.toUpperCase()}</div>
-              </div>
-              <div class="time-col">
-                <div class="time-main" id="time-${col.colKey}-${r.route}">--:--</div>
-                <div class="time-sub" id="sub-${col.colKey}-${r.route}">無預定</div>
-              </div>
-            `;
-            container.appendChild(row);
-          });
+          const row = document.createElement('div');
+          row.className = 'route-row';
+          row.innerHTML = `
+            <div class="order-col">
+              <div class="order-hk">${order.hk}</div>
+              <div class="order-en">${order.en}</div>
+            </div>
+            <div>
+              <div class="type-badge ${getBadgeClass(r.route)}">${r.route}</div>
+            </div>
+            <div class="dest-col">
+              <div class="dest-main">${r.dest}</div>
+              <div class="dest-sub">${r.destEn.toUpperCase()}</div>
+            </div>
+            <div class="time-col">
+              <div class="time-main" id="time-${col.colKey}-${r.route}">--:--</div>
+              <div class="time-sub" id="sub-${col.colKey}-${r.route}">無預定</div>
+            </div>
+          `;
+          container.appendChild(row);
         });
-      } catch (err) {
-        console.error("DOM 初始化失敗:", err);
-      }
+      });
+    }
+
+    function updateLCDValue(colKey, route, timeVal, subVal) {
+      const timeElem = document.getElementById(`time-${colKey}-${route}`);
+      const subElem = document.getElementById(`sub-${colKey}-${route}`);
+      if (timeElem) timeElem.innerText = timeVal;
+      if (subElem) subElem.innerText = subVal;
     }
 
     function tickRealtime() {
@@ -223,6 +242,55 @@
       if (clockElem) {
         clockElem.innerText = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
       }
+
+      COLUMNS_CONFIG.forEach(col => {
+        col.routes.forEach(r => {
+          const item = fullDataStore[col.colKey]?.[r.route];
+          if (item && item.targetTime) {
+            const diffSecs = Math.floor((item.targetTime - now) / 1000);
+            const diffMins = Math.floor(diffSecs / 60);
+
+            if (diffSecs > -30) {
+              if (diffSecs <= 30) {
+                updateLCDValue(col.colKey, r.route, "即將", "即將到站");
+              } else {
+                const depTimeStr = item.targetTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+                updateLCDValue(col.colKey, r.route, depTimeStr, `${diffMins} 分鐘`);
+              }
+            } else {
+              updateLCDValue(col.colKey, r.route, "--:--", "無預定");
+            }
+          } else {
+            updateLCDValue(col.colKey, r.route, "--:--", "無預定");
+          }
+        });
+      });
+    }
+
+    async function fetchAPIData() {
+      for (const col of COLUMNS_CONFIG) {
+        try {
+          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`;
+          const res = await fetch(url);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.data && Array.isArray(json.data)) {
+              col.routes.forEach(r => {
+                // 找出該站點符合特定路線的第一班車 ETA
+                const match = json.data.find(item => item.route === r.route && item.eta);
+                if (match && match.eta) {
+                  fullDataStore[col.colKey][r.route].targetTime = new Date(match.eta);
+                } else {
+                  fullDataStore[col.colKey][r.route].targetTime = null;
+                }
+              });
+            }
+          }
+        } catch (e) {
+          console.warn(`站點 ${col.stopId} 獲取失敗`, e);
+        }
+      }
+      tickRealtime();
     }
 
     function autoScrollEngine() {
@@ -248,9 +316,10 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       initDOM();
+      fetchAPIData();
       setInterval(tickRealtime, 1000);
+      setInterval(fetchAPIData, 20000);
       setInterval(autoScrollEngine, 4000);
-      tickRealtime();
     });
   </script>
 </body>
