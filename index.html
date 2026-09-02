@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東 巴士發車情報看板</title>
+  <title>KTMC Wo Lok Estate Bus Estimated Arrival Time Display System</title>
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -152,7 +152,7 @@
     
     <div class="header-title-box">
       <div class="header-main-title">
-        觀塘東 巴士發車情報看板
+        KTMC Wo Lok Estate Bus Estimated Arrival Time Display System
         <div class="warning-badges" id="warning-container"></div>
       </div>
       <div class="header-sub-title">KWUN TONG EAST BUS DEPARTURE INFORMATION BOARD</div>
@@ -178,14 +178,14 @@
     <!-- 第一列：和樂邨南行 -->
     <div class="column-pane">
       <div class="column-title">
-        <span>和樂邨南行 (SOUTHBOUND)</span>
-        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">往九龍/港島方向</span>
+        <span>和樂邨南行 WO LOK ESTATE SOUTHBOUND</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">往觀塘市中心/九龍/港島方向</span>
       </div>
       <div class="table-head">
         <div>路線 <span>Route</span></div>
         <div>時間 <span>Time</span></div>
         <div>目的地 <span>Destination</span></div>
-        <div>月台 <span>Track</span></div>
+        <div>月台 <span>Platform</span></div>
         <div style="text-align: right;">實時狀態 <span>Status</span></div>
       </div>
       <div class="board-scroll-wrapper" id="south-wrap">
@@ -196,14 +196,14 @@
     <!-- 第二列：和樂邨北行 -->
     <div class="column-pane">
       <div class="column-title">
-        <span>和樂邨北行 (NORTHBOUND)</span>
-        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">往秀茂坪/寶林方向</span>
+        <span>和樂邨北行 WO LOK ESTATE NORTHBOUND</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">往順天/順利/秀茂坪/寶林方向</span>
       </div>
       <div class="table-head">
         <div>路線 <span>Route</span></div>
         <div>時間 <span>Time</span></div>
         <div>目的地 <span>Destination</span></div>
-        <div>月台 <span>Track</span></div>
+        <div>月台 <span>Platform</span></div>
         <div style="text-align: right;">實時狀態 <span>Status</span></div>
       </div>
       <div class="board-scroll-wrapper" id="north-wrap">
@@ -213,48 +213,48 @@
   </div>
 
   <div class="lcd-ticker">
-    <div class="ticker-tag">運行情報</div>
+    <div class="ticker-tag">運行情報 MESSAGES</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用觀塘東實時巴士發車情報看板。系統自動同步九巴官方 API 數據，時刻表依據即時交通情況調整，請留意上落車安全。
+        Thank you for using KTMC Wo Lok Estate Bus Estimated Arrival Time Display System!
       </div>
     </div>
   </div>
 
   <script>
     const SOUTH_ROUTES = [
-      { route: "1A", dest: "中秀茂坪", destEn: "CENTRAL SAU MAU PING", track: "KT537" },
-      { route: "11X", dest: "九龍城碼頭", destEn: "KOWLOON CITY FERRY", track: "KT535" },
-      { route: "13D", dest: "寶達", destEn: "PO TAT", track: "KT537" },
-      { route: "13M", dest: "觀塘 (裕民坊)", destEn: "KWUN TONG (YUE MAN SQUARE)", track: "KT535" },
-      { route: "13P", dest: "寶達", destEn: "PO TAT", track: "KT537" },
-      { route: "23", dest: "順利", destEn: "SHUN LEE", track: "KT535" },
+      { route: "1A", dest: "尖沙咀碼頭", destEn: "STAR FERRY", track: "KT537" },
+      { route: "11X", dest: "紅磡站", destEn: "HUNG HOM STATION", track: "KT535" },
+      { route: "13D", dest: "維港灣", destEn: "METROPARK / OLYMPIC", track: "KT537" },
+      { route: "13M", dest: "觀塘（雅麗道）", destEn: "KWUN TONG (ELEGANCE LANE)", track: "KT535" },
+      { route: "13P", dest: "長沙灣（麗閣邨）", destEn: "CHEUNG SHA WAN", track: "KT537" },
+      { route: "23", dest: "觀塘碼頭", destEn: "KWUN TONG FERRY", track: "KT535" },
       { route: "23M", dest: "樂華", destEn: "LOK WAH", track: "KT535" },
-      { route: "26M", dest: "彩虹", destEn: "CHOI HUNG", track: "KT535" },
-      { route: "28B", dest: "彩福", destEn: "CHOI FUK", track: "KT536" },
+      { route: "26M", dest: "觀塘↺", destEn: "KWUN TONG", track: "KT535" },
+      { route: "28B", dest: "啟德（啟晴邨）", destEn: "KAI TAK", track: "KT536" },
+      { route: "601", dest: "金鐘（東）", destEn: "ADMIRALTY (EAST)", track: "KT536" },
+      { route: "601P", dest: "上環", destEn: "SHEUNG WAN", track: "KT536" },
       { route: "89", dest: "瀝源", destEn: "LEK YUEN", track: "KT535" },
       { route: "89X", dest: "沙田站", destEn: "SHATIN STATION", track: "KT535" },
-      { route: "93A", dest: "寶林", destEn: "PO LAM", track: "KT535" },
-      { route: "93K", dest: "寶林", destEn: "PO LAM", track: "KT537" },
-      { route: "601", dest: "寶達", destEn: "PO TAT", track: "KT536" },
-      { route: "601P", dest: "寶達", destEn: "PO TAT", track: "KT536" },
-      { route: "N293", dest: "將軍澳 (景嶺路)", destEn: "TSEUNG KWAN O", track: "KT536" }
+      { route: "93A", dest: "觀塘碼頭", destEn: "KWUN TONG FERRY", track: "KT535" },
+      { route: "93K", dest: "旺角東站", destEn: "MONG KOK EAST STN", track: "KT537" },
+      { route: "N293", dest: "旺角（柏景灣）", destEn: "MONG KOK", track: "KT536" }
     ];
 
     const NORTH_ROUTES = [
       { route: "1A", dest: "中秀茂坪", destEn: "CENTRAL SAU MAU PING", track: "KT256" },
-      { route: "11X", dest: "中秀茂坪", destEn: "CENTRAL SAU MAU PING", track: "KT255" },
+      { route: "11X", dest: "安泰（北）", destEn: "ON TAT (NORTH)", track: "KT255" },
       { route: "13D", dest: "寶達", destEn: "PO TAT", track: "KT255" },
-      { route: "14H", dest: "油塘", destEn: "YAU TONG", track: "KT258" },
-      { route: "23", dest: "順利", destEn: "SHUN LEE", track: "KT258" },
-      { route: "23M", dest: "順利", destEn: "SHUN LEE", track: "KT258" },
-      { route: "26M", dest: "順天", destEn: "SHUN TIN", track: "KT258" },
-      { route: "28B", dest: "樂華", destEn: "LOK WAH", track: "KT257" },
-      { route: "601", dest: "金鐘 (東)", destEn: "ADMIRALTY (EAST)", track: "KT255" },
-      { route: "601P", dest: "金鐘 (東)", destEn: "ADMIRALTY (EAST)", track: "KT255" },
+      { route: "14H", dest: "順利↺", destEn: "SHUN LEE", track: "KT258" },
+      { route: "23", dest: "順利↺", destEn: "SHUN LEE", track: "KT258" },
+      { route: "23M", dest: "順利↺", destEn: "SHUN LEE", track: "KT258" },
+      { route: "26M", dest: "彩虹", destEn: "CHOI HUNG", track: "KT258" },
+      { route: "28B", dest: "彩福", destEn: "CHOI FUK", track: "KT257" },
+      { route: "601", dest: "寶達", destEn: "PO TAT", track: "KT255" },
+      { route: "601P", dest: "寶達", destEn: "PO TAT", track: "KT255" },
       { route: "93A", dest: "寶林", destEn: "PO LAM", track: "KT260" },
-      { route: "93K", dest: "旺角東站", destEn: "MONG KOK EAST STATION", track: "KT259" },
-      { route: "N293", dest: "旺角 (柏景灣)", destEn: "MONG KOK", track: "KT259" }
+      { route: "93K", dest: "翠林", destEn: "TSUI LAM", track: "KT259" },
+      { route: "N293", dest: "尚德", destEn: "SHEUNG TAK", track: "KT259" }
     ];
 
     let southDepartures = [];
@@ -266,7 +266,7 @@
     function getBadgeClass(route) {
       if (route.includes("A") || route.includes("X")) return "type-nozomi";
       if (route.startsWith("8") || route.startsWith("2")) return "type-hikari";
-      if (route.startsWith("14") || route.startsWith("11")) return "type-kodama";
+      if (route.startsWith("14") || route.startsWith("11") || route.startsWith("13")) return "type-kodama";
       return "type-local";
     }
 
@@ -328,7 +328,7 @@
         const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
         
         let apiEtas = [];
-        const northKeywords = ["順利", "秀茂坪", "寶達", "安泰", "寶林", "翠林", "康盛", "將軍澳"];
+        const northKeywords = ["順利", "秀茂坪", "寶達", "安泰", "寶林", "翠林", "康盛", "將軍澳", "彩虹", "彩福", "中秀茂坪", "尚德"];
 
         for (const station of woLokStops) {
           const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stop}`;
@@ -344,7 +344,7 @@
                     route: item.route,
                     isNorth: isNorth,
                     etaTime: new Date(item.eta),
-                    dest: destText || (isNorth ? "指定目的地" : "九龍方向")
+                    dest: destText
                   });
                 }
               });
