@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>觀塘東 巴士發車情報看板</title>
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0; padding: 0.6vw; background-color: #020408; color: #ffffff;
       font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
       height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
     }
     
@@ -21,26 +22,26 @@
       border: 2px solid #2d3b4e; border-radius: 4px; padding: 0.5vw 1.2vw; margin-bottom: 0.6vw; flex-shrink: 0;
     }
     .platform-box {
-      background: #e11d48; color: #ffffff; font-weight: 900; font-size: 1.8vw;
+      background: #e11d48; color: #ffffff; font-weight: 700; font-size: 1.8vw;
       padding: 0.1vw 0.8vw; border-radius: 3px; text-align: center; letter-spacing: 0.1vw;
     }
     .header-title-box { display: flex; flex-direction: column; justify-content: center; }
-    .header-main-title { font-size: 1.4vw; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 0.8vw; }
-    .header-sub-title { font-size: 0.65vw; color: #8a99ad; font-weight: 700; letter-spacing: 0.05vw; }
+    .header-main-title { font-size: 1.4vw; font-weight: 500; color: #ffffff; display: flex; align-items: center; gap: 0.8vw; }
+    .header-sub-title { font-size: 0.78vw; color: #8a99ad; font-weight: 400; letter-spacing: 0.05vw; }
     
     .header-info-box {
       background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: center;
     }
-    .header-info-label { font-size: 0.5vw; color: #8a99ad; font-weight: 700; }
-    .header-info-val { font-size: 0.95vw; font-weight: 900; color: #f59e0b; }
+    .header-info-label { font-size: 0.62vw; color: #8a99ad; font-weight: 400; }
+    .header-info-val { font-size: 1vw; font-weight: 500; color: #f59e0b; }
 
     .header-time-box { background: #000000; border: 1px solid #3a4859; padding: 0.2vw 1vw; border-radius: 3px; text-align: right; min-width: 7vw; }
-    .header-time-label { font-size: 0.5vw; color: #8a99ad; font-weight: 700; }
-    .header-time-val { font-size: 1.6vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
+    .header-time-label { font-size: 0.62vw; color: #8a99ad; font-weight: 400; }
+    .header-time-val { font-size: 1.6vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
     
     .warning-badges { display: flex; gap: 0.5vw; align-items: center; }
     .warn-badge {
-      font-size: 0.75vw; font-weight: 900; padding: 0.2vw 0.6vw; border-radius: 3px;
+      font-size: 0.78vw; font-weight: 500; padding: 0.2vw 0.6vw; border-radius: 3px;
       display: inline-flex; align-items: center; gap: 0.4vw; white-space: nowrap; animation: pulse-warn 1.5s infinite;
       border: 1px solid rgba(255,255,255,0.3);
     }
@@ -63,8 +64,8 @@
     .column-title {
       background: #141c28;
       padding: 0.4vw 0.8vw;
-      font-size: 0.85vw;
-      font-weight: 900;
+      font-size: 0.88vw;
+      font-weight: 500;
       color: #38bdf8;
       border-bottom: 2px solid #283548;
       display: flex;
@@ -79,15 +80,15 @@
       grid-template-columns: 1fr 1.1fr 2.2fr 1.1fr 1.3fr; 
       background: #101722; 
       padding: 0.35vw 0.6vw; 
-      font-size: 0.7vw; 
-      font-weight: 800; 
+      font-size: 0.72vw; 
+      font-weight: 400; 
       color: #cbd5e1; 
       align-items: center;
       border-bottom: 1px solid #283548; 
       flex-shrink: 0;
     }
     .table-head div { display: flex; flex-direction: column; }
-    .table-head span { font-size: 0.45vw; color: #718096; font-weight: 700; text-transform: uppercase; }
+    .table-head span { font-size: 0.58vw; color: #718096; font-weight: 400; text-transform: uppercase; }
 
     .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
     .board-body { display: flex; flex-direction: column; gap: 4px; padding: 4px; position: absolute; width: 100%; top: 0; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
@@ -104,7 +105,7 @@
     }
 
     .train-badge { 
-      font-size: 1vw; font-weight: 900; padding: 0.15vw 0.3vw; border-radius: 3px; 
+      font-size: 1.05vw; font-weight: 500; padding: 0.15vw 0.3vw; border-radius: 3px; 
       color: #ffffff; text-align: center; width: 85%; display: flex; align-items: center; justify-content: center;
       box-shadow: inset 0 0 4px rgba(0,0,0,0.4);
     }
@@ -114,32 +115,33 @@
     .type-local   { background: #475569; }
 
     .time-col { display: flex; flex-direction: column; }
-    .time-main { font-size: 1.25vw; font-weight: 900; color: #38bdf8; line-height: 1.1; letter-spacing: 0.05vw; }
-    .time-sub { font-size: 0.5vw; color: #94a3b8; font-weight: 700; }
+    .time-main { font-size: 1.25vw; font-weight: 500; color: #38bdf8; line-height: 1.1; letter-spacing: 0.05vw; }
+    .time-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; }
 
     .dest-col { overflow: hidden; padding-right: 0.4vw; }
-    .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .dest-sub { font-size: 0.5vw; color: #94a3b8; white-space: nowrap; text-transform: uppercase; }
+    .dest-main { font-size: 1.05vw; font-weight: 400; color: #ffffff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; text-transform: uppercase; font-weight: 400; }
 
     .track-col { display: flex; justify-content: center; }
     .track-box {
-      background: #ffffff; color: #000000; font-weight: 900; font-size: 0.95vw;
+      background: #ffffff; color: #000000; font-weight: 500; font-size: 0.95vw;
       padding: 0.1vw 0.4vw; border-radius: 3px; text-align: center; min-width: 3.2vw;
       box-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space: nowrap;
     }
 
     .status-col { text-align: right; }
-    .status-main { font-size: 1vw; font-weight: 900; color: #facc15; }
-    .status-sub { font-size: 0.5vw; color: #94a3b8; font-weight: 700; }
+    .status-main { font-size: 1.02vw; font-weight: 400; color: #facc15; }
+    .status-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; }
+    .status-none { color: #64748b !important; }
 
     .lcd-ticker {
       height: 2.2vw; background: #000000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.5vw; display: flex; align-items: center; position: relative; overflow: hidden; flex-shrink: 0;
     }
     .ticker-tag {
-      background: #dc2626; color: #ffffff; font-size: 0.65vw; font-weight: 900; padding: 0.2vw 1vw; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; letter-spacing: 0.1vw;
+      background: #dc2626; color: #ffffff; font-size: 0.68vw; font-weight: 400; padding: 0.2vw 1vw; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; letter-spacing: 0.1vw;
     }
     .ticker-text-wrapper { flex-grow: 1; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; }
-    .ticker-text { font-size: 0.85vw; color: #f1f5f9; white-space: nowrap; font-weight: 700; position: absolute; animation: ticker 30s linear infinite; }
+    .ticker-text { font-size: 0.88vw; color: #f1f5f9; white-space: nowrap; font-weight: 400; position: absolute; animation: ticker 30s linear infinite; }
     @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
   </style>
 </head>
@@ -177,13 +179,13 @@
     <div class="column-pane">
       <div class="column-title">
         <span>和樂邨南行 (SOUTHBOUND)</span>
-        <span style="font-size: 0.7vw; color: #94a3b8;">往九龍/港島方向</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">往九龍/港島方向</span>
       </div>
       <div class="table-head">
         <div>路線 <span>Route</span></div>
         <div>時間 <span>Time</span></div>
         <div>目的地 <span>Destination</span></div>
-        <div>月台 <span>Platform</span></div>
+        <div>月台 <span>Track</span></div>
         <div style="text-align: right;">實時狀態 <span>Status</span></div>
       </div>
       <div class="board-scroll-wrapper" id="south-wrap">
@@ -195,13 +197,13 @@
     <div class="column-pane">
       <div class="column-title">
         <span>和樂邨北行 (NORTHBOUND)</span>
-        <span style="font-size: 0.7vw; color: #94a3b8;">往秀茂坪/寶林方向</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">往秀茂坪/寶林方向</span>
       </div>
       <div class="table-head">
         <div>路線 <span>Route</span></div>
         <div>時間 <span>Time</span></div>
         <div>目的地 <span>Destination</span></div>
-        <div>月台 <span>Platform</span></div>
+        <div>月台 <span>Track</span></div>
         <div style="text-align: right;">實時狀態 <span>Status</span></div>
       </div>
       <div class="board-scroll-wrapper" id="north-wrap">
@@ -214,12 +216,48 @@
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用觀塘東實時巴士發車情報看板。系統自動同步九巴官方 API 數據，請留意上落車安全。
+        歡迎使用觀塘東實時巴士發車情報看板。系統自動同步九巴官方 API 數據，時刻表依據即時交通情況調整，請留意上落車安全。
       </div>
     </div>
   </div>
 
   <script>
+    // 常態化定義和樂邨南行與北行的完整路線清單
+    const SOUTH_ROUTES = [
+      { route: "1A", dest: "中秀茂坪", destEn: "CENTRAL SAU MAU PING", track: "KT537" },
+      { route: "11X", dest: "九龍城碼頭", destEn: "KOWLOON CITY FERRY", track: "KT535" },
+      { route: "13D", dest: "寶達", destEn: "PO TAT", track: "KT537" },
+      { route: "13M", dest: "觀塘 (裕民坊)", destEn: "KWUN TONG (YUE MAN SQUARE)", track: "KT535" },
+      { route: "13P", dest: "寶達", destEn: "PO TAT", track: "KT537" },
+      { route: "23", dest: "順利", destEn: "SHUN LEE", track: "KT535" },
+      { route: "23M", dest: "樂華", destEn: "LOK WAH", track: "KT535" },
+      { route: "26M", dest: "彩虹", destEn: "CHOI HUNG", track: "KT535" },
+      { route: "28B", dest: "彩福", destEn: "CHOI FUK", track: "KT536" },
+      { route: "89", dest: "瀝源", destEn: "LEK YUEN", track: "KT535" },
+      { route: "89X", dest: "沙田站", destEn: "SHATIN STATION", track: "KT535" },
+      { route: "93A", dest: "寶林", destEn: "PO LAM", track: "KT535" },
+      { route: "93K", dest: "寶林", destEn: "PO LAM", track: "KT537" },
+      { route: "601", dest: "寶達", destEn: "PO TAT", track: "KT536" },
+      { route: "601P", dest: "寶達", destEn: "PO TAT", track: "KT536" },
+      { route: "N293", dest: "將軍澳 (景嶺路)", destEn: "TSEUNG KWAN O", track: "KT536" }
+    ];
+
+    const NORTH_ROUTES = [
+      { route: "1A", dest: "中秀茂坪", destEn: "CENTRAL SAU MAU PING", track: "KT256" },
+      { route: "11X", dest: "中秀茂坪", destEn: "CENTRAL SAU MAU PING", track: "KT255" },
+      { route: "13D", dest: "寶達", destEn: "PO TAT", track: "KT255" },
+      { route: "14H", dest: "油塘", destEn: "YAU TONG", track: "KT258" },
+      { route: "23", dest: "順利", destEn: "SHUN LEE", track: "KT258" },
+      { route: "23M", dest: "順利", destEn: "SHUN LEE", track: "KT258" },
+      { route: "26M", dest: "順天", destEn: "SHUN TIN", track: "KT258" },
+      { route: "28B", dest: "樂華", destEn: "LOK WAH", track: "KT257" },
+      { route: "601", dest: "金鐘 (東)", destEn: "ADMIRALTY (EAST)", track: "KT255" },
+      { route: "601P", dest: "金鐘 (東)", destEn: "ADMIRALTY (EAST)", track: "KT255" },
+      { route: "93A", dest: "寶林", destEn: "PO LAM", track: "KT260" },
+      { route: "93K", dest: "旺角東站", destEn: "MONG KOK EAST STATION", track: "KT259" },
+      { route: "N293", dest: "旺角 (柏景灣)", destEn: "MONG KOK", track: "KT259" }
+    ];
+
     let southDepartures = [];
     let northDepartures = [];
     let southScrollOffset = 0;
@@ -231,25 +269,6 @@
       if (route.startsWith("8") || route.startsWith("2")) return "type-hikari";
       if (route.startsWith("14") || route.startsWith("11")) return "type-kodama";
       return "type-local";
-    }
-
-    // 依據參考圖片設定的北行路線月台對應
-    function getNorthTrack(route) {
-      if (route === "93A") return "KT260";
-      if (route === "93K" || route === "N293") return "KT259";
-      if (["14H", "23", "23M", "26M"].includes(route)) return "KT258";
-      if (route === "28B") return "KT257";
-      if (route === "1A") return "KT256";
-      if (["11X", "13D", "601", "601P"].includes(route)) return "KT255";
-      return "--";
-    }
-
-    // 依據參考圖片設定的南行路線月台對應
-    function getSouthTrack(route) {
-      if (["1A", "13D", "13P", "93K"].includes(route)) return "KT537";
-      if (["28B", "601", "601P", "N293"].includes(route)) return "KT536";
-      if (["11X", "13M", "23", "23M", "26M", "89", "89X", "93A"].includes(route)) return "KT535";
-      return "--";
     }
 
     function getCustomWarningStyle(message) {
@@ -309,9 +328,7 @@
         
         const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
         
-        let southList = [];
-        let northList = [];
-
+        let apiEtas = [];
         const northKeywords = ["順利", "秀茂坪", "寶達", "安泰", "寶林", "翠林", "康盛", "將軍澳"];
 
         for (const station of woLokStops) {
@@ -321,32 +338,25 @@
             const json = await res.json();
             if (json.data && Array.isArray(json.data)) {
               json.data.forEach(item => {
-                if (item.eta) {
-                  const destText = item.dest_tc || "指定目的地";
+                if (item.eta && item.route) {
+                  const destText = item.dest_tc || "";
                   const isNorth = northKeywords.some(kw => destText.includes(kw));
-                  
-                  const entry = {
+                  apiEtas.push({
                     route: item.route,
-                    dest: destText,
-                    destEn: item.dest_en || "DESTINATION",
-                    track: isNorth ? getNorthTrack(item.route) : getSouthTrack(item.route),
-                    etaTime: new Date(item.eta)
-                  };
-
-                  if (isNorth) {
-                    northList.push(entry);
-                  } else {
-                    southList.push(entry);
-                  }
+                    isNorth: isNorth,
+                    etaTime: new Date(item.eta),
+                    dest: destText || (isNorth ? "指定目的地" : "九龍方向")
+                  });
                 }
               });
             }
           }
         }
 
-        // 各線路常態化顯示，並按照路線號碼排序
-        southDepartures = processAndSortRoutes(southList);
-        northDepartures = processAndSortRoutes(northList);
+        // 將實時 ETA 數據對應至常態化路線清單
+        southDepartures = buildNormalizedList(SOUTH_ROUTES, apiEtas, false);
+        northDepartures = buildNormalizedList(NORTH_ROUTES, apiEtas, true);
+        
         isDataLoaded = true;
         renderBoards();
       } catch (e) {
@@ -354,51 +364,58 @@
       }
     }
 
-    function processAndSortRoutes(list) {
-      // 保留每條路線當前最快的一趟
-      const routeMap = new Map();
-      list.forEach(item => {
-        if (!routeMap.has(item.route)) {
-          routeMap.set(item.route, item);
-        } else {
-          // 如果已有該路線，比較時間取更早的班次
-          if (item.etaTime < routeMap.get(item.route).etaTime) {
-            routeMap.set(item.route, item);
-          }
+    function buildNormalizedList(routeConfig, apiEtas, isNorthDirection) {
+      return routeConfig.map(configItem => {
+        // 尋找該路線最接近的實時班次
+        const matches = apiEtas.filter(e => e.route === configItem.route && e.isNorth === isNorthDirection);
+        let bestEta = null;
+        if (matches.length > 0) {
+          matches.sort((a, b) => a.etaTime - b.etaTime);
+          bestEta = matches[0].etaTime;
         }
-      });
-      const uniqueList = Array.from(routeMap.values());
-      // 按照路線號碼進行字面/數字排序
-      uniqueList.sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
-      return uniqueList;
+
+        return {
+          route: configItem.route,
+          dest: configItem.dest,
+          destEn: configItem.destEn,
+          track: configItem.track,
+          etaTime: bestEta
+        };
+      }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
     }
 
     function renderBoardHTML(departures) {
       if (!isDataLoaded) {
-        return `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:700;">載入中...</div>`;
+        return `<div style="text-align:center; padding: 2vw; color: #64748b; font-weight:400;">載入中...</div>`;
       }
       if (departures.length === 0) {
-        return `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-weight:700; font-size:0.9vw;">暫無實時班次</div>`;
+        return `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-weight:400; font-size:0.9vw;">暫無資料</div>`;
       }
 
       const now = new Date();
       let html = '';
       departures.forEach(item => {
-        const diffSecs = Math.floor((item.etaTime - now) / 1000);
-        const diffMins = Math.floor(diffSecs / 60);
-        let statusMain = "";
-        let statusSub = "";
-        let timeStr = item.etaTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+        let timeStr = "--:--";
+        let statusMain = "暫無資訊";
+        let statusSub = "NO INFO";
+        let statusClass = "status-none";
 
-        if (diffSecs <= 30 && diffSecs > -30) {
-          statusMain = "即將到站";
-          statusSub = "ARRIVING";
-        } else if (diffSecs <= -30) {
-          statusMain = "已開出";
-          statusSub = "DEPARTED";
-        } else {
-          statusMain = `${diffMins} 分鐘`;
-          statusSub = `${diffSecs % 60} 秒`;
+        if (item.etaTime) {
+          const diffSecs = Math.floor((item.etaTime - now) / 1000);
+          const diffMins = Math.floor(diffSecs / 60);
+          timeStr = item.etaTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+          statusClass = "";
+
+          if (diffSecs <= 30 && diffSecs > -30) {
+            statusMain = "即將到站";
+            statusSub = "ARRIVING";
+          } else if (diffSecs <= -30) {
+            statusMain = "已開出";
+            statusSub = "DEPARTED";
+          } else {
+            statusMain = `${diffMins} 分鐘`;
+            statusSub = `${diffSecs % 60} 秒`;
+          }
         }
 
         html += `
@@ -408,7 +425,7 @@
             </div>
             <div class="time-col">
               <div class="time-main">${timeStr}</div>
-              <div class="time-sub">預定</div>
+              <div class="time-sub">${item.etaTime ? '預定' : '--'}</div>
             </div>
             <div class="dest-col">
               <div class="dest-main">${item.dest}</div>
@@ -418,7 +435,7 @@
               <div class="track-box">${item.track}</div>
             </div>
             <div class="status-col">
-              <div class="status-main">${statusMain}</div>
+              <div class="status-main ${statusClass}">${statusMain}</div>
               <div class="status-sub">${statusSub}</div>
             </div>
           </div>
