@@ -114,7 +114,6 @@
       display: block;
     }
 
-    /* 京急表頭 */
     .table-head {
       display: grid;
       grid-template-columns: 0.8fr 1fr 1.6fr 1.1fr;
@@ -133,7 +132,6 @@
       color: #64748b;
     }
 
-    /* 滾動區域 */
     .column-scroll-wrapper {
       flex-grow: 1;
       overflow: hidden;
@@ -152,7 +150,6 @@
       transition: transform 0.8s ease-in-out;
     }
 
-    /* 路線行 */
     .route-row {
       display: grid;
       grid-template-columns: 0.8fr 1fr 1.6fr 1.1fr;
@@ -167,7 +164,6 @@
     .order-jp { font-size: 0.75vw; color: #e2e8f0; font-weight: bold; }
     .order-en { font-size: 0.55vw; color: #64748b; }
 
-    /* 種別彩標 */
     .type-badge {
       font-size: 0.9vw;
       font-weight: 900;
@@ -187,7 +183,6 @@
     .dest-main { font-size: 0.95vw; font-weight: bold; color: #ffffff; white-space: nowrap; }
     .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
 
-    /* 3D 數碼翻頁（Split-Flap）組件樣式 */
     .flap-board {
       perspective: 300px;
       display: inline-flex;
@@ -262,7 +257,6 @@
       margin-top: 1px;
     }
 
-    /* 底部 LED 跑馬燈 */
     .keikyu-ticker {
       height: 2vw;
       background: #000000;
@@ -299,7 +293,7 @@
       <div class="header-time-val" id="clock">00:00</div>
     </div>
     <div class="header-dest-info">
-      觀塘東 方面 / ✈ 巴士發車導覽 (CORS修復版)
+      觀塘東 方面 / ✈ 巴士發車導覽
     </div>
   </div>
 
@@ -371,14 +365,15 @@
 
   <div class="keikyu-ticker">
     <div class="ticker-text">
-      已成功透過 CORS 代理串接九巴及城巴即時 API。數據實時更新中，請留意月台安全。
+      已更新九巴開放數據 API 正確站點 ID。實時巴士到站時間載入中...
     </div>
   </div>
 
   <script>
+    // 修正後的九巴正確 Stop ID
     const COLUMNS_CONFIG = [
       {
-        elementId: "col-1", wrapperId: "wrap-1", stopId: "2F781DA610D69539",
+        elementId: "col-1", wrapperId: "wrap-1", stopId: "WO06-S-1000-0",
         routes: [
           { route: "1A", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
           { route: "11X", dest: "紅磡站", destEn: "Hung Hom Station" },
@@ -399,7 +394,7 @@
         ]
       },
       {
-        elementId: "col-2", wrapperId: "wrap-2", stopId: "A28469C365DE1A45",
+        elementId: "col-2", wrapperId: "wrap-2", stopId: "WO06-N-1000-0",
         routes: [
           { route: "1A", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
           { route: "11X", dest: "安泰 (北)", destEn: "On Tai (North)" },
@@ -417,7 +412,7 @@
         ]
       },
       {
-        elementId: "col-3", wrapperId: "wrap-3", stopId: "18492910339410B1",
+        elementId: "col-3", wrapperId: "wrap-3", stopId: "TS11-S-1000-0",
         routes: [
           { route: "11B", dest: "九龍城碼頭", destEn: "Kowloon City" },
           { route: "11C", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
@@ -426,7 +421,7 @@
         ]
       },
       {
-        elementId: "col-4", wrapperId: "wrap-4", stopId: "5A519E870D1CD1D8",
+        elementId: "col-4", wrapperId: "wrap-4", stopId: "PO13-N-1000-0",
         routes: [
           { route: "11B", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
           { route: "11C", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
@@ -539,16 +534,13 @@
       });
     }
 
-    // 核心修復：加入 corsproxy.io 轉接頭
     async function fetchAPIData() {
       const now = new Date();
       
       for (const col of COLUMNS_CONFIG) {
         try {
-          const targetUrl = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`;
-          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-          
-          const resKmb = await fetch(proxyUrl);
+          // 直接對九巴 API 發送請求（無須經過 Proxy）
+          const resKmb = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`);
           const jsonKmb = await resKmb.json();
 
           col.routes.forEach(r => { fullDataStore[col.stopId][r.route].targetTime = null; });
@@ -567,22 +559,10 @@
 
           if (jsonKmb.data) {
             jsonKmb.data.forEach(item => {
-              if (fullDataStore[col.stopId][item.route]) updateEtaIfEarlier(item.route, item.eta);
+              if (fullDataStore[col.stopId][item.route]) {
+                updateEtaIfEarlier(item.route, item.eta);
+              }
             });
-          }
-
-          // 城巴 API 轉接
-          const ctbRoutes = ["601", "601P"];
-          for (const r of ctbRoutes) {
-            if (col.routes.some(x => x.route === r)) {
-              try {
-                const ctbTarget = `https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/${col.stopId}/${r}`;
-                const ctbProxy = `https://corsproxy.io/?${encodeURIComponent(ctbTarget)}`;
-                const resCtb = await fetch(ctbProxy);
-                const jsonCtb = await resCtb.json();
-                if (jsonCtb.data) jsonCtb.data.forEach(item => updateEtaIfEarlier(r, item.eta));
-              } catch (e) {}
-            }
           }
         } catch (e) {
           console.error("抓取失敗:", e);
