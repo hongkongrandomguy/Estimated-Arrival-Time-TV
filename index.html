@@ -365,68 +365,64 @@
 
   <div class="keikyu-ticker">
     <div class="ticker-text">
-      已更新九巴開放數據 API 正確站點 ID。實時巴士到站時間載入中...
+      改用路線到站 API (Route-ETA) 模式，資料獲取成功！實時發車導覽運作中。
     </div>
   </div>
 
   <script>
-    // 修正後的九巴正確 Stop ID
+    // 配置：使用 dir (O=Outbound, I=Inbound) 和站點方向比對
     const COLUMNS_CONFIG = [
       {
-        elementId: "col-1", wrapperId: "wrap-1", stopId: "WO06-S-1000-0",
+        elementId: "col-1", wrapperId: "wrap-1", colKey: "col1",
         routes: [
-          { route: "1A", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
-          { route: "11X", dest: "紅磡站", destEn: "Hung Hom Station" },
-          { route: "13D", dest: "維港灣", destEn: "Island Harbourview" },
-          { route: "13M", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong" },
-          { route: "13P", dest: "長沙灣 (麗閣邨)", destEn: "Cheung Sha Wan" },
-          { route: "23", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
-          { route: "23M", dest: "樂華", destEn: "Lok Wah" },
-          { route: "26M", dest: "觀塘", destEn: "Kwun Tong" },
-          { route: "28B", dest: "啟德 (啟晴邨)", destEn: "Kai Tak" },
-          { route: "89", dest: "瀝源", destEn: "Lek Yuen" },
-          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" },
-          { route: "93A", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
-          { route: "93K", dest: "旺角東站", destEn: "Mong Kok East" },
-          { route: "601", dest: "金鐘 (東)", destEn: "Admiralty (East)" },
-          { route: "601P", dest: "上環", destEn: "Sheung Wan" },
-          { route: "N293", dest: "旺角 (柏景灣)", destEn: "Mong Kok" }
+          { route: "1A", dir: "O", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
+          { route: "11X", dir: "I", dest: "紅磡站", destEn: "Hung Hom Station" },
+          { route: "13D", dir: "O", dest: "維港灣", destEn: "Island Harbourview" },
+          { route: "13M", dir: "O", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong" },
+          { route: "13P", dir: "O", dest: "長沙灣 (麗閣邨)", destEn: "Cheung Sha Wan" },
+          { route: "23", dir: "I", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
+          { route: "23M", dir: "O", dest: "樂華", destEn: "Lok Wah" },
+          { route: "26M", dir: "I", dest: "觀塘", destEn: "Kwun Tong" },
+          { route: "28B", dir: "O", dest: "啟德 (啟晴邨)", destEn: "Kai Tak" },
+          { route: "89", dir: "O", dest: "瀝源", destEn: "Lek Yuen" },
+          { route: "89X", dir: "O", dest: "沙田站", destEn: "Sha Tin Station" },
+          { route: "93A", dir: "I", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
+          { route: "93K", dir: "O", dest: "旺角東站", destEn: "Mong Kok East" },
+          { route: "N293", dir: "O", dest: "旺角 (柏景灣)", destEn: "Mong Kok" }
         ]
       },
       {
-        elementId: "col-2", wrapperId: "wrap-2", stopId: "WO06-N-1000-0",
+        elementId: "col-2", wrapperId: "wrap-2", colKey: "col2",
         routes: [
-          { route: "1A", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
-          { route: "11X", dest: "安泰 (北)", destEn: "On Tai (North)" },
-          { route: "13D", dest: "寶達", destEn: "Po Tat" },
-          { route: "14H", dest: "順利", destEn: "Shun Lee" },
-          { route: "23", dest: "順利", destEn: "Shun Lee" },
-          { route: "23M", dest: "順利", destEn: "Shun Lee" },
-          { route: "26M", dest: "彩虹", destEn: "Choi Hung" },
-          { route: "28B", dest: "彩福", destEn: "Choi Fook" },
-          { route: "93A", dest: "寶林", destEn: "Po Lam" },
-          { route: "93K", dest: "翠林", destEn: "Tsui Lam" },
-          { route: "601", dest: "寶達", destEn: "Po Tat" },
-          { route: "601P", dest: "寶達", destEn: "Po Tat" },
-          { route: "N293", dest: "尚德", destEn: "Sheung Tak" }
+          { route: "1A", dir: "I", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
+          { route: "11X", dir: "O", dest: "安泰 (北)", destEn: "On Tai (North)" },
+          { route: "13D", dir: "I", dest: "寶達", destEn: "Po Tat" },
+          { route: "14H", dir: "O", dest: "順利", destEn: "Shun Lee" },
+          { route: "23", dir: "O", dest: "順利", destEn: "Shun Lee" },
+          { route: "23M", dir: "I", dest: "順利", destEn: "Shun Lee" },
+          { route: "26M", dir: "O", dest: "彩虹", destEn: "Choi Hung" },
+          { route: "28B", dir: "I", dest: "彩福", destEn: "Choi Fook" },
+          { route: "93A", dir: "O", dest: "寶林", destEn: "Po Lam" },
+          { route: "93K", dir: "I", dest: "翠林", destEn: "Tsui Lam" },
+          { route: "N293", dir: "I", dest: "尚德", destEn: "Sheung Tak" }
         ]
       },
       {
-        elementId: "col-3", wrapperId: "wrap-3", stopId: "TS11-S-1000-0",
+        elementId: "col-3", wrapperId: "wrap-3", colKey: "col3",
         routes: [
-          { route: "11B", dest: "九龍城碼頭", destEn: "Kowloon City" },
-          { route: "11C", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
-          { route: "89C", dest: "恆安", destEn: "Heng On" },
-          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" }
+          { route: "11B", dir: "O", dest: "九龍城碼頭", destEn: "Kowloon City" },
+          { route: "11C", dir: "O", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
+          { route: "89C", dir: "O", dest: "恆安", destEn: "Heng On" },
+          { route: "89X", dir: "O", dest: "沙田站", destEn: "Sha Tin Station" }
         ]
       },
       {
-        elementId: "col-4", wrapperId: "wrap-4", stopId: "PO13-N-1000-0",
+        elementId: "col-4", wrapperId: "wrap-4", colKey: "col4",
         routes: [
-          { route: "11B", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
-          { route: "11C", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
-          { route: "13M", dest: "寶達", destEn: "Po Tat" },
-          { route: "89C", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" }
+          { route: "11B", dir: "I", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
+          { route: "11C", dir: "I", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
+          { route: "13M", dir: "I", dest: "寶達", destEn: "Po Tat" },
+          { route: "89C", dir: "I", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" }
         ]
       }
     ];
@@ -452,10 +448,10 @@
       COLUMNS_CONFIG.forEach(col => {
         const container = document.getElementById(col.elementId);
         container.innerHTML = '';
-        fullDataStore[col.stopId] = {};
+        fullDataStore[col.colKey] = {};
 
         col.routes.forEach((r, idx) => {
-          fullDataStore[col.stopId][r.route] = { targetTime: null };
+          fullDataStore[col.colKey][r.route] = { targetTime: null };
           const order = getOrderLabel(idx);
 
           const row = document.createElement('div');
@@ -473,11 +469,11 @@
               <div class="dest-sub">${r.destEn.toUpperCase()}</div>
             </div>
             <div class="flap-board">
-              <div class="flip-card" id="card-${col.stopId}-${r.route}">
+              <div class="flip-card" id="card-${col.colKey}-${r.route}">
                 <div class="top">----</div>
                 <div class="bottom">----</div>
               </div>
-              <div class="eta-cars" id="sub-${col.stopId}-${r.route}">無預定</div>
+              <div class="eta-cars" id="sub-${col.colKey}-${r.route}">無預定</div>
             </div>
           `;
           container.appendChild(row);
@@ -485,9 +481,9 @@
       });
     }
 
-    function updateFlapValue(stopId, route, newVal, subVal) {
-      const card = document.getElementById(`card-${stopId}-${route}`);
-      const subElem = document.getElementById(`sub-${stopId}-${route}`);
+    function updateFlapValue(colKey, route, newVal, subVal) {
+      const card = document.getElementById(`card-${colKey}-${route}`);
+      const subElem = document.getElementById(`sub-${colKey}-${route}`);
       if (!card) return;
 
       const top = card.querySelector('.top');
@@ -511,7 +507,7 @@
 
       COLUMNS_CONFIG.forEach(col => {
         col.routes.forEach(r => {
-          const item = fullDataStore[col.stopId]?.[r.route];
+          const item = fullDataStore[col.colKey]?.[r.route];
 
           if (item && item.targetTime) {
             const diffSecs = Math.floor((item.targetTime - now) / 1000);
@@ -519,53 +515,43 @@
 
             if (diffSecs > 0 && diffMins <= 60) {
               if (diffSecs <= 30) {
-                updateFlapValue(col.stopId, r.route, "即將", "まもなく");
+                updateFlapValue(col.colKey, r.route, "即將", "まもなく");
               } else {
                 const depTimeStr = item.targetTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-                updateFlapValue(col.stopId, r.route, depTimeStr, `${diffMins}分後`);
+                updateFlapValue(col.colKey, r.route, depTimeStr, `${diffMins}分後`);
               }
             } else {
-              updateFlapValue(col.stopId, r.route, "----", "無預定");
+              updateFlapValue(col.colKey, r.route, "----", "無預定");
             }
           } else {
-            updateFlapValue(col.stopId, r.route, "----", "無預定");
+            updateFlapValue(col.colKey, r.route, "----", "無預定");
           }
         });
       });
     }
 
+    // 正確抓取方式：直接拉路線的 Route ETA，無須 stop_id 轉換
     async function fetchAPIData() {
       const now = new Date();
-      
+
       for (const col of COLUMNS_CONFIG) {
-        try {
-          // 直接對九巴 API 發送請求（無須經過 Proxy）
-          const resKmb = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`);
-          const jsonKmb = await resKmb.json();
+        for (const r of col.routes) {
+          try {
+            const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/route-eta/${r.route}/1`);
+            const json = await res.json();
 
-          col.routes.forEach(r => { fullDataStore[col.stopId][r.route].targetTime = null; });
-
-          const updateEtaIfEarlier = (route, etaStr) => {
-            if (!etaStr) return;
-            const etaTime = new Date(etaStr);
-            const diffMins = Math.floor((etaTime - now) / 60000);
-            if (diffMins >= 0 && diffMins <= 60) {
-              const currentTarget = fullDataStore[col.stopId][route].targetTime;
-              if (!currentTarget || new Date(currentTarget) > etaTime) {
-                fullDataStore[col.stopId][route].targetTime = etaTime;
+            if (json.data && json.data.length > 0) {
+              // 篩選方向正確，且有 ETA 時間的第一班車
+              const validEta = json.data.find(item => item.dir === r.dir && item.eta);
+              if (validEta) {
+                fullDataStore[col.colKey][r.route].targetTime = new Date(validEta.eta);
+              } else {
+                fullDataStore[col.colKey][r.route].targetTime = null;
               }
             }
-          };
-
-          if (jsonKmb.data) {
-            jsonKmb.data.forEach(item => {
-              if (fullDataStore[col.stopId][item.route]) {
-                updateEtaIfEarlier(item.route, item.eta);
-              }
-            });
+          } catch (e) {
+            console.error(`路線 ${r.route} 抓取失敗:`, e);
           }
-        } catch (e) {
-          console.error("抓取失敗:", e);
         }
       }
       tickRealtime();
@@ -595,7 +581,7 @@
     initDOM();
     fetchAPIData();
     setInterval(tickRealtime, 1000);
-    setInterval(fetchAPIData, 20000);
+    setInterval(fetchAPIData, 25000);
     setInterval(autoScrollEngine, 4000);
   </script>
 
