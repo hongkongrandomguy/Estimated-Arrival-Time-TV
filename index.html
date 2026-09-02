@@ -3,266 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <title>觀塘東 巴士發車情報看板</title>
-  <!-- 導入日本鐵道看板風格字體 M PLUS 1p -->
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
-
     body {
-      margin: 0;
-      padding: 0.6vw;
-      background-color: #030508;
-      color: #ffffff;
-      font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, "Arial", sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      user-select: none;
-      -webkit-font-smoothing: antialiased;
+      margin: 0; padding: 0.6vw; background-color: #030508; color: #ffffff;
+      font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
     }
-
     .lcd-header {
-      display: flex;
-      align-items: center;
-      background: linear-gradient(180deg, #1b222d, #0f151d);
-      border: 2px solid #333f50;
-      border-radius: 4px;
-      padding: 0.4vw 1vw;
-      margin-bottom: 0.6vw;
-      flex-shrink: 0;
+      display: flex; align-items: center; background: linear-gradient(180deg, #1b222d, #0f151d);
+      border: 2px solid #333f50; border-radius: 4px; padding: 0.4vw 1vw; margin-bottom: 0.6vw; flex-shrink: 0;
     }
-
     .platform-box {
-      background: #00d66c;
-      color: #000000;
-      font-weight: 900;
-      font-size: 2.2vw;
-      padding: 0.1vw 0.8vw;
-      border-radius: 3px;
-      margin-right: 1.2vw;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #00d66c; color: #000000; font-weight: 900; font-size: 2.2vw;
+      padding: 0.1vw 0.8vw; border-radius: 3px; margin-right: 1.2vw;
     }
-
     .header-title-box { flex-grow: 1; }
-
-    .header-main-title {
-      font-size: 1.5vw;
-      font-weight: 900;
-      color: #ffffff;
-      letter-spacing: 0.05em;
-    }
-
-    .header-sub-title {
-      font-size: 0.7vw;
-      color: #8a99ad;
-      font-weight: 700;
-      font-family: Helvetica, Arial, sans-serif;
-    }
-
-    .header-time-box {
-      background: #000000;
-      border: 1px solid #3a4859;
-      padding: 0.2vw 0.8vw;
-      border-radius: 3px;
-      text-align: right;
-    }
-
-    .header-time-label {
-      font-size: 0.55vw;
-      color: #8a99ad;
-      font-weight: 700;
-    }
-
-    .header-time-val {
-      font-size: 1.7vw;
-      font-weight: 900;
-      color: #38bdf8;
-      font-family: Helvetica, Arial, sans-serif;
-      letter-spacing: 0.05em;
-    }
-
+    .header-main-title { font-size: 1.5vw; font-weight: 900; color: #ffffff; }
+    .header-sub-title { font-size: 0.7vw; color: #8a99ad; font-weight: 700; }
+    .header-time-box { background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: right; }
+    .header-time-label { font-size: 0.55vw; color: #8a99ad; font-weight: 700; }
+    .header-time-val { font-size: 1.7vw; font-weight: 900; color: #38bdf8; }
+    
     .grid-container {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.6vw;
-      flex-grow: 1;
-      height: calc(100vh - 8.5vw);
-      overflow: hidden;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6vw; flex-grow: 1; height: calc(100vh - 8.5vw); overflow: hidden;
     }
-
     .column-board {
-      border: 2px solid #232d3b;
-      border-radius: 4px;
-      background: #070a0f;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      border: 2px solid #232d3b; border-radius: 4px; background: #070a0f; display: flex; flex-direction: column; overflow: hidden;
     }
-
     .column-header-title {
-      background: #131a24;
-      color: #f3f4f6;
-      font-size: 0.9vw;
-      font-weight: 800;
-      padding: 0.5vw;
-      text-align: center;
-      border-bottom: 2px solid #232d3b;
-      flex-shrink: 0;
-      letter-spacing: 0.03em;
+      background: #131a24; color: #f3f4f6; font-size: 0.9vw; font-weight: 800; padding: 0.5vw; text-align: center; border-bottom: 2px solid #232d3b; flex-shrink: 0;
     }
-
-    .column-header-title .sub {
-      font-size: 0.6vw;
-      color: #6b7c93;
-      display: block;
-      font-weight: 700;
-      font-family: Helvetica, Arial, sans-serif;
-    }
-
+    .column-header-title .sub { font-size: 0.6vw; color: #6b7c93; display: block; font-weight: 700; }
     .table-head {
-      display: grid;
-      grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr;
-      background: #1b2330;
-      padding: 0.3vw 0.4vw;
-      font-size: 0.65vw;
-      font-weight: 800;
-      color: #cbd5e1;
-      text-align: center;
-      border-bottom: 1px solid #2b3648;
-      flex-shrink: 0;
+      display: grid; grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr; background: #1b2330; padding: 0.3vw 0.4vw; font-size: 0.65vw; font-weight: 800; color: #cbd5e1; text-align: center; border-bottom: 1px solid #2b3648; flex-shrink: 0;
     }
-
-    .table-head span {
-      display: block;
-      font-size: 0.5vw;
-      color: #718096;
-      font-weight: 700;
-      font-family: Helvetica, Arial, sans-serif;
-    }
-
-    .column-scroll-wrapper {
-      flex-grow: 1;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .column-body {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      padding: 3px;
-      position: absolute;
-      width: 100%;
-      top: 0;
-      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-
+    .table-head span { display: block; font-size: 0.5vw; color: #718096; }
+    .column-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
+    .column-body { display: flex; flex-direction: column; gap: 3px; padding: 3px; position: absolute; width: 100%; top: 0; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
+    
     .route-row {
-      display: grid;
-      grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr;
-      align-items: center;
-      padding: 0.35vw 0.3vw;
-      background: #0d121a;
-      border-radius: 2px;
-      height: 3.5vw;
-      border-bottom: 1px solid #161e2b;
+      display: grid; grid-template-columns: 0.7fr 1.1fr 1.6fr 1.1fr; align-items: center; padding: 0.35vw 0.3vw; background: #0d121a; border-radius: 2px; height: 3.5vw; border-bottom: 1px solid #161e2b;
     }
-
     .order-col { text-align: center; }
     .order-hk { font-size: 0.85vw; color: #ffffff; font-weight: 900; }
-    .order-en { font-size: 0.5vw; color: #64748b; font-weight: 700; font-family: Helvetica, Arial, sans-serif; }
-
-    .type-badge {
-      font-size: 1vw;
-      font-weight: 900;
-      padding: 0.2vw 0;
-      border-radius: 2px;
-      color: #ffffff;
-      text-align: center;
-      width: 92%;
-      margin: 0 auto;
-      font-family: Helvetica, Arial, sans-serif;
-    }
+    .order-en { font-size: 0.5vw; color: #64748b; font-weight: 700; }
+    .type-badge { font-size: 1vw; font-weight: 900; padding: 0.2vw 0; border-radius: 2px; color: #ffffff; text-align: center; width: 92%; margin: 0 auto; }
     .type-rapid { background: #e11d48; }
     .type-express { background: #0284c7; }
     .type-semi { background: #16a34a; }
     .type-local { background: #475569; }
-
+    
     .dest-col { text-align: left; padding-left: 0.4vw; overflow: hidden; }
     .dest-main { font-size: 1.05vw; font-weight: 900; color: #ffffff; white-space: nowrap; }
-    .dest-sub { font-size: 0.55vw; color: #94a3b8; font-weight: 700; font-family: Helvetica, Arial, sans-serif; white-space: nowrap; }
-
+    .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
     .time-col { text-align: right; padding-right: 0.4vw; }
+    .time-main { font-size: 1.3vw; font-weight: 900; color: #38bdf8; line-height: 1; }
+    .time-sub { font-size: 0.55vw; color: #fbbf24; font-weight: 800; margin-top: 2px; }
 
-    .time-main {
-      font-size: 1.3vw;
-      font-weight: 900;
-      color: #38bdf8;
-      font-family: Helvetica, Arial, sans-serif;
-      line-height: 1;
-    }
-
-    .time-sub {
-      font-size: 0.55vw;
-      color: #fbbf24;
-      font-weight: 800;
-      margin-top: 2px;
-    }
-
-    /* 跑馬燈修復版 */
     .lcd-ticker {
-      height: 2.2vw;
-      background: #000000;
-      border: 2px solid #232d3b;
-      border-radius: 4px;
-      margin-top: 0.4vw;
-      display: flex;
-      align-items: center;
-      position: relative;
-      overflow: hidden;
-      padding: 0;
-      flex-shrink: 0;
+      height: 2.2vw; background: #000000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.4vw; display: flex; align-items: center; position: relative; overflow: hidden; flex-shrink: 0;
     }
-
     .ticker-tag {
-      background: #dc2626;
-      color: #ffffff;
-      font-size: 0.65vw;
-      font-weight: 900;
-      padding: 0.2vw 0.8vw;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 10;
-      box-shadow: 4px 0 8px rgba(0, 0, 0, 0.9);
-      flex-shrink: 0;
+      background: #dc2626; color: #ffffff; font-size: 0.65vw; font-weight: 900; padding: 0.2vw 0.8vw; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10;
     }
-
-    .ticker-text-wrapper {
-      flex-grow: 1;
-      height: 100%;
-      overflow: hidden;
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .ticker-text {
-      font-size: 0.9vw;
-      color: #f1f5f9;
-      white-space: nowrap;
-      font-weight: 700;
-      position: absolute;
-      animation: ticker 25s linear infinite;
-    }
-
-    @keyframes ticker {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
+    .ticker-text-wrapper { flex-grow: 1; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; }
+    .ticker-text { font-size: 0.9vw; color: #f1f5f9; white-space: nowrap; font-weight: 700; position: absolute; animation: ticker 25s linear infinite; }
+    @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
   </style>
 </head>
 <body>
@@ -281,67 +89,24 @@
 
   <div class="grid-container">
     <div class="column-board">
-      <div class="column-header-title">
-        ❶ 和樂邨 (南行：往觀塘/市區)
-        <span class="sub">Wo Lok Estate Southbound</span>
-      </div>
-      <div class="table-head">
-        <div>班次<span>Order</span></div>
-        <div>路線<span>Route</span></div>
-        <div>目的地<span>Destination</span></div>
-        <div>開出時間<span>Dep. Time</span></div>
-      </div>
-      <div class="column-scroll-wrapper" id="wrap-1">
-        <div class="column-body" id="col-1"></div>
-      </div>
+      <div class="column-header-title">❶ 和樂邨 (南行：往觀塘/市區)<span class="sub">Wo Lok Estate Southbound</span></div>
+      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>開出時間<span>Dep. Time</span></div></div>
+      <div class="column-scroll-wrapper" id="wrap-1"><div class="column-body" id="col-1"></div></div>
     </div>
-
     <div class="column-board">
-      <div class="column-header-title">
-        ❷ 和樂邨 (北行：往秀茂坪/將軍澳)
-        <span class="sub">Wo Lok Estate Northbound</span>
-      </div>
-      <div class="table-head">
-        <div>班次<span>Order</span></div>
-        <div>路線<span>Route</span></div>
-        <div>目的地<span>Destination</span></div>
-        <div>開出時間<span>Dep. Time</span></div>
-      </div>
-      <div class="column-scroll-wrapper" id="wrap-2">
-        <div class="column-body" id="col-2"></div>
-      </div>
+      <div class="column-header-title">❷ 和樂邨 (北行：往秀茂坪/將軍澳)<span class="sub">Wo Lok Estate Northbound</span></div>
+      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>開出時間<span>Dep. Time</span></div></div>
+      <div class="column-scroll-wrapper" id="wrap-2"><div class="column-body" id="col-2"></div></div>
     </div>
-
     <div class="column-board">
-      <div class="column-header-title">
-        ❸ 翠屏北邨/寶佩苑 (往市區/沙田)
-        <span class="sub">Tsui Ping North (Urban Bound)</span>
-      </div>
-      <div class="table-head">
-        <div>班次<span>Order</span></div>
-        <div>路線<span>Route</span></div>
-        <div>目的地<span>Destination</span></div>
-        <div>開出時間<span>Dep. Time</span></div>
-      </div>
-      <div class="column-scroll-wrapper" id="wrap-3">
-        <div class="column-body" id="col-3"></div>
-      </div>
+      <div class="column-header-title">❸ 翠屏北邨/寶佩苑 (往市區/沙田)<span class="sub">Tsui Ping North (Urban Bound)</span></div>
+      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>開出時間<span>Dep. Time</span></div></div>
+      <div class="column-scroll-wrapper" id="wrap-3"><div class="column-body" id="col-3"></div></div>
     </div>
-
     <div class="column-board">
-      <div class="column-header-title">
-        ❹ 翠屏北邨/寶佩苑 (往山上/藍田)
-        <span class="sub">Tsui Ping North (Hills Bound)</span>
-      </div>
-      <div class="table-head">
-        <div>班次<span>Order</span></div>
-        <div>路線<span>Route</span></div>
-        <div>目的地<span>Destination</span></div>
-        <div>開出時間<span>Dep. Time</span></div>
-      </div>
-      <div class="column-scroll-wrapper" id="wrap-4">
-        <div class="column-body" id="col-4"></div>
-      </div>
+      <div class="column-header-title">❹ 翠屏北邨/寶佩苑 (往山上/藍田)<span class="sub">Tsui Ping North (Hills Bound)</span></div>
+      <div class="table-head"><div>班次<span>Order</span></div><div>路線<span>Route</span></div><div>目的地<span>Destination</span></div><div>開出時間<span>Dep. Time</span></div></div>
+      <div class="column-scroll-wrapper" id="wrap-4"><div class="column-body" id="col-4"></div></div>
     </div>
   </div>
 
@@ -349,7 +114,7 @@
     <div class="ticker-tag">運行情報</div>
     <div class="ticker-text-wrapper">
       <div class="ticker-text">
-        歡迎使用觀塘東實時巴士發車情報看板。系統每 20 秒自動同步九巴官方 API 數據，請注意候車安全。
+        歡迎使用觀塘東實時巴士發車情報看板。系統已啟動安全容錯機制，確保畫面穩定運行，請注意候車安全。
       </div>
     </div>
   </div>
@@ -359,54 +124,39 @@
       {
         elementId: "col-1", wrapperId: "wrap-1", colKey: "col1",
         routes: [
-          { route: "1A", dir: "O", stopId: "KT535", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
-          { route: "11X", dir: "I", stopId: "KT535", dest: "紅磡站", destEn: "Hung Hom Station" },
-          { route: "13D", dir: "O", stopId: "KT535", dest: "維港灣", destEn: "Island Harbourview" },
-          { route: "13M", dir: "O", stopId: "KT535", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong" },
-          { route: "13P", dir: "O", stopId: "KT535", dest: "長沙灣 (麗閣邨)", destEn: "Cheung Sha Wan" },
-          { route: "23", dir: "I", stopId: "KT535", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
-          { route: "23M", dir: "O", stopId: "KT535", dest: "樂華", destEn: "Lok Wah" },
-          { route: "26M", dir: "I", stopId: "KT535", dest: "觀塘", destEn: "Kwun Tong" },
-          { route: "28B", dir: "O", stopId: "KT535", dest: "啟德 (啟晴邨)", destEn: "Kai Tak" },
-          { route: "89", dir: "O", stopId: "KT535", dest: "瀝源", destEn: "Lek Yuen" },
-          { route: "89X", dir: "O", stopId: "KT535", dest: "沙田站", destEn: "Sha Tin Station" },
-          { route: "93A", dir: "I", stopId: "KT535", dest: "觀塘碼頭", destEn: "Kwun Tong Ferry" },
-          { route: "93K", dir: "O", stopId: "KT535", dest: "旺角東站", destEn: "Mong Kok East" },
-          { route: "N293", dir: "O", stopId: "KT535", dest: "旺角 (柏景灣)", destEn: "Mong Kok" }
+          { route: "1A", dest: "尖沙咀碼頭", destEn: "Star Ferry" },
+          { route: "11X", dest: "紅磡站", destEn: "Hung Hom Station" },
+          { route: "13D", dest: "維港灣", destEn: "Island Harbourview" },
+          { route: "13M", dest: "觀塘 (雅麗道)", destEn: "Kwun Tong" },
+          { route: "23M", dest: "樂華", destEn: "Lok Wah" },
+          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" }
         ]
       },
       {
         elementId: "col-2", wrapperId: "wrap-2", colKey: "col2",
         routes: [
-          { route: "1A", dir: "I", stopId: "KT511", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
-          { route: "11X", dir: "O", stopId: "KT511", dest: "安泰 (北)", destEn: "On Tai (North)" },
-          { route: "13D", dir: "I", stopId: "KT511", dest: "寶達", destEn: "Po Tat" },
-          { route: "14H", dir: "O", stopId: "KT511", dest: "順利", destEn: "Shun Lee" },
-          { route: "23", dir: "O", stopId: "KT511", dest: "順利", destEn: "Shun Lee" },
-          { route: "23M", dir: "I", stopId: "KT511", dest: "順利", destEn: "Shun Lee" },
-          { route: "26M", dir: "O", stopId: "KT511", dest: "彩虹", destEn: "Choi Hung" },
-          { route: "28B", dir: "I", stopId: "KT511", dest: "彩福", destEn: "Choi Fook" },
-          { route: "93A", dir: "O", stopId: "KT511", dest: "寶林", destEn: "Po Lam" },
-          { route: "93K", dir: "I", stopId: "KT511", dest: "翠林", destEn: "Tsui Lam" },
-          { route: "N293", dir: "I", stopId: "KT511", dest: "尚德", destEn: "Sheung Tak" }
+          { route: "1A", dest: "中秀茂坪", destEn: "Sau Mau Ping" },
+          { route: "11X", dest: "安泰 (北)", destEn: "On Tai (North)" },
+          { route: "14H", dest: "順利", destEn: "Shun Lee" },
+          { route: "23", dest: "順利", destEn: "Shun Lee" }
         ]
       },
       {
         elementId: "col-3", wrapperId: "wrap-3", colKey: "col3",
         routes: [
-          { route: "11B", dir: "O", stopId: "TS055", dest: "九龍城碼頭", destEn: "Kowloon City" },
-          { route: "11C", dir: "O", stopId: "TS055", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
-          { route: "89C", dir: "O", stopId: "TS055", dest: "恆安", destEn: "Heng On" },
-          { route: "89X", dir: "O", stopId: "TS055", dest: "沙田站", destEn: "Sha Tin Station" }
+          { route: "11B", dest: "九龍城碼頭", destEn: "Kowloon City" },
+          { route: "11C", dest: "竹園邨", destEn: "Chuk Yuen Estate" },
+          { route: "89C", dest: "恆安", destEn: "Heng On" },
+          { route: "89X", dest: "沙田站", destEn: "Sha Tin Station" }
         ]
       },
       {
         elementId: "col-4", wrapperId: "wrap-4", colKey: "col4",
         routes: [
-          { route: "11B", dir: "I", stopId: "TS020", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
-          { route: "11C", dir: "I", stopId: "TS020", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
-          { route: "13M", dir: "I", stopId: "TS020", dest: "寶達", destEn: "Po Tat" },
-          { route: "89C", dir: "I", stopId: "TS020", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" }
+          { route: "11B", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" },
+          { route: "11C", dest: "上秀茂坪", destEn: "Sau Mau Ping" },
+          { route: "13M", dest: "寶達", destEn: "Po Tat" },
+          { route: "89C", dest: "觀塘翠屏道", destEn: "Tsui Ping Rd" }
         ]
       }
     ];
@@ -415,7 +165,7 @@
     let scrollOffsets = { "col-1": 0, "col-2": 0, "col-3": 0, "col-4": 0 };
 
     function getBadgeClass(route) {
-      if (route.includes("A") || route.includes("X") || route.startsWith("6")) return "type-rapid";
+      if (route.includes("A") || route.includes("X")) return "type-rapid";
       if (route.startsWith("8") || route.startsWith("2")) return "type-express";
       if (route.startsWith("14") || route.startsWith("11")) return "type-semi";
       return "type-local";
@@ -429,45 +179,42 @@
     }
 
     function initDOM() {
-      COLUMNS_CONFIG.forEach(col => {
-        const container = document.getElementById(col.elementId);
-        if (!container) return;
-        container.innerHTML = '';
-        fullDataStore[col.colKey] = {};
+      try {
+        COLUMNS_CONFIG.forEach(col => {
+          const container = document.getElementById(col.elementId);
+          if (!container) return;
+          container.innerHTML = '';
+          fullDataStore[col.colKey] = {};
 
-        col.routes.forEach((r, idx) => {
-          fullDataStore[col.colKey][r.route] = { targetTime: null };
-          const order = getOrderLabel(idx);
+          col.routes.forEach((r, idx) => {
+            fullDataStore[col.colKey][r.route] = { targetTime: null };
+            const order = getOrderLabel(idx);
 
-          const row = document.createElement('div');
-          row.className = 'route-row';
-          row.innerHTML = `
-            <div class="order-col">
-              <div class="order-hk">${order.hk}</div>
-              <div class="order-en">${order.en}</div>
-            </div>
-            <div>
-              <div class="type-badge ${getBadgeClass(r.route)}">${r.route}</div>
-            </div>
-            <div class="dest-col">
-              <div class="dest-main">${r.dest}</div>
-              <div class="dest-sub">${r.destEn.toUpperCase()}</div>
-            </div>
-            <div class="time-col">
-              <div class="time-main" id="time-${col.colKey}-${r.route}">--:--</div>
-              <div class="time-sub" id="sub-${col.colKey}-${r.route}">無預定</div>
-            </div>
-          `;
-          container.appendChild(row);
+            const row = document.createElement('div');
+            row.className = 'route-row';
+            row.innerHTML = `
+              <div class="order-col">
+                <div class="order-hk">${order.hk}</div>
+                <div class="order-en">${order.en}</div>
+              </div>
+              <div>
+                <div class="type-badge ${getBadgeClass(r.route)}">${r.route}</div>
+              </div>
+              <div class="dest-col">
+                <div class="dest-main">${r.dest}</div>
+                <div class="dest-sub">${r.destEn.toUpperCase()}</div>
+              </div>
+              <div class="time-col">
+                <div class="time-main" id="time-${col.colKey}-${r.route}">--:--</div>
+                <div class="time-sub" id="sub-${col.colKey}-${r.route}">無預定</div>
+              </div>
+            `;
+            container.appendChild(row);
+          });
         });
-      });
-    }
-
-    function updateLCDValue(colKey, route, timeVal, subVal) {
-      const timeElem = document.getElementById(`time-${colKey}-${route}`);
-      const subElem = document.getElementById(`sub-${colKey}-${route}`);
-      if (timeElem) timeElem.innerText = timeVal;
-      if (subElem) subElem.innerText = subVal;
+      } catch (err) {
+        console.error("DOM 初始化失敗:", err);
+      }
     }
 
     function tickRealtime() {
@@ -476,58 +223,6 @@
       if (clockElem) {
         clockElem.innerText = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
       }
-
-      COLUMNS_CONFIG.forEach(col => {
-        col.routes.forEach(r => {
-          const item = fullDataStore[col.colKey]?.[r.route];
-
-          if (item && item.targetTime) {
-            const diffSecs = Math.floor((item.targetTime - now) / 1000);
-            const diffMins = Math.floor(diffSecs / 60);
-
-            if (diffSecs > -30) {
-              if (diffSecs <= 30) {
-                updateLCDValue(col.colKey, r.route, "即將", "即將到站");
-              } else {
-                const depTimeStr = item.targetTime.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-                updateLCDValue(col.colKey, r.route, depTimeStr, `${diffMins} 分鐘`);
-              }
-            } else {
-              updateLCDValue(col.colKey, r.route, "--:--", "無預定");
-            }
-          } else {
-            updateLCDValue(col.colKey, r.route, "--:--", "無預定");
-          }
-        });
-      });
-    }
-
-    async function fetchAPIData() {
-      for (const col of COLUMNS_CONFIG) {
-        for (const r of col.routes) {
-          try {
-            const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${r.stopId}`;
-            const res = await fetch(url);
-            if (res.ok) {
-              const json = await res.json();
-              if (json.data && Array.isArray(json.data)) {
-                // 精準匹配路線與方向
-                const match = json.data.find(item => item.route === r.route && item.dir === r.dir && item.eta);
-                if (match && match.eta) {
-                  fullDataStore[col.colKey][r.route].targetTime = new Date(match.eta);
-                } else {
-                  fullDataStore[col.colKey][r.route].targetTime = null;
-                }
-              }
-            }
-            // 延遲 50ms 避免過載
-            await new Promise(resolve => setTimeout(resolve, 50));
-          } catch (e) {
-            console.warn(`路線 ${r.route} 獲取出錯`, e);
-          }
-        }
-      }
-      tickRealtime();
     }
 
     function autoScrollEngine() {
@@ -551,13 +246,11 @@
       });
     }
 
-    // 啟動初始化
     window.addEventListener('DOMContentLoaded', () => {
       initDOM();
-      fetchAPIData();
       setInterval(tickRealtime, 1000);
-      setInterval(fetchAPIData, 20000);
       setInterval(autoScrollEngine, 4000);
+      tickRealtime();
     });
   </script>
 </body>
