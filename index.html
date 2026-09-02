@@ -38,13 +38,21 @@
     .header-time-label { font-size: 0.5vw; color: #8a99ad; font-weight: 700; }
     .header-time-val { font-size: 1.5vw; font-weight: 900; color: #38bdf8; line-height: 1.1; }
     
-    /* 警告圖標樣式容器 */
-    .warning-badges { display: flex; gap: 0.3vw; align-items: center; }
+    /* 💡 放大且顯眼的警告圖標樣式（正方形，高度與右側格子對齊） */
+    .warning-badges { display: flex; gap: 0.5vw; align-items: center; }
     .warn-badge {
-      font-size: 0.6vw; font-weight: 900; padding: 0.15vw 0.4vw; border-radius: 2px;
-      display: inline-flex; align-items: center; gap: 0.2vw; white-space: nowrap; animation: pulse-warn 1.5s infinite;
+      font-size: 0.75vw; font-weight: 900; padding: 0.2vw 0.6vw; border-radius: 3px;
+      display: inline-flex; align-items: center; gap: 0.4vw; white-space: nowrap; animation: pulse-warn 1.5s infinite;
+      border: 1px solid rgba(255,255,255,0.3);
     }
-    .warn-badge img { width: 0.9vw; height: 0.9vw; object-fit: contain; }
+    .warn-badge img { 
+      width: 2vw; 
+      height: 2vw; 
+      object-fit: contain; 
+      background: rgba(0, 0, 0, 0.2); 
+      padding: 0.15vw; 
+      border-radius: 2px;
+    }
     @keyframes pulse-warn { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
     .grid-container {
@@ -119,7 +127,7 @@
     </div>
 
     <div class="header-time-box">
-      <div class="header-time-label">現時時間 Time</div>
+      <div class="header-info-label">現時時間 Time</div>
       <div class="header-time-val" id="clock">00:00</div>
     </div>
   </div>
@@ -272,9 +280,6 @@
       if (subElem) subElem.innerText = subVal;
     }
 
-    // ==========================================
-    // 💡【已對應指定的 11 種官方天氣警告設定】
-    // ==========================================
     function getCustomWarningStyle(message) {
       if (message.includes("一號戒備信號")) {
         return { icon: "icons/typhoon-1.png", text: "一號戒備", bg: "#e11d48" };
@@ -395,9 +400,7 @@
               });
             }
           }
-        } catch (e) {
-          // 網路錯誤保持暫無資料
-        }
+        } catch (e) {}
       }
       tickRealtime();
     }
