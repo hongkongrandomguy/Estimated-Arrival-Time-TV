@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <title>觀塘東 巴士到站發車看板 - 數碼翻頁風格版</title>
+  <title>觀塘東 巴士發車情報看板 - 京急數碼翻頁版</title>
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -117,7 +117,7 @@
     /* 京急表頭 */
     .table-head {
       display: grid;
-      grid-template-columns: 0.8fr 1fr 1.6fr 1fr;
+      grid-template-columns: 0.8fr 1fr 1.6fr 1.1fr;
       background: #1e2530;
       padding: 0.3vw 0.4vw;
       font-size: 0.65vw;
@@ -155,7 +155,7 @@
     /* 路線行 */
     .route-row {
       display: grid;
-      grid-template-columns: 0.8fr 1fr 1.6fr 1fr;
+      grid-template-columns: 0.8fr 1fr 1.6fr 1.1fr;
       align-items: center;
       padding: 0.3vw 0.3vw;
       background: #0d1117;
@@ -187,7 +187,7 @@
     .dest-main { font-size: 0.95vw; font-weight: bold; color: #ffffff; white-space: nowrap; }
     .dest-sub { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
 
-    /* 核心：3D 數碼翻頁（Split-Flap）組件樣式 */
+    /* 3D 數碼翻頁（Split-Flap）組件樣式 */
     .flap-board {
       perspective: 300px;
       display: inline-flex;
@@ -198,7 +198,7 @@
 
     .flip-card {
       position: relative;
-      width: 4.5vw;
+      width: 4.8vw;
       height: 1.8vw;
       background: #111;
       border-radius: 3px;
@@ -210,7 +210,6 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.8);
     }
 
-    /* 中間實體分割線 */
     .flip-card::before {
       content: '';
       position: absolute;
@@ -247,7 +246,6 @@
       border-bottom-right-radius: 3px;
     }
 
-    /* 翻頁動畫類別 */
     .flip-card.flipping .top {
       animation: flipTop 0.3s ease-in forwards;
     }
@@ -301,7 +299,7 @@
       <div class="header-time-val" id="clock">00:00</div>
     </div>
     <div class="header-dest-info">
-      觀塘東 方面 / ✈ 巴士發車導覽 (數碼翻頁擬真版)
+      觀塘東 方面 / ✈ 巴士發車導覽 (CORS修復版)
     </div>
   </div>
 
@@ -373,7 +371,7 @@
 
   <div class="keikyu-ticker">
     <div class="ticker-text">
-      數碼翻頁式顯示屏運作中：模擬青物橫丁站與上大岡站新陽社 Split-Flap LCD 渲染技術。請留意月台安全。
+      已成功透過 CORS 代理串接九巴及城巴即時 API。數據實時更新中，請留意月台安全。
     </div>
   </div>
 
@@ -462,7 +460,7 @@
         fullDataStore[col.stopId] = {};
 
         col.routes.forEach((r, idx) => {
-          fullDataStore[col.stopId][r.route] = { targetTime: null, lastVal: "" };
+          fullDataStore[col.stopId][r.route] = { targetTime: null };
           const order = getOrderLabel(idx);
 
           const row = document.createElement('div');
@@ -492,7 +490,6 @@
       });
     }
 
-    // 觸發 3D 翻頁物理效果
     function updateFlapValue(stopId, route, newVal, subVal) {
       const card = document.getElementById(`card-${stopId}-${route}`);
       const subElem = document.getElementById(`sub-${stopId}-${route}`);
@@ -542,11 +539,16 @@
       });
     }
 
+    // 核心修復：加入 corsproxy.io 轉接頭
     async function fetchAPIData() {
       const now = new Date();
+      
       for (const col of COLUMNS_CONFIG) {
         try {
-          const resKmb = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`);
+          const targetUrl = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${col.stopId}`;
+          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+          
+          const resKmb = await fetch(proxyUrl);
           const jsonKmb = await resKmb.json();
 
           col.routes.forEach(r => { fullDataStore[col.stopId][r.route].targetTime = null; });
@@ -569,17 +571,22 @@
             });
           }
 
+          // 城巴 API 轉接
           const ctbRoutes = ["601", "601P"];
           for (const r of ctbRoutes) {
             if (col.routes.some(x => x.route === r)) {
               try {
-                const resCtb = await fetch(`https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/${col.stopId}/${r}`);
+                const ctbTarget = `https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/${col.stopId}/${r}`;
+                const ctbProxy = `https://corsproxy.io/?${encodeURIComponent(ctbTarget)}`;
+                const resCtb = await fetch(ctbProxy);
                 const jsonCtb = await resCtb.json();
                 if (jsonCtb.data) jsonCtb.data.forEach(item => updateEtaIfEarlier(r, item.eta));
               } catch (e) {}
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error("抓取失敗:", e);
+        }
       }
       tickRealtime();
     }
