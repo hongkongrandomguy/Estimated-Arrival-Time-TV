@@ -1,3 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KTMC Wo Lok Estate Bus Estimated Arrival Time Display System</title>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0.6vw; background-color: #020408; color: #ffffff;
+      font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
+    }
+    
+    .lcd-header {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto auto;
+      align-items: center;
+      gap: 1vw;
+      background: linear-gradient(180deg, #161f2e, #0b1017);
+      border: 2px solid #2d3b4e; border-radius: 4px; padding: 0.5vw 1.2vw; margin-bottom: 0.6vw; flex-shrink: 0;
+    }
+    .platform-box {
+      background: #e11d48; color: #ffffff; font-weight: 700; font-size: 1.8vw;
+      padding: 0.1vw 0.8vw; border-radius: 3px; text-align: center; letter-spacing: 0.1vw;
+    }
+    .header-title-box { display: flex; flex-direction: column; justify-content: center; }
+    .header-main-title { font-size: 1.4vw; font-weight: 500; color: #ffffff; display: flex; align-items: center; gap: 0.8vw; }
+    .header-sub-title { font-size: 0.78vw; color: #8a99ad; font-weight: 400; letter-spacing: 0.05vw; }
+    
+    .header-info-box {
+      background: #000000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: center;
+    }
+    .header-info-label { font-size: 0.62vw; color: #8a99ad; font-weight: 400; text-transform: uppercase; }
+    .header-info-val { font-size: 1vw; font-weight: 500; color: #f59e0b; }
+
+    .header-time-box { background: #000000; border: 1px solid #3a4859; padding: 0.2vw 1vw; border-radius: 3px; text-align: right; min-width: 7vw; }
+    .header-time-label { font-size: 0.62vw; color: #8a99ad; font-weight: 400; text-transform: uppercase; }
+    .header-time-val { font-size: 1.6vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
+    
+    .warning-badges { display: flex; gap: 0.5vw; align-items: center; }
+    .warn-badge {
+      font-size: 0.78vw; font-weight: 500; padding: 0.2vw 0.6vw; border-radius: 3px;
+      display: inline-flex; align-items: center; gap: 0.4vw; white-space: nowrap; animation: pulse-warn 1.5s infinite;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .warn-badge img { width: 1.8vw; height: 1.8vw; object-fit: contain; background: rgba(0,0,0,0.2); padding: 0.1vw; border-radius: 2px; }
+    @keyframes pulse-warn { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+    /* Dual Column Layout */
+    .board-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6vw;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    .column-pane {
+      border: 2px solid #232d3b; border-radius: 4px; background: #05080f; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    .column-title {
+      background: #141c28;
+      padding: 0.4vw 0.8vw;
+      font-size: 0.88vw;
+      font-weight: 500;
+      color: #38bdf8;
+      border-bottom: 2px solid #283548;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      letter-spacing: 0.05vw;
+    }
+    
+    .table-head {
+      display: grid; 
+      grid-template-columns: 1fr 1.1fr 2.2fr 1.1fr 1.3fr; 
+      background: #101722; 
+      padding: 0.35vw 0.6vw; 
+      font-size: 0.72vw; 
+      font-weight: 400; 
+      color: #cbd5e1; 
+      align-items: center;
+      border-bottom: 1px solid #283548; 
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+    .table-head div { display: flex; flex-direction: column; }
+    .table-head span { font-size: 0.58vw; color: #718096; font-weight: 400; }
+
+    .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
+    .board-body { display: flex; flex-direction: column; gap: 4px; padding: 4px; position: absolute; width: 100%; top: 0; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
+    
+    .train-row {
+      display: grid; 
+      grid-template-columns: 1fr 1.1fr 2.2fr 1.1fr 1.3fr; 
+      align-items: center; 
+      padding: 0.35vw 0.6vw; 
+      background: #0a0f18; 
+      border-radius: 3px; 
+      height: 3.8vw; 
+      border-bottom: 1px solid #131b26;
+    }
+
+    .train-badge { 
+      font-size: 1.55vw; 
+      font-weight: 700; 
+      padding: 0.2vw 0.4vw; 
+      border-radius: 4px; 
+      color: #ffffff; 
+      text-align: center; 
+      width: 95%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
+      letter-spacing: 0.05vw;
+    }
+    .type-nozomi { background: #16a34a; }
+    .type-hikari  { background: #e11d48; }
+    .type-kodama  { background: #0284c7; }
+    .type-local   { background: #475569; }
+
+    .time-col { display: flex; flex-direction: column; }
+    .time-main { font-size: 1.25vw; font-weight: 500; color: #38bdf8; line-height: 1.1; letter-spacing: 0.05vw; }
+    .time-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; text-transform: uppercase; }
+
+    .dest-col { overflow: hidden; padding-right: 0.4vw; }
+    .dest-main { font-size: 1.05vw; font-weight: 400; color: #ffffff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; font-weight: 400; }
+
+    .track-col { display: flex; justify-content: center; }
+    .track-box {
+      background: #ffffff; color: #000000; font-weight: 500; font-size: 0.95vw;
+      padding: 0.1vw 0.4vw; border-radius: 3px; text-align: center; min-width: 3.2vw;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space: nowrap;
+    }
+
+    .status-col { text-align: right; }
+    .status-main { font-size: 1.02vw; font-weight: 400; color: #facc15; }
+    .status-num { font-size: 1.35vw; font-weight: 500; }
+    .status-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; text-transform: uppercase; }
+    .status-none { color: #64748b !important; }
+
+    .lcd-ticker {
+      height: 2.2vw; background: #000000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.5vw; display: flex; align-items: center; position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .ticker-tag {
+      background: #dc2626; color: #ffffff; font-size: 0.68vw; font-weight: 400; padding: 0.2vw 1vw; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; letter-spacing: 0.1vw; text-transform: uppercase;
+    }
+    .ticker-text-wrapper { flex-grow: 1; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; }
+    .ticker-text { font-size: 0.88vw; color: #f1f5f9; white-space: nowrap; font-weight: 400; position: absolute; animation: ticker 35s linear infinite; }
+    @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+  </style>
+</head>
+<body>
+
+  <div class="lcd-header">
+    <div class="platform-box">KTMC</div>
+    
+    <div class="header-title-box">
+      <div class="header-main-title">
+        Wo Lok Estate Bus Estimated Arrival Time Display System
+        <div class="warning-badges" id="warning-container"></div>
+      </div>
+      <div class="header-sub-title">觀塘瑪利諾書院 和樂邨巴士路綫預計到達時間顯示系統</div>
+    </div>
+
+    <div class="header-info-box">
+      <div class="header-info-label">Date</div>
+      <div class="header-info-val" id="date-text">----/--/--</div>
+    </div>
+
+    <div class="header-info-box">
+      <div class="header-info-label" id="weather-desc">Weather</div>
+      <div class="header-info-val" id="temp-text">--°C</div>
+    </div>
+
+    <div class="header-time-box">
+      <div class="header-info-label">Time</div>
+      <div class="header-time-val" id="clock">00:00</div>
+    </div>
+  </div>
+
+  <div class="board-container">
+    <div class="column-pane">
+      <div class="column-title">
+        <span>Southbound (Wo Lok Estate)</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨南行 (往觀塘市中心/九龍/港島方向)</span>
+      </div>
+      <div class="table-head">
+        <div>Route <span>路線</span></div>
+        <div>Time <span>時間</span></div>
+        <div>Destination <span>目的地</span></div>
+        <div>Platform <span>月台</span></div>
+        <div style="text-align: right;">Status <span>實時狀態</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="south-wrap">
+        <div class="board-body" id="south-body"></div>
+      </div>
+    </div>
+
+    <div class="column-pane">
+      <div class="column-title">
+        <span>Northbound (Wo Lok Estate)</span>
+        <span style="font-size: 0.72vw; color: #94a3b8; font-weight: 400;">和樂邨北行 (往順天/順利/秀茂坪/寶林方向)</span>
+      </div>
+      <div class="table-head">
+        <div>Route <span>路線</span></div>
+        <div>Time <span>時間</span></div>
+        <div>Destination <span>目的地</span></div>
+        <div>Platform <span>月台</span></div>
+        <div style="text-align: right;">Status <span>實時狀態</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="north-wrap">
+        <div class="board-body" id="north-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lcd-ticker">
+    <div class="ticker-tag">Info</div>
+    <div class="ticker-text-wrapper">
+      <div class="ticker-text">
+        測試中 僅供參考 | TESTING IN PROGRESS | FOR REFERENCE ONLY | Thank you for using the KTMC Wo Lok Estate Bus Estimated Arrival Time Display System!
+      </div>
+    </div>
+  </div>
+
 <script>
   const SOUTH_ROUTES = [
     { route: "1A", dest: "Star Ferry", destZh: "尖沙咀碼頭", track: "KT537" },
@@ -257,3 +489,5 @@
     setInterval(autoScrollEngine, 5000);
   });
 </script>
+</body>
+</html>
