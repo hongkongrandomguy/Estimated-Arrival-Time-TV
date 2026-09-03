@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <title>翠屏道 & 祥和苑 巴士預計到達時間顯示系統</title>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0.6vw; background-color: #020408; color: #ffffff;
+      font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
+    }
+
+    .lcd-header {
+      display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: 1vw;
+      background: linear-gradient(180deg, #161f2e, #0b1017);
+      border: 2px solid #2d3b4e; border-radius: 4px; padding: 0.5vw 1.2vw; margin-bottom: 0.6vw; flex-shrink: 0;
+    }
+    .logo-box { height: 2.8vw; width: auto; object-fit: contain; background: transparent; border: none; display: block; }
+    .header-title-box { display: flex; flex-direction: column; justify-content: center; }
+    .header-main-title { font-size: 1.4vw; font-weight: 500; color: #ffffff; display: flex; align-items: center; gap: 0.8vw; }
+    .header-sub-title { font-size: 0.78vw; color: #8a99ad; letter-spacing: 0.05vw; }
+
+    .header-info-box { background: #000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: center; }
+    .header-info-label { font-size: 0.62vw; color: #8a99ad; text-transform: uppercase; }
+    .header-info-val { font-size: 1vw; font-weight: 500; color: #f59e0b; }
+    .header-time-box { background: #000; border: 1px solid #3a4859; padding: 0.2vw 1vw; border-radius: 3px; text-align: right; min-width: 7vw; }
+    .header-time-val { font-size: 1.6vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
+
+    .warning-badges { display: flex; gap: 0.5vw; align-items: center; }
+    .warn-badge { font-size: 0.78vw; font-weight: 500; padding: 0.2vw 0.6vw; border-radius: 3px; display: inline-flex; align-items: center; gap: 0.4vw; white-space: nowrap; animation: pulse-warn 1.5s infinite; border: 1px solid rgba(255,255,255,0.3); }
+    .warn-badge img { width: 1.8vw; height: 1.8vw; object-fit: contain; background: rgba(0,0,0,0.2); padding: 0.1vw; border-radius: 2px; }
+    @keyframes pulse-warn { 0%{opacity:1} 50%{opacity:.6} 100%{opacity:1} }
+
+    .board-container { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr 1fr; 
+      grid-template-rows: 1fr 1fr;
+      gap: 0.6vw; 
+      flex-grow: 1; 
+      overflow: hidden; 
+    }
+    
+    .column-pane { 
+      border: 2px solid #232d3b; 
+      border-radius: 4px; 
+      background: #05080f; 
+      display: flex; 
+      flex-direction: column; 
+      overflow: hidden; 
+    }
+    
+    .column-title { 
+      background: #141c28; 
+      padding: 0.4vw 0.8vw; 
+      font-size: 0.88vw; 
+      font-weight: 500; 
+      color: #38bdf8; 
+      border-bottom: 2px solid #283548; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      flex-shrink: 0; 
+    }
+
+    .table-head { 
+      display: grid; 
+      grid-template-columns: 1.3fr 1.1fr 2.2fr 1.3fr; 
+      background: #101722; 
+      padding: 0.35vw 0.6vw; 
+      font-size: 0.72vw; 
+      color: #cbd5e1; 
+      align-items: center; 
+      border-bottom: 1px solid #283548; 
+      flex-shrink: 0; 
+      text-transform: uppercase; 
+    }
+    .table-head div { display: flex; flex-direction: column; }
+    .table-head span { font-size: 0.58vw; color: #718096; }
+
+    .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
+    .board-body { position: absolute; width: 100%; top: 0; padding: 4px; will-change: transform; }
+    .copy { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
+
+    .train-row { 
+      display: grid; 
+      grid-template-columns: 1.3fr 1.1fr 2.2fr 1.3fr; 
+      align-items: center; 
+      padding: 0.35vw 0.6vw; 
+      background: #0a0f18; 
+      border-radius: 3px; 
+      height: 3.8vw; 
+      border-bottom: 1px solid #131b26; 
+    }
+
+    .route-cell { display: flex; align-items: center; gap: 0.35vw; min-width: 0; }
+
+    .train-badge {
+      font-size: 1.5vw; font-weight: 700;
+      width: 4.6vw; height: 2.6vw; padding: 0 0.5vw;
+      border-radius: 4px; color: #fff;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
+      white-space: nowrap; overflow: hidden; flex-shrink: 0;
+    }
+    .type-nozomi { background: #16a34a; } .type-hikari { background: #e11d48; }
+    .type-kodama { background: #0284c7; } .type-local { background: #475569; }
+
+    .co-tag { font-size: 0.62vw; font-weight: 700; border-radius: 2px; padding: 0.08vw 0.3vw; white-space: nowrap; }
+    .co-kmb { background: #dc2626; color: #fff; }
+    .co-ctb { background: #0057b8; color: #fff; }
+    .co-stack { display: flex; flex-direction: column; gap: 0.15vw; flex-shrink: 0; }
+
+    .time-col { display: flex; flex-direction: column; }
+    .time-main { font-size: 1.25vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
+    .time-sub { font-size: 0.62vw; color: #94a3b8; text-transform: uppercase; }
+
+    .dest-col { overflow: hidden; padding-right: 0.4vw; }
+    .dest-main { font-size: 1.05vw; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; }
+
+    .status-col { text-align: right; }
+    .status-main { font-size: 1.02vw; color: #facc15; }
+    .status-num { font-size: 1.35vw; font-weight: 500; }
+    .status-sub { font-size: 0.62vw; color: #94a3b8; text-transform: uppercase; }
+    .status-none { color: #64748b !important; }
+
+    .lcd-ticker { height: 2.2vw; background: #000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.5vw; display: flex; overflow: hidden; flex-shrink: 0; }
+    .ticker-tag { background: #dc2626; color: #fff; font-size: 0.68vw; padding: 0.2vw 1vw; height: 100%; display: flex; align-items: center; z-index: 10; letter-spacing: 0.1vw; text-transform: uppercase; }
+    .ticker-text-wrapper { flex: 1; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; }
+    .ticker-text {
+      display: inline-block; white-space: nowrap; padding-left: 100%;
+      font-size: 0.88vw; color: #f1f5f9; animation: ticker 40s linear infinite;
+    }
+    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+  </style>
+</head>
+<body>
+
+  <div class="lcd-header">
+    <img class="logo-box" src="ktmc.png" alt="KTMC">
+    <div class="header-title-box">
+      <div class="header-main-title">Tsui Ping Rd & Cheung Wo Court Bus ETA Display System <div class="warning-badges" id="warning-container"></div></div>
+      <div class="header-sub-title">翠屏道 & 祥和苑 巴士預計到達時間顯示系統（601/601P 自動顯示營運公司）</div>
+    </div>
+    <div class="header-info-box"><div class="header-info-label">Date</div><div class="header-info-val" id="date-text">----/--/--</div></div>
+    <div class="header-info-box"><div class="header-info-label" id="weather-desc">Weather</div><div class="header-info-val" id="temp-text">--°C</div></div>
+    <div class="header-time-box"><div class="header-info-label">Time</div><div class="header-time-val" id="clock">00:00</div></div>
+  </div>
+
+  <div class="board-container">
+    <!-- 第 1 欄：翠屏道 -->
+    <div class="column-pane">
+      <div class="column-title"><span>翠屏道 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/順利</span></div>
+      <div class="table-head">
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="tsui-north-wrap"><div class="board-body" id="tsui-north-body"></div></div>
+    </div>
+    
+    <!-- 第 2 欄：祥和苑 -->
+    <div class="column-pane">
+      <div class="column-title"><span>祥和苑 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/順利/寶達</span></div>
+      <div class="table-head">
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="cheung-north-wrap"><div class="board-body" id="cheung-north-body"></div></div>
+    </div>
+    
+    <!-- 第 3 欄：聯合顯示（北行） -->
+    <div class="column-pane">
+      <div class="column-title"><span>Combined Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">翠屏道 + 祥和苑 北行</span></div>
+      <div class="table-head">
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="combined-north-wrap"><div class="board-body" id="combined-north-body"></div></div>
+    </div>
+
+    <!-- 第 1 欄：翠屏道 南行 -->
+    <div class="column-pane">
+      <div class="column-title"><span>翠屏道 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘市中心/九龍</span></div>
+      <div class="table-head">
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="tsui-south-wrap"><div class="board-body" id="tsui-south-body"></div></div>
+    </div>
+    
+    <!-- 第 2 欄：祥和苑 南行 -->
+    <div class="column-pane">
+      <div class="column-title"><span>祥和苑 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘/九龍/港島</span></div>
+      <div class="table-head">
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="cheung-south-wrap"><div class="board-body" id="cheung-south-body"></div></div>
+    </div>
+    
+    <!-- 第 3 欄：聯合顯示（南行） -->
+    <div class="column-pane">
+      <div class="column-title"><span>Combined Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">翠屏道 + 祥和苑 南行</span></div>
+      <div class="table-head">
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+      </div>
+      <div class="board-scroll-wrapper" id="combined-south-wrap"><div class="board-body" id="combined-south-body"></div></div>
+    </div>
+  </div>
+
+  <div class="lcd-ticker">
+    <div class="ticker-tag">Info</div>
+    <div class="ticker-text-wrapper"><div class="ticker-text">測試中 僅供參考 | TESTING IN PROGRESS | FOR REFERENCE ONLY | 601/601P 為九巴／城巴聯營線，班次來源：KMB & Citybus Open Data | Thank you for using the Bus ETA Display System!</div></div>
+  </div>
+
+<script>
+  /* 巴士站 ID 配置 */
+  const TSUI_PING_NORTH_STOPS = [
+    { id: "DE925628D8747F6D", name: "Po Pui Court", nameZh: "寶佩苑" },
+    { id: "F9210821429F55B6", name: "Tsui On House", nameZh: "翠桃樓" }
+  ];
+  
+  const TSUI_PING_SOUTH_STOPS = [
+    { id: "3673A01280621EC2", name: "Tsui Tsz House", nameZh: "翠梓樓" },
+    { id: "C6E63C45FF2EA573", name: "Po Pui Court", nameZh: "寶佩苑" }
+  ];
+  
+  const CHEUNG_WO_NORTH_STOPS = [
+    { id: "3093477EA64DDA89", name: "Cheung Wo Court", nameZh: "祥和苑" }
+  ];
+  
+  const CHEUNG_WO_SOUTH_STOPS = [
+    { id: "6CF34EF02CDBE26B", name: "Cheung Wo Court", nameZh: "祥和苑" },
+    { id: "04B6438688E12AC0", name: "Cheung Wo Court", nameZh: "祥和苑" }
+  ];
+  
+  /* 城巴 601/601P 站 ID（已核實）
+     003039 = 祥和苑 (南行，往金鐘/上環)
+     注意：601/601P 北行不停祥和苑，直接從和樂邨去秀雅道遊樂場 */
+  const CTB_JOINT_ROUTES = ["601", "601P"];
+  const CTB_CHEUNG_WO_SOUTH_STOP = "003039";
+
+  let tsuiNorthDepartures = [], tsuiSouthDepartures = [];
+  let cheungNorthDepartures = [], cheungSouthDepartures = [];
+  let combinedNorthDepartures = [], combinedSouthDepartures = [];
+  let isDataLoaded = false;
+
+  function getBadgeClass(route) {
+    if (route.includes("A") || route.includes("X")) return "type-nozomi";
+    if (route.startsWith("8") || route.startsWith("2")) return "type-hikari";
+    if (route.startsWith("14") || route.startsWith("11") || route.startsWith("13")) return "type-kodama";
+    return "type-local";
+  }
+
+  function getCustomWarningStyle(message) {
+    if (message.includes("一號")) return { icon: "t1.png", text: "Signal No. 1", bg: "#e11d48" };
+    if (message.includes("三號")) return { icon: "t3.png", text: "Signal No. 3", bg: "#e11d48" };
+    if (message.includes("季候風")) return { icon: "monsoon.png", text: "Monsoon Wind", bg: "#059669" };
+    if (message.includes("黃色暴雨")) return { icon: "yellow-rain.png", text: "Amber Rainstorm", bg: "#ca8a04" };
+    if (message.includes("紅色暴雨")) return { icon: "red-rain.png", text: "Red Rainstorm", bg: "#dc2626" };
+    if (message.includes("黑色暴雨")) return { icon: "black-rain.png", text: "Black Rainstorm", bg: "#111827" };
+    if (message.includes("山泥傾瀉")) return { icon: "landslip.png", text: "Landslip Warning", bg: "#b45309" };
+    if (message.includes("雷暴")) return { icon: "thunder.png", text: "Thunderstorm", bg: "#d97706" };
+    if (message.includes("寒冷")) return { icon: "cold.png", text: "Cold Weather", bg: "#2563eb" };
+    if (message.includes("酷熱")) return { icon: "hot.png", text: "Very Hot Weather", bg: "#d97706" };
+    if (message.includes("水浸")) return { icon: "nt-flood.png", text: "Flooding Warning", bg: "#2563eb" };
+    return { icon: "t1.png", text: message, bg: "#dc2626" };
+  }
+
+  async function fetchWeatherData() {
+    try {
+      const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en');
+      if (res.ok) {
+        const data = await res.json();
+        const tempEl = document.getElementById('temp-text');
+        const descEl = document.getElementById('weather-desc');
+        const warnEl = document.getElementById('warning-container');
+        if (data.temperature && data.temperature.data) {
+          const t = data.temperature.data.find(x => x.place === "Hong Kong Observatory");
+          if (t && tempEl) tempEl.innerText = `${t.value}°C`;
+        }
+        if (descEl) descEl.innerText = "HKO Weather";
+        if (warnEl) {
+          warnEl.innerHTML = '';
+          if (data.warningMessage && data.warningMessage.length) {
+            data.warningMessage.forEach(msg => {
+              const c = getCustomWarningStyle(msg);
+              const b = document.createElement('div');
+              b.className = 'warn-badge'; b.style.backgroundColor = c.bg;
+              b.innerHTML = `<img src="${c.icon}" alt="icon"> <span>${c.text}</span>`; b.title = msg;
+              warnEl.appendChild(b);
+            });
+          }
+        }
+      }
+    } catch (e) {
+      const d = document.getElementById('weather-desc');
+      if (d) d.innerText = "Weather Offline";
+    }
+  }
+
+  async function fetchKMBStopEtas(stopIds) {
+    const results = await Promise.all(stopIds.map(stop =>
+      fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stop.id}`)
+        .then(res => res.ok ? res.json() : null).catch(() => null)
+    ));
+    const etas = [];
+    results.forEach(json => {
+      if (!json || !Array.isArray(json.data)) return;
+      json.data.forEach(item => {
+        if (item.eta) {
+          const t = new Date(item.eta);
+          if (!isNaN(t.getTime())) {
+            etas.push({ 
+              route: item.route, 
+              dest: item.dest, 
+              destZh: item.dest_tc || item.dest,
+              etaTime: t, 
+              co: 'KMB' 
+            });
+          }
+        }
+      });
+    });
+    return etas;
+  }
+
+  async function fetchCitybusEtas() {
+    const etas = [];
+    for (const route of CTB_JOINT_ROUTES) {
+      try {
+        const res = await fetch(`https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${CTB_CHEUNG_WO_SOUTH_STOP}/${route}`);
+        if (!res.ok) continue;
+        const json = await res.json();
+        if (!json || !Array.isArray(json.data)) continue;
+        json.data.forEach(item => {
+          if (item.eta) {
+            const t = new Date(item.eta);
+            if (!isNaN(t.getTime())) {
+              etas.push({ 
+                route: item.route, 
+                dest: item.dest_en, 
+                destZh: item.dest_tc,
+                etaTime: t, 
+                co: 'CTB' 
+              });
+            }
+          }
+        });
+      } catch (e) {
+        console.error(`Citybus fetch error for ${route}:`, e);
+      }
+    }
+    return etas;
+  }
+
+  function buildNormalizedList(etas) {
+    const now = Date.now();
+    const routeMap = new Map();
+    
+    etas.forEach(eta => {
+      if (!routeMap.has(eta.route)) {
+        routeMap.set(eta.route, { route: eta.route, dest: eta.dest, destZh: eta.destZh, etas: [] });
+      }
+      const routeData = routeMap.get(eta.route);
+      routeData.etas.push(eta);
+    });
+    
+    return Array.from(routeMap.values()).map(routeData => {
+      const upcoming = routeData.etas
+        .filter(e => e.etaTime.getTime() >= now - 10000)
+        .sort((a, b) => a.etaTime - b.etaTime);
+      const best = upcoming.length ? upcoming[0] : null;
+      return {
+        route: routeData.route,
+        dest: routeData.dest,
+        destZh: routeData.destZh,
+        etaTime: best ? best.etaTime : null,
+        co: best ? best.co : null,
+        hasSchedule: upcoming.length > 0
+      };
+    }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
+  }
+
+  function mergeAndNormalize(kmbEtas, ctbEtas) {
+    const allEtas = [...kmbEtas, ...ctbEtas];
+    return buildNormalizedList(allEtas);
+  }
+
+  async function fetchAPIData() {
+    try {
+      const [tsuiNorthKMB, tsuiSouthKMB, cheungNorthKMB, cheungSouthKMB, ctbEtas] = await Promise.all([
+        fetchKMBStopEtas(TSUI_PING_NORTH_STOPS),
+        fetchKMBStopEtas(TSUI_PING_SOUTH_STOPS),
+        fetchKMBStopEtas(CHEUNG_WO_NORTH_STOPS),
+        fetchKMBStopEtas(CHEUNG_WO_SOUTH_STOPS),
+        fetchCitybusEtas()
+      ]);
+      
+      tsuiNorthDepartures = buildNormalizedList(tsuiNorthKMB);
+      tsuiSouthDepartures = buildNormalizedList(tsuiSouthKMB);
+      cheungNorthDepartures = buildNormalizedList(cheungNorthKMB);
+      cheungSouthDepartures = mergeAndNormalize(cheungSouthKMB, ctbEtas);
+      combinedNorthDepartures = buildNormalizedList([...tsuiNorthKMB, ...cheungNorthKMB]);
+      combinedSouthDepartures = mergeAndNormalize([...tsuiSouthKMB, ...cheungSouthKMB], ctbEtas);
+      
+      isDataLoaded = true;
+      renderAllBoards();
+    } catch (e) {
+      console.error("API Fetch Error:", e);
+    }
+  }
+
+  function renderBoardHTML(departures) {
+    if (!isDataLoaded) return `<div style="text-align:center; padding: 2vw; color: #64748b;">Loading...</div>`;
+    if (!departures.length) return `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-size:0.9vw;">No Data Available</div>`;
+    const now = new Date();
+    let html = '';
+    departures.forEach(item => {
+      let timeStr = "--:--", statusMain = "No Info", statusSub = "N/A", statusClass = "status-none";
+      if (item.etaTime) {
+        const diffSecs = Math.floor((item.etaTime - now) / 1000);
+        const diffMins = Math.floor(diffSecs / 60);
+        timeStr = item.etaTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+        statusClass = "";
+        if (diffSecs <= 30 && diffSecs >= -10) { 
+          statusMain = "Arriving"; 
+          statusSub = "ARRIVING"; 
+        } else {
+          const dm = Math.max(0, diffMins);
+          statusMain = `<span class="status-num">${dm}</span> min${dm === 1 ? '' : 's'}`;
+          statusSub = `${Math.max(0, diffSecs % 60)} sec`;
+        }
+      } else if (item.hasSchedule) { 
+        statusMain = "No Departure"; 
+        statusSub = "NO SCHEDULED BUS"; 
+      }
+
+      let coTag = '';
+      if (item.co) {
+        coTag = `<span class="co-tag ${item.co === 'CTB' ? 'co-ctb' : 'co-kmb'}">${item.co === 'CTB' ? 'CTB 城巴' : 'KMB 九巴'}</span>`;
+      } else if (CTB_JOINT_ROUTES.includes(item.route)) {
+        coTag = `<div class="co-stack"><span class="co-tag co-kmb">KMB 九巴</span><span class="co-tag co-ctb">CTB 城巴</span></div>`;
+      }
+
+      html += `
+        <div class="train-row">
+          <div class="route-cell"><div class="train-badge ${getBadgeClass(item.route)}">${item.route}</div>${coTag}</div>
+          <div class="time-col"><div class="time-main">${timeStr}</div><div class="time-sub">${item.etaTime ? 'Scheduled' : '--'}</div></div>
+          <div class="dest-col"><div class="dest-main">${item.dest}</div><div class="dest-sub">${item.destZh}</div></div>
+          <div class="status-col"><div class="status-main ${statusClass}">${statusMain}</div><div class="status-sub">${statusSub}</div></div>
+        </div>`;
+    });
+    return html;
+  }
+
+  function renderAllBoards() {
+    const panels = [
+      { body: 'tsui-north-body', data: tsuiNorthDepartures },
+      { body: 'cheung-north-body', data: cheungNorthDepartures },
+      { body: 'combined-north-body', data: combinedNorthDepartures },
+      { body: 'tsui-south-body', data: tsuiSouthDepartures },
+      { body: 'cheung-south-body', data: cheungSouthDepartures },
+      { body: 'combined-south-body', data: combinedSouthDepartures }
+    ];
+    
+    panels.forEach(panel => {
+      const el = document.getElementById(panel.body);
+      const html = renderBoardHTML(panel.data);
+      if (el) {
+        el.innerHTML = isDataLoaded ? `<div class="copy">${html}</div><div class="copy">${html}</div>` : html;
+      }
+    });
+  }
+
+  function tickRealtime() {
+    const now = new Date();
+    const c = document.getElementById('clock'), d = document.getElementById('date-text');
+    if (c) c.innerText = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+    if (d) d.innerText = now.toLocaleDateString('en-GB', { month: 'numeric', day: 'numeric', weekday: 'short' });
+    if (isDataLoaded) renderAllBoards();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    fetchAPIData();
+    fetchWeatherData();
+    setInterval(tickRealtime, 1000);
+    setInterval(fetchAPIData, 15000);
+    setInterval(fetchWeatherData, 60000);
+  });
+</script>
+</body>
+</html>
