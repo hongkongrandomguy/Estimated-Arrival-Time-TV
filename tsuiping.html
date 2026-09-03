@@ -34,66 +34,27 @@
     .warn-badge img { width: 1.8vw; height: 1.8vw; object-fit: contain; background: rgba(0,0,0,0.2); padding: 0.1vw; border-radius: 2px; }
     @keyframes pulse-warn { 0%{opacity:1} 50%{opacity:.6} 100%{opacity:1} }
 
-    .board-container { 
-      display: grid; 
-      grid-template-columns: 1fr 1fr 1fr; 
+    /* ★ 2 欄 × 2 列 = 4 格 */
+    .board-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
-      gap: 0.6vw; 
-      flex-grow: 1; 
-      overflow: hidden; 
-    }
-    
-    .column-pane { 
-      border: 2px solid #232d3b; 
-      border-radius: 4px; 
-      background: #05080f; 
-      display: flex; 
-      flex-direction: column; 
-      overflow: hidden; 
-    }
-    
-    .column-title { 
-      background: #141c28; 
-      padding: 0.4vw 0.8vw; 
-      font-size: 0.88vw; 
-      font-weight: 500; 
-      color: #38bdf8; 
-      border-bottom: 2px solid #283548; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      flex-shrink: 0; 
+      gap: 0.6vw; flex-grow: 1; overflow: hidden;
     }
 
-    .table-head { 
-      display: grid; 
-      grid-template-columns: 1.3fr 1.1fr 2.2fr 1.3fr; 
-      background: #101722; 
-      padding: 0.35vw 0.6vw; 
-      font-size: 0.72vw; 
-      color: #cbd5e1; 
-      align-items: center; 
-      border-bottom: 1px solid #283548; 
-      flex-shrink: 0; 
-      text-transform: uppercase; 
-    }
+    .column-pane { border: 2px solid #232d3b; border-radius: 4px; background: #05080f; display: flex; flex-direction: column; overflow: hidden; }
+    .column-title { background: #141c28; padding: 0.4vw 0.8vw; font-size: 0.88vw; font-weight: 500; color: #38bdf8; border-bottom: 2px solid #283548; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+
+    .table-head { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.3fr; background: #101722; padding: 0.35vw 0.6vw; font-size: 0.72vw; color: #cbd5e1; align-items: center; border-bottom: 1px solid #283548; flex-shrink: 0; text-transform: uppercase; }
     .table-head div { display: flex; flex-direction: column; }
     .table-head span { font-size: 0.58vw; color: #718096; }
 
+    /* ★ 連續滾動容器 */
     .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
     .board-body { position: absolute; width: 100%; top: 0; padding: 4px; will-change: transform; }
     .copy { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
 
-    .train-row { 
-      display: grid; 
-      grid-template-columns: 1.3fr 1.1fr 2.2fr 1.3fr; 
-      align-items: center; 
-      padding: 0.35vw 0.6vw; 
-      background: #0a0f18; 
-      border-radius: 3px; 
-      height: 3.8vw; 
-      border-bottom: 1px solid #131b26; 
-    }
+    .train-row { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.3fr; align-items: center; padding: 0.35vw 0.6vw; background: #0a0f18; border-radius: 3px; height: 3.8vw; border-bottom: 1px solid #131b26; }
 
     .route-cell { display: flex; align-items: center; gap: 0.35vw; min-width: 0; }
 
@@ -151,7 +112,7 @@
   </div>
 
   <div class="board-container">
-    <!-- 第 1 欄：翠屏道 -->
+    <!-- 翠屏道 北行 -->
     <div class="column-pane">
       <div class="column-title"><span>翠屏道 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/順利</span></div>
       <div class="table-head">
@@ -159,8 +120,8 @@
       </div>
       <div class="board-scroll-wrapper" id="tsui-north-wrap"><div class="board-body" id="tsui-north-body"></div></div>
     </div>
-    
-    <!-- 第 2 欄：祥和苑 -->
+
+    <!-- 祥和苑 北行 -->
     <div class="column-pane">
       <div class="column-title"><span>祥和苑 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/順利/寶達</span></div>
       <div class="table-head">
@@ -168,17 +129,8 @@
       </div>
       <div class="board-scroll-wrapper" id="cheung-north-wrap"><div class="board-body" id="cheung-north-body"></div></div>
     </div>
-    
-    <!-- 第 3 欄：聯合顯示（北行） -->
-    <div class="column-pane">
-      <div class="column-title"><span>Combined Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">翠屏道 + 祥和苑 北行</span></div>
-      <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
-      </div>
-      <div class="board-scroll-wrapper" id="combined-north-wrap"><div class="board-body" id="combined-north-body"></div></div>
-    </div>
 
-    <!-- 第 1 欄：翠屏道 南行 -->
+    <!-- 翠屏道 南行 -->
     <div class="column-pane">
       <div class="column-title"><span>翠屏道 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘市中心/九龍</span></div>
       <div class="table-head">
@@ -186,23 +138,14 @@
       </div>
       <div class="board-scroll-wrapper" id="tsui-south-wrap"><div class="board-body" id="tsui-south-body"></div></div>
     </div>
-    
-    <!-- 第 2 欄：祥和苑 南行 -->
+
+    <!-- 祥和苑 南行 -->
     <div class="column-pane">
       <div class="column-title"><span>祥和苑 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘/九龍/港島</span></div>
       <div class="table-head">
         <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
       </div>
       <div class="board-scroll-wrapper" id="cheung-south-wrap"><div class="board-body" id="cheung-south-body"></div></div>
-    </div>
-    
-    <!-- 第 3 欄：聯合顯示（南行） -->
-    <div class="column-pane">
-      <div class="column-title"><span>Combined Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">翠屏道 + 祥和苑 南行</span></div>
-      <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
-      </div>
-      <div class="board-scroll-wrapper" id="combined-south-wrap"><div class="board-body" id="combined-south-body"></div></div>
     </div>
   </div>
 
@@ -215,33 +158,29 @@
   /* 巴士站 ID 配置 */
   const TSUI_PING_NORTH_STOPS = [
     { id: "DE925628D8747F6D", name: "Po Pui Court", nameZh: "寶佩苑" },
-    { id: "F9210821429F55B6", name: "Tsui On House", nameZh: "翠桃樓" }
+    { id: "F9210821429F55B6", name: "Tsui On House", nameZh: "翠安樓" }
   ];
-  
   const TSUI_PING_SOUTH_STOPS = [
     { id: "3673A01280621EC2", name: "Tsui Tsz House", nameZh: "翠梓樓" },
     { id: "C6E63C45FF2EA573", name: "Po Pui Court", nameZh: "寶佩苑" }
   ];
-  
   const CHEUNG_WO_NORTH_STOPS = [
     { id: "3093477EA64DDA89", name: "Cheung Wo Court", nameZh: "祥和苑" }
   ];
-  
   const CHEUNG_WO_SOUTH_STOPS = [
     { id: "6CF34EF02CDBE26B", name: "Cheung Wo Court", nameZh: "祥和苑" },
     { id: "04B6438688E12AC0", name: "Cheung Wo Court", nameZh: "祥和苑" }
   ];
-  
-  /* 城巴 601/601P 站 ID（已核實）
-     003039 = 祥和苑 (南行，往金鐘/上環)
-     注意：601/601P 北行不停祥和苑，直接從和樂邨去秀雅道遊樂場 */
+
+  /* 城巴 601/601P 祥和苑南行站（已核實）；北行不停祥和苑 */
   const CTB_JOINT_ROUTES = ["601", "601P"];
   const CTB_CHEUNG_WO_SOUTH_STOP = "003039";
 
   let tsuiNorthDepartures = [], tsuiSouthDepartures = [];
   let cheungNorthDepartures = [], cheungSouthDepartures = [];
-  let combinedNorthDepartures = [], combinedSouthDepartures = [];
   let isDataLoaded = false;
+  const scrollState = { tN: 0, tS: 0, cN: 0, cS: 0 };
+  let lastTs = null;
 
   function getBadgeClass(route) {
     if (route.includes("A") || route.includes("X")) return "type-nozomi";
@@ -297,6 +236,13 @@
     }
   }
 
+  /* ★ 修正：KMB API 目的地欄位兼容處理，避免 undefined */
+  function pickDest(item) {
+    const en = item.dest_en || item.dest || item.destination_en || '';
+    const tc = item.dest_tc || item.dest_sc || item.destination_tc || '';
+    return { dest: en || tc || '--', destZh: tc || en || '--' };
+  }
+
   async function fetchKMBStopEtas(stopIds) {
     const results = await Promise.all(stopIds.map(stop =>
       fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stop.id}`)
@@ -306,16 +252,12 @@
     results.forEach(json => {
       if (!json || !Array.isArray(json.data)) return;
       json.data.forEach(item => {
+        if (!item.route) return;
         if (item.eta) {
           const t = new Date(item.eta);
           if (!isNaN(t.getTime())) {
-            etas.push({ 
-              route: item.route, 
-              dest: item.dest, 
-              destZh: item.dest_tc || item.dest,
-              etaTime: t, 
-              co: 'KMB' 
-            });
+            const d = pickDest(item);
+            etas.push({ route: item.route, dest: d.dest, destZh: d.destZh, etaTime: t, co: 'KMB' });
           }
         }
       });
@@ -335,19 +277,16 @@
           if (item.eta) {
             const t = new Date(item.eta);
             if (!isNaN(t.getTime())) {
-              etas.push({ 
-                route: item.route, 
-                dest: item.dest_en, 
-                destZh: item.dest_tc,
-                etaTime: t, 
-                co: 'CTB' 
+              etas.push({
+                route: item.route,
+                dest: item.dest_en || item.dest_tc || '--',
+                destZh: item.dest_tc || item.dest_en || '--',
+                etaTime: t, co: 'CTB'
               });
             }
           }
         });
-      } catch (e) {
-        console.error(`Citybus fetch error for ${route}:`, e);
-      }
+      } catch (e) { console.error(`Citybus fetch error for ${route}:`, e); }
     }
     return etas;
   }
@@ -355,24 +294,19 @@
   function buildNormalizedList(etas) {
     const now = Date.now();
     const routeMap = new Map();
-    
     etas.forEach(eta => {
       if (!routeMap.has(eta.route)) {
-        routeMap.set(eta.route, { route: eta.route, dest: eta.dest, destZh: eta.destZh, etas: [] });
+        routeMap.set(eta.route, { route: eta.route, dest: eta.dest, destZh: eta.destZh, list: [] });
       }
-      const routeData = routeMap.get(eta.route);
-      routeData.etas.push(eta);
+      routeMap.get(eta.route).list.push(eta);
     });
-    
-    return Array.from(routeMap.values()).map(routeData => {
-      const upcoming = routeData.etas
+    return Array.from(routeMap.values()).map(rd => {
+      const upcoming = rd.list
         .filter(e => e.etaTime.getTime() >= now - 10000)
         .sort((a, b) => a.etaTime - b.etaTime);
       const best = upcoming.length ? upcoming[0] : null;
       return {
-        route: routeData.route,
-        dest: routeData.dest,
-        destZh: routeData.destZh,
+        route: rd.route, dest: rd.dest, destZh: rd.destZh,
         etaTime: best ? best.etaTime : null,
         co: best ? best.co : null,
         hasSchedule: upcoming.length > 0
@@ -380,33 +314,22 @@
     }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
   }
 
-  function mergeAndNormalize(kmbEtas, ctbEtas) {
-    const allEtas = [...kmbEtas, ...ctbEtas];
-    return buildNormalizedList(allEtas);
-  }
-
   async function fetchAPIData() {
     try {
-      const [tsuiNorthKMB, tsuiSouthKMB, cheungNorthKMB, cheungSouthKMB, ctbEtas] = await Promise.all([
+      const [tN, tS, cN, cS, ctb] = await Promise.all([
         fetchKMBStopEtas(TSUI_PING_NORTH_STOPS),
         fetchKMBStopEtas(TSUI_PING_SOUTH_STOPS),
         fetchKMBStopEtas(CHEUNG_WO_NORTH_STOPS),
         fetchKMBStopEtas(CHEUNG_WO_SOUTH_STOPS),
         fetchCitybusEtas()
       ]);
-      
-      tsuiNorthDepartures = buildNormalizedList(tsuiNorthKMB);
-      tsuiSouthDepartures = buildNormalizedList(tsuiSouthKMB);
-      cheungNorthDepartures = buildNormalizedList(cheungNorthKMB);
-      cheungSouthDepartures = mergeAndNormalize(cheungSouthKMB, ctbEtas);
-      combinedNorthDepartures = buildNormalizedList([...tsuiNorthKMB, ...cheungNorthKMB]);
-      combinedSouthDepartures = mergeAndNormalize([...tsuiSouthKMB, ...cheungSouthKMB], ctbEtas);
-      
+      tsuiNorthDepartures = buildNormalizedList(tN);
+      tsuiSouthDepartures = buildNormalizedList(tS);
+      cheungNorthDepartures = buildNormalizedList(cN);
+      cheungSouthDepartures = buildNormalizedList([...cS, ...ctb]);  // 祥和苑南行合併九巴+城巴
       isDataLoaded = true;
       renderAllBoards();
-    } catch (e) {
-      console.error("API Fetch Error:", e);
-    }
+    } catch (e) { console.error("API Fetch Error:", e); }
   }
 
   function renderBoardHTML(departures) {
@@ -421,18 +344,13 @@
         const diffMins = Math.floor(diffSecs / 60);
         timeStr = item.etaTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
         statusClass = "";
-        if (diffSecs <= 30 && diffSecs >= -10) { 
-          statusMain = "Arriving"; 
-          statusSub = "ARRIVING"; 
-        } else {
+        if (diffSecs <= 30 && diffSecs >= -10) { statusMain = "Arriving"; statusSub = "ARRIVING"; }
+        else {
           const dm = Math.max(0, diffMins);
           statusMain = `<span class="status-num">${dm}</span> min${dm === 1 ? '' : 's'}`;
           statusSub = `${Math.max(0, diffSecs % 60)} sec`;
         }
-      } else if (item.hasSchedule) { 
-        statusMain = "No Departure"; 
-        statusSub = "NO SCHEDULED BUS"; 
-      }
+      } else if (item.hasSchedule) { statusMain = "No Departure"; statusSub = "NO SCHEDULED BUS"; }
 
       let coTag = '';
       if (item.co) {
@@ -452,22 +370,18 @@
     return html;
   }
 
+  /* ★ 雙份複製以達成無縫連續滾動 */
   function renderAllBoards() {
     const panels = [
       { body: 'tsui-north-body', data: tsuiNorthDepartures },
       { body: 'cheung-north-body', data: cheungNorthDepartures },
-      { body: 'combined-north-body', data: combinedNorthDepartures },
       { body: 'tsui-south-body', data: tsuiSouthDepartures },
-      { body: 'cheung-south-body', data: cheungSouthDepartures },
-      { body: 'combined-south-body', data: combinedSouthDepartures }
+      { body: 'cheung-south-body', data: cheungSouthDepartures }
     ];
-    
-    panels.forEach(panel => {
-      const el = document.getElementById(panel.body);
-      const html = renderBoardHTML(panel.data);
-      if (el) {
-        el.innerHTML = isDataLoaded ? `<div class="copy">${html}</div><div class="copy">${html}</div>` : html;
-      }
+    panels.forEach(p => {
+      const el = document.getElementById(p.body);
+      const html = renderBoardHTML(p.data);
+      if (el) el.innerHTML = isDataLoaded ? `<div class="copy">${html}</div><div class="copy">${html}</div>` : html;
     });
   }
 
@@ -479,9 +393,39 @@
     if (isDataLoaded) renderAllBoards();
   }
 
+  /* ★ 連續滾動引擎：rAF 平滑驅動，滾完一份無縫接回 */
+  function continuousScroll(key, wrapId, bodyId, dt) {
+    const wrap = document.getElementById(wrapId);
+    const body = document.getElementById(bodyId);
+    if (!wrap || !body || !body.children.length) return;
+    const copyEl = body.children[0];
+    const loopH = copyEl.offsetHeight + 4;
+    if (loopH <= wrap.clientHeight) {
+      if (scrollState[key] !== 0) { scrollState[key] = 0; body.style.transform = 'translateY(0)'; }
+      return;
+    }
+    const speed = Math.max(24, window.innerWidth * 0.015);
+    let off = scrollState[key] + speed * dt;
+    while (off >= loopH) off -= loopH;
+    scrollState[key] = off;
+    body.style.transform = `translateY(-${off}px)`;
+  }
+
+  function scrollLoop(ts) {
+    if (lastTs === null) lastTs = ts;
+    const dt = Math.min(0.1, (ts - lastTs) / 1000);
+    lastTs = ts;
+    continuousScroll('tN', 'tsui-north-wrap', 'tsui-north-body', dt);
+    continuousScroll('cN', 'cheung-north-wrap', 'cheung-north-body', dt);
+    continuousScroll('tS', 'tsui-south-wrap', 'tsui-south-body', dt);
+    continuousScroll('cS', 'cheung-south-wrap', 'cheung-south-body', dt);
+    requestAnimationFrame(scrollLoop);
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
     fetchAPIData();
     fetchWeatherData();
+    requestAnimationFrame(scrollLoop);
     setInterval(tickRealtime, 1000);
     setInterval(fetchAPIData, 15000);
     setInterval(fetchWeatherData, 60000);
