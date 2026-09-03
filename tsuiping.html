@@ -80,7 +80,6 @@
     .dest-main { font-size: 1.05vw; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; }
 
-    /* ★ 車站欄：白格顯示站名（主），小字顯示 KT 編號（次） */
     .track-col { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.1vw; }
     .track-box { background: #fff; color: #000; font-weight: 500; font-size: 0.95vw; padding: 0.1vw 0.4vw; border-radius: 3px; text-align: center; min-width: 3.2vw; box-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; }
     .track-name { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
@@ -107,7 +106,7 @@
     <img class="logo-box" src="ktmc.png" alt="KTMC">
     <div class="header-title-box">
       <div class="header-main-title">Tsui Ping Rd & Cheung Wo Court Bus ETA Display System <div class="warning-badges" id="warning-container"></div></div>
-      <div class="header-sub-title">翠屏道 & 祥和苑 巴士預計到達時間顯示系統（601/601P 自動顯示營運公司）</div>
+      <div class="header-sub-title">翠屏道 & 祥和苑 巴士預計到達時間顯示系統</div>
     </div>
     <div class="header-info-box"><div class="header-info-label">Date</div><div class="header-info-val" id="date-text">----/--/--</div></div>
     <div class="header-info-box"><div class="header-info-label" id="weather-desc">Weather</div><div class="header-info-val" id="temp-text">--°C</div></div>
@@ -115,7 +114,6 @@
   </div>
 
   <div class="board-container">
-    <!-- 翠屏道 北行 -->
     <div class="column-pane">
       <div class="column-title"><span>翠屏道 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/順利</span></div>
       <div class="table-head">
@@ -124,7 +122,6 @@
       <div class="board-scroll-wrapper" id="tsui-north-wrap"><div class="board-body" id="tsui-north-body"></div></div>
     </div>
 
-    <!-- 祥和苑 北行 -->
     <div class="column-pane">
       <div class="column-title"><span>祥和苑 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/順利/寶達</span></div>
       <div class="table-head">
@@ -133,7 +130,6 @@
       <div class="board-scroll-wrapper" id="cheung-north-wrap"><div class="board-body" id="cheung-north-body"></div></div>
     </div>
 
-    <!-- 翠屏道 南行 -->
     <div class="column-pane">
       <div class="column-title"><span>翠屏道 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘市中心/九龍</span></div>
       <div class="table-head">
@@ -142,7 +138,6 @@
       <div class="board-scroll-wrapper" id="tsui-south-wrap"><div class="board-body" id="tsui-south-body"></div></div>
     </div>
 
-    <!-- 祥和苑 南行 -->
     <div class="column-pane">
       <div class="column-title"><span>祥和苑 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘/九龍/港島</span></div>
       <div class="table-head">
@@ -198,6 +193,19 @@
     return "type-local";
   }
 
+  /* ★ 將 API 全大寫英文轉返 Title Case（縮寫保持大寫） */
+  function titleCase(str) {
+    const ACRO = ["BBI", "MTR", "EKCC", "TST", "HK", "KCR"];
+    return (str || "").split(" ").map(w => {
+      if (!w) return w;
+      const m = w.match(/^([^a-zA-Z]*)([a-zA-Z][a-zA-Z']*)(.*)$/);
+      if (!m) return w;
+      const core = m[2].toUpperCase();
+      if (ACRO.includes(core)) return m[1] + core + m[3];
+      return m[1] + m[2].charAt(0).toUpperCase() + m[2].slice(1).toLowerCase() + m[3].toLowerCase();
+    }).join(" ");
+  }
+
   function getCustomWarningStyle(message) {
     if (message.includes("一號")) return { icon: "t1.png", text: "Signal No. 1", bg: "#e11d48" };
     if (message.includes("三號")) return { icon: "t3.png", text: "Signal No. 3", bg: "#e11d48" };
@@ -246,7 +254,7 @@
   }
 
   function pickDest(item) {
-    const en = item.dest_en || item.dest || item.destination_en || '';
+    const en = titleCase(item.dest_en || item.dest || item.destination_en || '');
     const tc = item.dest_tc || item.dest_sc || item.destination_tc || '';
     return { dest: en || tc || '--', destZh: tc || en || '--' };
   }
@@ -292,7 +300,7 @@
             if (!isNaN(t.getTime())) {
               etas.push({
                 route: item.route,
-                dest: item.dest_en || item.dest_tc || '--',
+                dest: titleCase(item.dest_en) || item.dest_tc || '--',
                 destZh: item.dest_tc || item.dest_en || '--',
                 etaTime: t, co: 'CTB',
                 track: CTB_CHEUNG_WO_SOUTH_TRACK, trackName: "祥和苑"
@@ -375,7 +383,6 @@
         coTag = `<div class="co-stack"><span class="co-tag co-kmb">KMB 九巴</span><span class="co-tag co-ctb">CTB 城巴</span></div>`;
       }
 
-      /* ★ 主次對調：白格 = 車站名，小字 = KT 編號 */
       const trackBox = item.track
         ? `<div class="track-box">${item.trackName || item.track}</div><div class="track-name">${item.track}</div>`
         : `<div class="track-box">--</div>`;
@@ -392,8 +399,6 @@
     return html;
   }
 
-  /* ★ 滾動修正：先渲染單份，再量度高度——
-     內容超高先複製第二份做無縫滾動；唔夠高就保持單份（唔會再露出重複行） */
   function renderAllBoards() {
     PANELS.forEach(p => {
       const el = document.getElementById(p.body);
