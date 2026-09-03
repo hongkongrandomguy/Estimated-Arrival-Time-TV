@@ -141,7 +141,7 @@
 
     .status-col { text-align: right; }
     .status-main { font-size: 1.02vw; font-weight: 400; color: #facc15; }
-    .status-num { font-size: 1.35vw; font-weight: 500; } /* 分鐘數字放大 */
+    .status-num { font-size: 1.35vw; font-weight: 500; }
     .status-sub { font-size: 0.62vw; color: #94a3b8; font-weight: 400; text-transform: uppercase; }
     .status-none { color: #64748b !important; }
 
@@ -166,7 +166,7 @@
         Wo Lok Estate Bus Estimated Arrival Time Display System
         <div class="warning-badges" id="warning-container"></div>
       </div>
-      <div class="header-sub-title">觀瑪和樂邨巴士路綫預計到達時間顯示系統</div>
+      <div class="header-sub-title">觀塘瑪利諾書院 和樂邨巴士路綫預計到達時間顯示系統</div>
     </div>
 
     <div class="header-info-box">
@@ -271,6 +271,7 @@
     let southScrollOffset = 0;
     let northScrollOffset = 0;
     let isDataLoaded = false;
+    let cachedWoLokStops = null;
 
     function getBadgeClass(route) {
       if (route.includes("A") || route.includes("X")) return "type-nozomi";
@@ -303,11 +304,7 @@
             const hkoTemp = data.temperature.data.find(t => t.place === "Hong Kong Observatory");
             if (hkoTemp) document.getElementById('temp-text').innerText = `${hkoTemp.value}°C`;
           }
-          if (data.mintainWeather && data.mintainWeather.length > 0) {
-            document.getElementById('weather-desc').innerText = data.mintainWeather[0];
-          } else {
-            document.getElementById('weather-desc').innerText = "Weather";
-          }
+          document.getElementById('weather-desc').innerText = "HKO Weather";
 
           const warnContainer = document.getElementById('warning-container');
           warnContainer.innerHTML = '';
@@ -328,51 +325,69 @@
       }
     }
 
-    async function fetchAPIData() {
+    // 清理字符串，便于精确匹配目的地（移除括号、空格、循环符号等）
+    function cleanStr(str) {
+      if (!str) return "";
+      return str.replace(/[\(\)（）\s↺]/g, "").toUpperCase();
+    }
+
+    function isDestMatch(configZh, apiZh) {
+      const c = cleanStr(configZh);
+      const a = cleanStr(apiZh);
+      if (!c || !a) return false;
+      return c.includes(a) || a.includes(c);
+    }
+
+    async function getWoLokStops() {
+      if (cachedWoLokStops) return cachedWoLokStops;
       try {
         const stopRes = await fetch('https://data.etabus.gov.hk/v1/transport/kmb/stop');
-        if (!stopRes.ok) return;
+        if (!stopRes.ok) return [];
         const stopJson = await stopRes.json();
-        
-        const woLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
-        
-        // Sort stops by latitude descending to accurately separate Northbound (uphill/higher lat) vs Southbound (downhill/lower lat) stops
-        woLokStops.sort((a, b) => b.lat - a.lat);
-        const midLat = woLokStops.length > 1 ? (woLokStops[0].lat + woLokStops[woLokStops.length - 1].lat) / 2 : 0;
-        
-        let apiEtas = [];
-        const northKeywords = ["順利", "秀茂坪", "寶達", "安泰", "寶林", "翠林", "康盛", "將軍澳", "彩虹", "彩福", "中秀茂坪", "尚德"];
+        cachedWoLokStops = stopJson.data.filter(s => s.name_tc && s.name_tc.includes("和樂邨"));
+        return cachedWoLokStops;
+      } catch (e) {
+        console.error("Stop fetch error:", e);
+        return [];
+      }
+    }
 
-        for (const station of woLokStops) {
-          const isStopNorth = station.lat >= midLat;
-          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stop}`;
-          const res = await fetch(url);
-          if (res.ok) {
-            const json = await res.json();
-            if (json.data && Array.isArray(json.data)) {
-              json.data.forEach(item => {
-                if (item.eta && item.route) {
-                  // For circular/loop routes like 23M and 26M, destination text is fixed (e.g. "順利"), 
-                  // so physical stop location (isStopNorth) is used to correctly differentiate directions.
-                  let isNorth = isStopNorth;
-                  if (item.route !== "23M" && item.route !== "26M") {
-                    const destTextTc = item.dest_tc || "";
-                    isNorth = northKeywords.some(kw => destTextTc.includes(kw)) || isStopNorth;
-                  }
+    async function fetchAPIData() {
+      try {
+        const woLokStops = await getWoLokStops();
+        if (!woLokStops || woLokStops.length === 0) return;
+
+        let apiEtas = [];
+
+        // 并行请求所有和乐邨站柱的 ETA，大幅提升响应速度
+        const etaPromises = woLokStops.map(station =>
+          fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${station.stop}`)
+            .then(res => res.ok ? res.json() : null)
+            .catch(() => null)
+        );
+
+        const results = await Promise.all(etaPromises);
+
+        results.forEach(json => {
+          if (json && json.data && Array.isArray(json.data)) {
+            json.data.forEach(item => {
+              if (item.eta && item.route) {
+                const etaTime = new Date(item.eta);
+                if (!isNaN(etaTime.getTime())) {
                   apiEtas.push({
                     route: item.route,
-                    isNorth: isNorth,
-                    etaTime: new Date(item.eta)
+                    destTc: item.dest_tc || "",
+                    etaTime: etaTime
                   });
                 }
-              });
-            }
+              }
+            });
           }
-        }
+        });
 
-        southDepartures = buildNormalizedList(SOUTH_ROUTES, apiEtas, false);
-        northDepartures = buildNormalizedList(NORTH_ROUTES, apiEtas, true);
-        
+        southDepartures = buildNormalizedList(SOUTH_ROUTES, apiEtas);
+        northDepartures = buildNormalizedList(NORTH_ROUTES, apiEtas);
+
         isDataLoaded = true;
         renderBoards();
       } catch (e) {
@@ -380,15 +395,16 @@
       }
     }
 
-    function buildNormalizedList(routeConfig, apiEtas, isNorthDirection) {
+    function buildNormalizedList(routeConfig, apiEtas) {
       const now = new Date();
       return routeConfig.map(configItem => {
+        // 根据路线号及目的地字符串精准匹配
         const matches = apiEtas.filter(e => 
           e.route === configItem.route && 
-          e.isNorth === isNorthDirection && 
+          isDestMatch(configItem.destZh, e.destTc) &&
           e.etaTime.getTime() >= now.getTime() - 10000
         );
-        
+
         let bestEta = null;
         if (matches.length > 0) {
           matches.sort((a, b) => a.etaTime - b.etaTime);
@@ -431,7 +447,8 @@
             statusMain = "Arriving";
             statusSub = "ARRIVING";
           } else {
-            statusMain = `<span class="status-num">${diffMins}</span> min${diffMins === 1 ? '' : 's'}`;
+            const displayMins = Math.max(0, diffMins);
+            statusMain = `<span class="status-num">${displayMins}</span> min${displayMins === 1 ? '' : 's'}`;
             statusSub = `${Math.max(0, diffSecs % 60)} sec`;
           }
         }
