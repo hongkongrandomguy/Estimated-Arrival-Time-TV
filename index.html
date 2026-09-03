@@ -42,21 +42,25 @@
     .table-head div { display: flex; flex-direction: column; }
     .table-head span { font-size: 0.58vw; color: #718096; }
 
-    /* ★ 連續滾動容器：不再使用 transition 跳格 */
     .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
     .board-body { position: absolute; width: 100%; top: 0; padding: 4px; will-change: transform; }
     .copy { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
 
     .train-row { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.1fr 1.3fr; align-items: center; padding: 0.35vw 0.6vw; background: #0a0f18; border-radius: 3px; height: 3.8vw; border-bottom: 1px solid #131b26; }
 
-    .route-cell { display: flex; align-items: center; gap: 0.35vw; }
-    .train-badge { font-size: 1.55vw; font-weight: 700; padding: 0.2vw 0.4vw; border-radius: 4px; color: #fff; text-align: center; min-width: 2.8vw; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 6px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4); }
+    .route-cell { display: flex; align-items: center; justify-content: flex-start; gap: 0.35vw; }
+    .train-badge {
+      font-size: 1.45vw; font-weight: 700; border-radius: 4px; color: #fff;
+      width: 3.6vw; height: 2.6vw; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
+    }
     .type-nozomi { background: #16a34a; } .type-hikari { background: #e11d48; }
     .type-kodama { background: #0284c7; } .type-local { background: #475569; }
 
-    .co-tag { font-size: 0.62vw; font-weight: 700; border-radius: 2px; padding: 0.08vw 0.3vw; white-space: nowrap; }
+    .co-tag { font-size: 0.62vw; font-weight: 700; border-radius: 2px; padding: 0.1vw 0.35vw; white-space: nowrap; }
     .co-kmb { background: #dc2626; color: #fff; }
-    .co-ctb { background: #0057b8; color: #fff; }
+    .co-ctb { background: #facc15; color: #000; }
 
     .time-col { display: flex; flex-direction: column; }
     .time-main { font-size: 1.25vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
@@ -75,14 +79,10 @@
     .status-sub { font-size: 0.62vw; color: #94a3b8; text-transform: uppercase; }
     .status-none { color: #64748b !important; }
 
-    /* ★ 走馬燈修正：padding-left:100% 保證從右側屏幕外進入 */
     .lcd-ticker { height: 2.2vw; background: #000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.5vw; display: flex; overflow: hidden; flex-shrink: 0; }
     .ticker-tag { background: #dc2626; color: #fff; font-size: 0.68vw; padding: 0.2vw 1vw; height: 100%; display: flex; align-items: center; z-index: 10; letter-spacing: 0.1vw; text-transform: uppercase; }
     .ticker-text-wrapper { flex: 1; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; }
-    .ticker-text {
-      display: inline-block; white-space: nowrap; padding-left: 100%;
-      font-size: 0.88vw; color: #f1f5f9; animation: ticker 40s linear infinite;
-    }
+    .ticker-text { display: inline-block; white-space: nowrap; padding-left: 100%; font-size: 0.88vw; color: #f1f5f9; animation: ticker 40s linear infinite; }
     @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
   </style>
 </head>
@@ -160,6 +160,11 @@
   const NORTH_STOP_IDS = ["6530130BE25E909C", "17A8BC1197F76422", "55AE88BFD351F56D",
                           "B314CF2831F9C5F1", "072046BF00257739", "11EC0BEF4F8781A9"];
 
+  /* 城巴（聯營線）：逐線 ETA 端點 /v2/transport/citybus/eta/CTB/{stop}/{route} */
+  const CITYBUS_ROUTES = ["601", "601P"];
+  const CITYBUS_S_STOPS = ["003040"];   // 和樂邨 南行（往金鐘）
+  const CITYBUS_N_STOPS = ["003041"];   // 和樂邨 北行（往寶達）
+
   let southDepartures = [], northDepartures = [];
   let isDataLoaded = false;
   const scrollState = { south: 0, north: 0 };
@@ -219,6 +224,7 @@
     }
   }
 
+  /* ========== 九巴 ETA ========== */
   async function fetchDirectionEtas(stopIds, co) {
     const results = await Promise.all(stopIds.map(id =>
       fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${id}`)
@@ -239,168 +245,36 @@
     return { etas, seenRoutes };
   }
 
-  let citybusStopsCache = null;
-  async function getCitybusWoLokStops() {
-    if (citybusStopsCache) return citybusStopsCache;
+  /* ========== 城巴 ETA（聯營線 601/601P） ========== */
+  async function fetchCitybusRouteEta(stopId, route) {
     try {
-      const res = await fetch('https://rt.data.gov.hk/v2/transport/citybus/stop');
+      const res = await fetch(`https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${stopId}/${route}`);
       if (!res.ok) return [];
       const json = await res.json();
-      const list = Array.isArray(json.data) ? json.data : [];
-      citybusStopsCache = list
-        .filter(s => (s.nameTc || s.name_tc || '').includes('和樂邨'))
-        .map(s => ({ id: s.stop || s.stopId, lat: parseFloat(s.lat) }))
-        .filter(s => s.id);
-      return citybusStopsCache;
+      return Array.isArray(json.data) ? json.data : [];
     } catch (e) { return []; }
   }
 
   async function fetchCitybusEtas() {
     const out = { S: { etas: [], seenRoutes: new Set() }, N: { etas: [], seenRoutes: new Set() } };
-    const stops = await getCitybusWoLokStops();
-    if (!stops.length) return out;
-    const results = await Promise.all(stops.map(st =>
-      fetch(`https://rt.data.gov.hk/v2/transport/citybus/stop-eta/${st.id}`)
-        .then(r => r.ok ? r.json() : null).catch(() => null)
+    const jobs = [];
+    CITYBUS_S_STOPS.forEach(sid => CITYBUS_ROUTES.forEach(r => jobs.push({ sid, r, dir: "S" })));
+    CITYBUS_N_STOPS.forEach(sid => CITYBUS_ROUTES.forEach(r => jobs.push({ sid, r, dir: "N" })));
+
+    const results = await Promise.all(jobs.map(j =>
+      fetchCitybusRouteEta(j.sid, j.r).then(list => ({ j, list }))
     ));
-    results.forEach((json, i) => {
-      if (!json || !Array.isArray(json.data)) return;
-      const dir = stops[i].lat >= 22.3168 ? 'S' : 'N';
-      json.data.forEach(it => {
-        const route = it.route; if (!route) return;
-        out[dir].seenRoutes.add(route);
-        if (it.eta) {
-          const t = new Date(it.eta);
-          if (!isNaN(t.getTime())) out[dir].etas.push({ route, etaTime: t, co: 'CTB' });
-        }
-      });
-    });
-    return out;
-  }
 
-  function mergeSources(a, b) {
-    return { etas: a.etas.concat(b.etas), seenRoutes: new Set([...a.seenRoutes, ...b.seenRoutes]) };
-  }
-
-  async function fetchAPIData() {
-    try {
-      const [kmbS, kmbN, ctb] = await Promise.all([
-        fetchDirectionEtas(SOUTH_STOP_IDS, 'KMB'),
-        fetchDirectionEtas(NORTH_STOP_IDS, 'KMB'),
-        fetchCitybusEtas()
-      ]);
-      southDepartures = buildNormalizedList(SOUTH_ROUTES, mergeSources(kmbS, ctb.S));
-      northDepartures = buildNormalizedList(NORTH_ROUTES, mergeSources(kmbN, ctb.N));
-      isDataLoaded = true;
-      renderBoards();
-    } catch (e) { console.error("API Fetch Error:", e); }
-  }
-
-  function buildNormalizedList(routeConfig, { etas, seenRoutes }) {
-    const now = Date.now();
-    return routeConfig.map(cfg => {
-      const upcoming = etas
-        .filter(e => e.route === cfg.route && e.etaTime.getTime() >= now - 10000)
-        .sort((a, b) => a.etaTime - b.etaTime);
-      const best = upcoming.length ? upcoming[0] : null;
-      return {
-        route: cfg.route, dest: cfg.dest, destZh: cfg.destZh, track: cfg.track,
-        etaTime: best ? best.etaTime : null,
-        co: best ? best.co : null,
-        servesStop: seenRoutes.has(cfg.route)
-      };
-    }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
-  }
-
-  function renderBoardHTML(departures) {
-    if (!isDataLoaded) return `<div style="text-align:center; padding: 2vw; color: #64748b;">Loading...</div>`;
-    if (!departures.length) return `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-size:0.9vw;">No Data Available</div>`;
-    const now = new Date();
-    let html = '';
-    departures.forEach(item => {
-      let timeStr = "--:--", statusMain = "No Info", statusSub = "N/A", statusClass = "status-none";
-      if (item.etaTime) {
-        const diffSecs = Math.floor((item.etaTime - now) / 1000);
-        const diffMins = Math.floor(diffSecs / 60);
-        timeStr = item.etaTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
-        statusClass = "";
-        if (diffSecs <= 30 && diffSecs >= -10) { statusMain = "Arriving"; statusSub = "ARRIVING"; }
-        else {
-          const dm = Math.max(0, diffMins);
-          statusMain = `<span class="status-num">${dm}</span> min${dm === 1 ? '' : 's'}`;
-          statusSub = `${Math.max(0, diffSecs % 60)} sec`;
-        }
-      } else if (item.servesStop) { statusMain = "No Departure"; statusSub = "NO SCHEDULED BUS"; }
-
-      const coTag = item.co
-        ? `<span class="co-tag ${item.co === 'CTB' ? 'co-ctb' : 'co-kmb'}">${item.co === 'CTB' ? '城巴' : '九巴'}</span>`
-        : '';
-
-      html += `
-        <div class="train-row">
-          <div class="route-cell"><div class="train-badge ${getBadgeClass(item.route)}">${item.route}</div>${coTag}</div>
-          <div class="time-col"><div class="time-main">${timeStr}</div><div class="time-sub">${item.etaTime ? 'Scheduled' : '--'}</div></div>
-          <div class="dest-col"><div class="dest-main">${item.dest}</div><div class="dest-sub">${item.destZh}</div></div>
-          <div class="track-col"><div class="track-box">${item.track}</div></div>
-          <div class="status-col"><div class="status-main ${statusClass}">${statusMain}</div><div class="status-sub">${statusSub}</div></div>
-        </div>`;
-    });
-    return html;
-  }
-
-  /* ★ 雙份複製以達成無縫連續滾動 */
-  function renderBoards() {
-    const s = document.getElementById('south-body');
-    const n = document.getElementById('north-body');
-    const sHtml = renderBoardHTML(southDepartures);
-    const nHtml = renderBoardHTML(northDepartures);
-    if (s) s.innerHTML = isDataLoaded ? `<div class="copy">${sHtml}</div><div class="copy">${sHtml}</div>` : sHtml;
-    if (n) n.innerHTML = isDataLoaded ? `<div class="copy">${nHtml}</div><div class="copy">${nHtml}</div>` : nHtml;
-  }
-
-  function tickRealtime() {
-    const now = new Date();
-    const c = document.getElementById('clock'), d = document.getElementById('date-text');
-    if (c) c.innerText = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
-    if (d) d.innerText = now.toLocaleDateString('en-GB', { month: 'numeric', day: 'numeric', weekday: 'short' });
-    if (isDataLoaded) renderBoards();
-  }
-
-  /* ★ 連續滾動引擎：rAF 平滑驅動，滾完一份無縫接回 */
-  function continuousScroll(key, wrapId, bodyId, dt) {
-    const wrap = document.getElementById(wrapId);
-    const body = document.getElementById(bodyId);
-    if (!wrap || !body || !body.children.length) return;
-    const copyEl = body.children[0];
-    const loopH = copyEl.offsetHeight + 4;              // 一份內容高度 + 間距
-    if (loopH <= wrap.clientHeight) {                   // 內容放得下就不滾
-      if (scrollState[key] !== 0) { scrollState[key] = 0; body.style.transform = 'translateY(0)'; }
-      return;
-    }
-    const speed = Math.max(24, window.innerWidth * 0.015);  // px/秒，隨螢幕縮放
-    let off = scrollState[key] + speed * dt;
-    while (off >= loopH) off -= loopH;                  // 無縫循環
-    scrollState[key] = off;
-    body.style.transform = `translateY(-${off}px)`;
-  }
-
-  function scrollLoop(ts) {
-    if (lastTs === null) lastTs = ts;
-    const dt = Math.min(0.1, (ts - lastTs) / 1000);
-    lastTs = ts;
-    continuousScroll('south', 'south-wrap', 'south-body', dt);
-    continuousScroll('north', 'north-wrap', 'north-body', dt);
-    requestAnimationFrame(scrollLoop);
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    fetchAPIData();
-    fetchWeatherData();
-    requestAnimationFrame(scrollLoop);
-    setInterval(tickRealtime, 1000);
-    setInterval(fetchAPIData, 15000);
-    setInterval(fetchWeatherData, 60000);
-  });
-</script>
-</body>
-</html>
+    results.forEach(({ j, list }) => {
+      list.forEach(it => {
+        const route = it.route || j.r;
+        out[j.dir].seenRoutes.add(route);
+        const etaStr = it.eta;
+        if (etaStr) {
+          const t = new Date(etaStr);
+          if (!isNaN(t.getTime())) {
+            // 聯營線備註「九巴時段 / KMB Cycle」= 該班實際由九巴開出
+            const rmkTc = it.rmk_tc || "";
+            const rmkEn = (it.rmk_en || "").toLowerCase();
+            const co = (rmkTc.includes("九巴") || rmkEn.includes("kmb")) ? "KMB" : "CTB";
+            out[j.dir].etas.push({ route, etaTime: t, co
