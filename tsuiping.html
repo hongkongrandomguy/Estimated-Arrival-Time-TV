@@ -34,7 +34,6 @@
     .warn-badge img { width: 1.8vw; height: 1.8vw; object-fit: contain; background: rgba(0,0,0,0.2); padding: 0.1vw; border-radius: 2px; }
     @keyframes pulse-warn { 0%{opacity:1} 50%{opacity:.6} 100%{opacity:1} }
 
-    /* ★ 2 欄 × 2 列 = 4 格 */
     .board-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -45,16 +44,16 @@
     .column-pane { border: 2px solid #232d3b; border-radius: 4px; background: #05080f; display: flex; flex-direction: column; overflow: hidden; }
     .column-title { background: #141c28; padding: 0.4vw 0.8vw; font-size: 0.88vw; font-weight: 500; color: #38bdf8; border-bottom: 2px solid #283548; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 
-    .table-head { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.3fr; background: #101722; padding: 0.35vw 0.6vw; font-size: 0.72vw; color: #cbd5e1; align-items: center; border-bottom: 1px solid #283548; flex-shrink: 0; text-transform: uppercase; }
+    /* ★ 加返 Platform 欄，同和樂邨版一致 */
+    .table-head { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.1fr 1.3fr; background: #101722; padding: 0.35vw 0.6vw; font-size: 0.72vw; color: #cbd5e1; align-items: center; border-bottom: 1px solid #283548; flex-shrink: 0; text-transform: uppercase; }
     .table-head div { display: flex; flex-direction: column; }
     .table-head span { font-size: 0.58vw; color: #718096; }
 
-    /* ★ 連續滾動容器 */
     .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
     .board-body { position: absolute; width: 100%; top: 0; padding: 4px; will-change: transform; }
     .copy { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
 
-    .train-row { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.3fr; align-items: center; padding: 0.35vw 0.6vw; background: #0a0f18; border-radius: 3px; height: 3.8vw; border-bottom: 1px solid #131b26; }
+    .train-row { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.1fr 1.3fr; align-items: center; padding: 0.35vw 0.6vw; background: #0a0f18; border-radius: 3px; height: 3.8vw; border-bottom: 1px solid #131b26; }
 
     .route-cell { display: flex; align-items: center; gap: 0.35vw; min-width: 0; }
 
@@ -81,6 +80,11 @@
     .dest-col { overflow: hidden; padding-right: 0.4vw; }
     .dest-main { font-size: 1.05vw; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; }
+
+    /* ★ 月台欄（白底黑字，同和樂邨版一致）+ 站名小字 */
+    .track-col { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.1vw; }
+    .track-box { background: #fff; color: #000; font-weight: 500; font-size: 0.95vw; padding: 0.1vw 0.4vw; border-radius: 3px; text-align: center; min-width: 3.2vw; box-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; }
+    .track-name { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
 
     .status-col { text-align: right; }
     .status-main { font-size: 1.02vw; color: #facc15; }
@@ -116,7 +120,7 @@
     <div class="column-pane">
       <div class="column-title"><span>翠屏道 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/順利</span></div>
       <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Platform <span>月台</span></div><div style="text-align:right;">Status <span>狀態</span></div>
       </div>
       <div class="board-scroll-wrapper" id="tsui-north-wrap"><div class="board-body" id="tsui-north-body"></div></div>
     </div>
@@ -125,7 +129,7 @@
     <div class="column-pane">
       <div class="column-title"><span>祥和苑 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/順利/寶達</span></div>
       <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Platform <span>月台</span></div><div style="text-align:right;">Status <span>狀態</span></div>
       </div>
       <div class="board-scroll-wrapper" id="cheung-north-wrap"><div class="board-body" id="cheung-north-body"></div></div>
     </div>
@@ -134,7 +138,7 @@
     <div class="column-pane">
       <div class="column-title"><span>翠屏道 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘市中心/九龍</span></div>
       <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Platform <span>月台</span></div><div style="text-align:right;">Status <span>狀態</span></div>
       </div>
       <div class="board-scroll-wrapper" id="tsui-south-wrap"><div class="board-body" id="tsui-south-body"></div></div>
     </div>
@@ -143,7 +147,7 @@
     <div class="column-pane">
       <div class="column-title"><span>祥和苑 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘/九龍/港島</span></div>
       <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Platform <span>月台</span></div><div style="text-align:right;">Status <span>狀態</span></div>
       </div>
       <div class="board-scroll-wrapper" id="cheung-south-wrap"><div class="board-body" id="cheung-south-body"></div></div>
     </div>
@@ -155,26 +159,27 @@
   </div>
 
 <script>
-  /* 巴士站 ID 配置 */
+  /* ★ 巴士站配置：每個站附帶月台（站柱）編號 */
   const TSUI_PING_NORTH_STOPS = [
-    { id: "DE925628D8747F6D", name: "Po Pui Court", nameZh: "寶佩苑" },
-    { id: "F9210821429F55B6", name: "Tsui On House", nameZh: "翠安樓" }
+    { id: "F9210821429F55B6", track: "KT272", name: "Tsui On House", nameZh: "翠安樓" },
+    { id: "DE925628D8747F6D", track: "KT273", name: "Po Pui Court", nameZh: "寶佩苑" }
   ];
   const TSUI_PING_SOUTH_STOPS = [
-    { id: "3673A01280621EC2", name: "Tsui Tsz House", nameZh: "翠梓樓" },
-    { id: "C6E63C45FF2EA573", name: "Po Pui Court", nameZh: "寶佩苑" }
+    { id: "C6E63C45FF2EA573", track: "KT561", name: "Po Pui Court", nameZh: "寶佩苑" },
+    { id: "3673A01280621EC2", track: "KT562", name: "Tsui Tsz House", nameZh: "翠梓樓" }
   ];
   const CHEUNG_WO_NORTH_STOPS = [
-    { id: "3093477EA64DDA89", name: "Cheung Wo Court", nameZh: "祥和苑" }
+    { id: "3093477EA64DDA89", track: "KT261", name: "Cheung Wo Court", nameZh: "祥和苑" }
   ];
   const CHEUNG_WO_SOUTH_STOPS = [
-    { id: "6CF34EF02CDBE26B", name: "Cheung Wo Court", nameZh: "祥和苑" },
-    { id: "04B6438688E12AC0", name: "Cheung Wo Court", nameZh: "祥和苑" }
+    { id: "6CF34EF02CDBE26B", track: "KT534", name: "Cheung Wo Court", nameZh: "祥和苑" },
+    { id: "04B6438688E12AC0", track: "KT533", name: "Cheung Wo Court", nameZh: "祥和苑" }
   ];
 
-  /* 城巴 601/601P 祥和苑南行站（已核實）；北行不停祥和苑 */
+  /* 城巴 601/601P 祥和苑南行站（已核實）；停靠站柱等同 KT533；北行不停祥和苑 */
   const CTB_JOINT_ROUTES = ["601", "601P"];
   const CTB_CHEUNG_WO_SOUTH_STOP = "003039";
+  const CTB_CHEUNG_WO_SOUTH_TRACK = "KT533";
 
   let tsuiNorthDepartures = [], tsuiSouthDepartures = [];
   let cheungNorthDepartures = [], cheungSouthDepartures = [];
@@ -236,28 +241,33 @@
     }
   }
 
-  /* ★ 修正：KMB API 目的地欄位兼容處理，避免 undefined */
   function pickDest(item) {
     const en = item.dest_en || item.dest || item.destination_en || '';
     const tc = item.dest_tc || item.dest_sc || item.destination_tc || '';
     return { dest: en || tc || '--', destZh: tc || en || '--' };
   }
 
+  /* ★ 每個 ETA 都帶同佢嘅來源站柱編號（track）同站名 */
   async function fetchKMBStopEtas(stopIds) {
     const results = await Promise.all(stopIds.map(stop =>
       fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stop.id}`)
         .then(res => res.ok ? res.json() : null).catch(() => null)
     ));
     const etas = [];
-    results.forEach(json => {
+    results.forEach((json, i) => {
       if (!json || !Array.isArray(json.data)) return;
+      const stop = stopIds[i];
       json.data.forEach(item => {
         if (!item.route) return;
         if (item.eta) {
           const t = new Date(item.eta);
           if (!isNaN(t.getTime())) {
             const d = pickDest(item);
-            etas.push({ route: item.route, dest: d.dest, destZh: d.destZh, etaTime: t, co: 'KMB' });
+            etas.push({
+              route: item.route, dest: d.dest, destZh: d.destZh,
+              etaTime: t, co: 'KMB',
+              track: stop.track, trackName: stop.nameZh
+            });
           }
         }
       });
@@ -281,7 +291,8 @@
                 route: item.route,
                 dest: item.dest_en || item.dest_tc || '--',
                 destZh: item.dest_tc || item.dest_en || '--',
-                etaTime: t, co: 'CTB'
+                etaTime: t, co: 'CTB',
+                track: CTB_CHEUNG_WO_SOUTH_TRACK, trackName: "祥和苑"
               });
             }
           }
@@ -309,6 +320,8 @@
         route: rd.route, dest: rd.dest, destZh: rd.destZh,
         etaTime: best ? best.etaTime : null,
         co: best ? best.co : null,
+        track: best ? best.track : null,          /* ★ 顯示該班次抵站嘅站柱 */
+        trackName: best ? best.trackName : null,
         hasSchedule: upcoming.length > 0
       };
     }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
@@ -326,7 +339,7 @@
       tsuiNorthDepartures = buildNormalizedList(tN);
       tsuiSouthDepartures = buildNormalizedList(tS);
       cheungNorthDepartures = buildNormalizedList(cN);
-      cheungSouthDepartures = buildNormalizedList([...cS, ...ctb]);  // 祥和苑南行合併九巴+城巴
+      cheungSouthDepartures = buildNormalizedList([...cS, ...ctb]);
       isDataLoaded = true;
       renderAllBoards();
     } catch (e) { console.error("API Fetch Error:", e); }
@@ -359,18 +372,23 @@
         coTag = `<div class="co-stack"><span class="co-tag co-kmb">KMB 九巴</span><span class="co-tag co-ctb">CTB 城巴</span></div>`;
       }
 
+      /* ★ 月台欄：顯示該班次實際抵站嘅站柱編號 + 站名 */
+      const trackBox = item.track
+        ? `<div class="track-box">${item.track}</div><div class="track-name">${item.trackName || ''}</div>`
+        : `<div class="track-box">--</div>`;
+
       html += `
         <div class="train-row">
           <div class="route-cell"><div class="train-badge ${getBadgeClass(item.route)}">${item.route}</div>${coTag}</div>
           <div class="time-col"><div class="time-main">${timeStr}</div><div class="time-sub">${item.etaTime ? 'Scheduled' : '--'}</div></div>
           <div class="dest-col"><div class="dest-main">${item.dest}</div><div class="dest-sub">${item.destZh}</div></div>
+          <div class="track-col">${trackBox}</div>
           <div class="status-col"><div class="status-main ${statusClass}">${statusMain}</div><div class="status-sub">${statusSub}</div></div>
         </div>`;
     });
     return html;
   }
 
-  /* ★ 雙份複製以達成無縫連續滾動 */
   function renderAllBoards() {
     const panels = [
       { body: 'tsui-north-body', data: tsuiNorthDepartures },
@@ -393,7 +411,6 @@
     if (isDataLoaded) renderAllBoards();
   }
 
-  /* ★ 連續滾動引擎：rAF 平滑驅動，滾完一份無縫接回 */
   function continuousScroll(key, wrapId, bodyId, dt) {
     const wrap = document.getElementById(wrapId);
     const body = document.getElementById(bodyId);
