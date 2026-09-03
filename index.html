@@ -50,12 +50,12 @@
 
     .route-cell { display: flex; align-items: center; gap: 0.35vw; min-width: 0; }
 
-    /* ★ 路線格子：統一固定大小、文字靠左 */
+    /* ★ 路線格子：固定大小、文字置中 */
     .train-badge {
       font-size: 1.5vw; font-weight: 700;
       width: 4.6vw; height: 2.6vw; padding: 0 0.5vw;
       border-radius: 4px; color: #fff;
-      display: flex; align-items: center; justify-content: flex-start; text-align: left;
+      display: flex; align-items: center; justify-content: center; text-align: center;
       box-shadow: inset 0 0 6px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
       white-space: nowrap; overflow: hidden; flex-shrink: 0;
     }
@@ -168,9 +168,7 @@
   const NORTH_STOP_IDS = ["6530130BE25E909C", "17A8BC1197F76422", "55AE88BFD351F56D",
                           "B314CF2831F9C5F1", "072046BF00257739", "11EC0BEF4F8781A9"];
 
-  /* ★ 城巴（聯營線 601/601P）和樂邨站 ID —— 已用官方 stop API 核實
-     003040 = 和樂邨, 協和街 (南行, 往金鐘/上環)
-     003041 = 和樂邨, 協和街 (北行, 往寶達) */
+  /* ★ 城巴（聯營線 601/601P）和樂邨站 ID */
   const CTB_JOINT_ROUTES = ["601", "601P"];
   const CTB_SOUTH_STOP_IDS = ["003040"];
   const CTB_NORTH_STOP_IDS = ["003041"];
@@ -254,8 +252,6 @@
     return { etas, seenRoutes };
   }
 
-  /* ★ 城巴 ETA：v2 API，格式 /v2/transport/citybus/eta/CTB/{stopId}/{route}
-     注意：城巴於聯營線不會提供聯營公司(九巴)的 ETA，故需與 KMB 來源合併 */
   async function fetchCitybusEtas(stopIds, routes) {
     const pairs = [];
     stopIds.forEach(sid => routes.forEach(rt => pairs.push({ sid, rt })));
@@ -333,8 +329,6 @@
         }
       } else if (item.servesStop) { statusMain = "No Departure"; statusSub = "NO SCHEDULED BUS"; }
 
-      /* ★ 公司標籤：KMB 九巴 / CTB 城巴（視乎該班車屬哪間公司）；
-         聯營線暫無 ETA 時則同時顯示兩間公司 */
       let coTag = '';
       if (item.co) {
         coTag = `<span class="co-tag ${item.co === 'CTB' ? 'co-ctb' : 'co-kmb'}">${item.co === 'CTB' ? 'CTB 城巴' : 'KMB 九巴'}</span>`;
