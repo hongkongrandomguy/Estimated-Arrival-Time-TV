@@ -38,7 +38,6 @@
     }
     .embed-placeholder .big { font-size: 2.4vw; }
 
-    /* 校正模式 */
     .calib-overlay { position: absolute; inset: 0; z-index: 6; background: rgba(2,4,8,0.93); display: none; flex-direction: column; gap: 0.5vw; padding: 0.6vw; overflow: auto; }
     .calib-overlay.open { display: flex; }
     .calib-title { font-size: 0.8vw; color: #fcd34d; font-weight: 700; }
@@ -155,6 +154,14 @@
     .api-dot.offline { background: #ef4444; box-shadow: 0 0 4px #ef4444; }
     .api-dot.loading { background: #f59e0b; box-shadow: 0 0 4px #f59e0b; animation: pulse-dot 1s infinite; }
     @keyframes pulse-dot { 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
+
+    /* 顯示模式切換按鈕 */
+    .mode-switch { display: flex; gap: 0.25vw; margin-left: auto; align-items: center; }
+    .mode-switch button {
+      background: #1e293b; color: #94a3b8; border: 1px solid #475569; border-radius: 3px;
+      font-size: 0.62vw; padding: 0.15vw 0.6vw; cursor: pointer; font-family: inherit;
+    }
+    .mode-switch button.active { background: #f59e0b; color: #000; border-color: #f59e0b; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -178,8 +185,13 @@
       <div class="api-status-bar">
         <div class="api-status-item"><span class="api-dot loading" id="kmb-api-dot"></span><span id="kmb-api-text">KMB: 連接中...</span></div>
         <div class="api-status-item"><span class="api-dot loading" id="ctb-api-dot"></span><span id="ctb-api-text">CTB: 連接中...</span></div>
-        <div class="api-status-item"><span class="api-dot online"></span><span>Solar: 畫中畫嵌入</span></div>
-        <div class="api-status-item" style="margin-left: auto;"><span>上次更新: <span id="last-update">--:--:--</span></span></div>
+        <div class="api-status-item"><span class="api-dot online"></span><span>Solar: 畫中畫</span></div>
+        <div class="mode-switch" id="mode-switch">
+          <button data-mode="auto">自動</button>
+          <button data-mode="merged">合并</button>
+          <button data-mode="alt">間隔</button>
+        </div>
+        <div class="api-status-item"><span>上次更新: <span id="last-update">--:--:--</span></span></div>
       </div>
 
       <div class="board-container">
@@ -237,7 +249,7 @@
           <div>尚未設定網站連結</div>
         </div>
         <div class="calib-overlay" id="calib-overlay">
-          <div class="calib-title">裁切校正模式</div>
+          <div class="calib-title">裁切校正模式（只影響合并顯示的側欄裁切）</div>
           <div class="calib-readout" id="calib-readout"></div>
           <div class="calib-grid">
             <button data-act="xl10">◀◀</button><button data-act="xl1">◀</button><button data-act="xr1">▶</button><button data-act="xr10">▶▶</button>
@@ -246,7 +258,7 @@
             <button data-act="h-50">H-</button><button data-act="h-10">h-</button><button data-act="h+10">h+</button><button data-act="h+50">H+</button>
             <button data-act="reset">重置</button><button data-act="close">完成 ✔</button>
           </div>
-          <div class="calib-note">◀▶▲▼ 移動裁切視窗（大/細步）；W/H 調整裁切範圍大小。所有調整自動儲存，重新開機後仍生效。</div>
+          <div class="calib-note">◀▶▲▼ 移動裁切視窗；W/H 調整裁切範圍。調整自動儲存。單獨全頁顯示時不使用裁切。</div>
         </div>
       </div>
     </div>
@@ -255,16 +267,20 @@
 <script>
   /* ================= 太陽能網頁畫中畫設定 ================= */
   const SOLAR_EMBED = {
-    url: "https://www.shinemonitor.com/main.html",   // ★ 已填入你的連結
-    pageWidth: 1920,   // 網頁渲染寬度
-    pageHeight: 1080,  // 網頁渲染高度
-    offsetX: 175,      // 裁切區左偏移（預設值，可用校正模式調）
-    offsetY: 175,      // 裁切區上偏移
-    cropW: 600,        // 裁切區寬（方塊區域）
-    cropH: 280,        // 裁切區高（兩行方塊）
-    refreshSec: 300    // 每 X 秒自動重新載入（0 = 不重整）
+    url: "https://www.shinemonitor.com/main.html",
+    pageWidth: 1920,
+    pageHeight: 1080,
+    offsetX: 175,
+    offsetY: 175,
+    cropW: 600,
+    cropH: 280,
+    refreshSec: 300
   };
   const EMBED_STORE_KEY = 'ktmc_embed_calib';
+  const MODE_STORE_KEY = 'ktmc_display_mode';
+
+  /* 顯示模式：auto=跟時間表 / merged=永遠合并 / alt=永遠間隔 */
+  let displayOverride = 'auto';
 
   function loadCalib() {
     try {
@@ -275,6 +291,8 @@
         if (typeof s.cropW === 'number') SOLAR_EMBED.cropW = s.cropW;
         if (typeof s.cropH === 'number') SOLAR_EMBED.cropH = s.cropH;
       }
+      const m = localStorage.getItem(MODE_STORE_KEY);
+      if (m === 'auto' || m === 'merged' || m === 'alt') displayOverride = m;
     } catch (e) {}
   }
   function saveCalib() {
@@ -286,22 +304,34 @@
     } catch (e) {}
   }
 
+  /* ★ 合并顯示：側欄裁切方塊放大；單獨顯示：全頁縮放貼合、不裁切不放大 */
   function layoutEmbed() {
     const wrap = document.getElementById('solar-embed-wrap');
     const frame = document.getElementById('solar-embed-frame');
     const cover = document.getElementById('embed-cover');
     if (!wrap || !frame || !wrap.clientWidth || !wrap.clientHeight) return;
 
-    const scale = wrap.clientWidth / SOLAR_EMBED.cropW;
-    frame.style.width = SOLAR_EMBED.pageWidth + 'px';
-    frame.style.height = SOLAR_EMBED.pageHeight + 'px';
-    frame.style.transform = 'scale(' + scale + ')';
-    frame.style.left = (-SOLAR_EMBED.offsetX * scale) + 'px';
-    frame.style.top = (-SOLAR_EMBED.offsetY * scale) + 'px';
+    const solarOnly = document.body.classList.contains('show-solar-only');
 
-    if (cover) {
-      cover.style.top = (SOLAR_EMBED.cropH * scale) + 'px';
-      cover.style.display = 'block';
+    if (solarOnly) {
+      const scale = Math.min(wrap.clientWidth / SOLAR_EMBED.pageWidth, wrap.clientHeight / SOLAR_EMBED.pageHeight);
+      frame.style.width = SOLAR_EMBED.pageWidth + 'px';
+      frame.style.height = SOLAR_EMBED.pageHeight + 'px';
+      frame.style.transform = 'scale(' + scale + ')';
+      frame.style.left = ((wrap.clientWidth - SOLAR_EMBED.pageWidth * scale) / 2) + 'px';
+      frame.style.top = ((wrap.clientHeight - SOLAR_EMBED.pageHeight * scale) / 2) + 'px';
+      if (cover) cover.style.display = 'none';
+    } else {
+      const scale = wrap.clientWidth / SOLAR_EMBED.cropW;
+      frame.style.width = SOLAR_EMBED.pageWidth + 'px';
+      frame.style.height = SOLAR_EMBED.pageHeight + 'px';
+      frame.style.transform = 'scale(' + scale + ')';
+      frame.style.left = (-SOLAR_EMBED.offsetX * scale) + 'px';
+      frame.style.top = (-SOLAR_EMBED.offsetY * scale) + 'px';
+      if (cover) {
+        cover.style.top = (SOLAR_EMBED.cropH * scale) + 'px';
+        cover.style.display = 'block';
+      }
     }
   }
 
@@ -349,8 +379,7 @@
     }
 
     document.getElementById('calib-toggle').addEventListener('click', () => {
-      const ov = document.getElementById('calib-overlay');
-      ov.classList.toggle('open');
+      document.getElementById('calib-overlay').classList.toggle('open');
       updateCalibReadout();
     });
     document.querySelectorAll('.calib-grid button').forEach(btn => {
@@ -361,6 +390,20 @@
       });
     });
 
+    layoutEmbed();
+  }
+
+  /* ================= 顯示模式切換 ================= */
+  function updateModeSwitchUI() {
+    document.querySelectorAll('#mode-switch button').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-mode') === displayOverride);
+    });
+  }
+  function setModeOverride(m) {
+    displayOverride = m;
+    try { localStorage.setItem(MODE_STORE_KEY, m); } catch (e) {}
+    updateModeSwitchUI();
+    updateDisplayMode();
     layoutEmbed();
   }
 
@@ -786,26 +829,38 @@
     });
   }
 
-  /* ================= 顯示模式控制 ================= */
+  /* ================= 顯示模式控制（自動時間表 + 手動覆蓋） ================= */
   function updateDisplayMode() {
     const now = new Date();
     const t = now.getHours() * 60 + now.getMinutes();
     const body = document.body;
     const ind = document.getElementById('display-mode');
 
-    const simultaneous = (t >= 735 && t < 780) || (t >= 915 && t < 1005);
+    let simultaneous;
+    if (displayOverride === 'merged') simultaneous = true;
+    else if (displayOverride === 'alt') simultaneous = false;
+    else simultaneous = (t >= 735 && t < 780) || (t >= 915 && t < 1005); /* 12:15-13:00 / 15:15-16:45 */
 
     if (simultaneous) {
       body.classList.remove('show-solar-only');
-      if (ind) { ind.textContent = '同步顯示'; ind.className = 'header-info-val mode-indicator mode-simultaneous'; }
+      if (ind) {
+        ind.textContent = displayOverride === 'merged' ? '合并顯示' : (displayOverride === 'alt' ? '間隔(雙)' : '自動·同步');
+        ind.className = 'header-info-val mode-indicator mode-simultaneous';
+      }
     } else {
       const secInCycle = Math.floor(now.getTime() / 1000) % 120;
       if (secInCycle < 30) {
         body.classList.remove('show-solar-only');
-        if (ind) { ind.textContent = '交替(雙)'; ind.className = 'header-info-val mode-indicator mode-alternating-both'; }
+        if (ind) {
+          ind.textContent = displayOverride === 'alt' ? '間隔(雙)' : '自動·雙';
+          ind.className = 'header-info-val mode-indicator mode-alternating-both';
+        }
       } else {
         body.classList.add('show-solar-only');
-        if (ind) { ind.textContent = '交替(太陽能)'; ind.className = 'header-info-val mode-indicator mode-alternating-solar'; }
+        if (ind) {
+          ind.textContent = displayOverride === 'alt' ? '間隔(太陽能)' : '自動·太陽能';
+          ind.className = 'header-info-val mode-indicator mode-alternating-solar';
+        }
       }
     }
   }
@@ -848,6 +903,13 @@
   window.addEventListener('DOMContentLoaded', () => {
     loadCalib();
     initEmbed();
+
+    /* 模式切換按鈕 */
+    document.querySelectorAll('#mode-switch button').forEach(b => {
+      b.addEventListener('click', () => setModeOverride(b.getAttribute('data-mode')));
+    });
+    updateModeSwitchUI();
+
     fetchAPIData();
     fetchWeatherData();
     requestAnimationFrame(scrollLoop);
