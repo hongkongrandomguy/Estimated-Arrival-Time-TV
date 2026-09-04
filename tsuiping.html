@@ -16,7 +16,6 @@
     .main-wrapper { display: flex; flex-grow: 1; gap: 0.6vw; overflow: hidden; }
     .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; transition: all 0.5s ease; }
 
-    /* ===== 右側太陽能欄 (約20%)：畫中畫嵌入 ===== */
     .solar-panel {
       width: 20%; min-width: 210px;
       background: linear-gradient(180deg, #0f172a, #1e293b);
@@ -24,20 +23,31 @@
       display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
       transition: all 0.5s ease;
     }
-    .solar-header { background: linear-gradient(135deg, #f59e0b, #d97706); padding: 0.7vw 0.8vw; text-align: center; flex-shrink: 0; }
+    .solar-header { background: linear-gradient(135deg, #f59e0b, #d97706); padding: 0.7vw 0.8vw; text-align: center; flex-shrink: 0; position: relative; }
     .solar-title { font-size: 1.15vw; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
     .solar-subtitle { font-size: 0.68vw; color: #fef3c7; margin-top: 0.15vw; }
+    .calib-btn { position: absolute; top: 0.3vw; right: 0.3vw; background: rgba(0,0,0,0.45); color: #fff; border: 1px solid #64748b; border-radius: 3px; font-size: 0.8vw; padding: 0.05vw 0.45vw; cursor: pointer; z-index: 5; }
 
     .solar-embed-wrap { position: relative; flex: 1; overflow: hidden; background: #0f172a; }
     #solar-embed-frame { position: absolute; border: 0; transform-origin: 0 0; background: #ffffff; }
+    .embed-cover { position: absolute; left: 0; right: 0; bottom: 0; background: #0f172a; display: none; z-index: 2; }
     .embed-placeholder {
-      position: absolute; inset: 0; display: none;
+      position: absolute; inset: 0; display: none; z-index: 3;
       flex-direction: column; align-items: center; justify-content: center; gap: 0.6vw;
       color: #94a3b8; font-size: 0.85vw; text-align: center; padding: 1vw;
     }
     .embed-placeholder .big { font-size: 2.4vw; }
 
-    /* 全屏太陽能模式 */
+    /* 校正模式 */
+    .calib-overlay { position: absolute; inset: 0; z-index: 6; background: rgba(2,4,8,0.93); display: none; flex-direction: column; gap: 0.5vw; padding: 0.6vw; overflow: auto; }
+    .calib-overlay.open { display: flex; }
+    .calib-title { font-size: 0.8vw; color: #fcd34d; font-weight: 700; }
+    .calib-readout { font-size: 0.72vw; color: #38bdf8; margin-top: 0.2vw; }
+    .calib-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35vw; }
+    .calib-grid button { background: #1e293b; color: #e2e8f0; border: 1px solid #475569; border-radius: 3px; font-size: 0.72vw; padding: 0.45vw 0; cursor: pointer; }
+    .calib-grid button:active { background: #334155; }
+    .calib-note { font-size: 0.62vw; color: #94a3b8; line-height: 1.5; }
+
     body.show-solar-only .main-wrapper { flex-direction: column; }
     body.show-solar-only .main-content { display: none; }
     body.show-solar-only .solar-panel { width: 100%; min-width: 100%; flex-grow: 1; border: 3px solid #f59e0b; }
@@ -151,7 +161,6 @@
 
   <div class="main-wrapper">
 
-    <!-- 左側：巴士資訊 -->
     <div class="main-content">
       <div class="lcd-header">
         <img class="logo-box" src="ktmc.png" alt="KTMC">
@@ -218,13 +227,26 @@
       <div class="solar-header">
         <div class="solar-title">☀️ 學校太陽能發電系統</div>
         <div class="solar-subtitle">Kwun Tong Maryknoll College · Solar PV</div>
+        <div class="calib-btn" id="calib-toggle">⚙</div>
       </div>
       <div class="solar-embed-wrap" id="solar-embed-wrap">
         <iframe id="solar-embed-frame" src="about:blank"></iframe>
+        <div class="embed-cover" id="embed-cover"></div>
         <div class="embed-placeholder" id="embed-placeholder">
           <div class="big">☀️</div>
           <div>尚未設定網站連結</div>
-          <div>請在代碼 SOLAR_EMBED.url 填入連結</div>
+        </div>
+        <div class="calib-overlay" id="calib-overlay">
+          <div class="calib-title">裁切校正模式</div>
+          <div class="calib-readout" id="calib-readout"></div>
+          <div class="calib-grid">
+            <button data-act="xl10">◀◀</button><button data-act="xl1">◀</button><button data-act="xr1">▶</button><button data-act="xr10">▶▶</button>
+            <button data-act="yu10">▲▲</button><button data-act="yu1">▲</button><button data-act="yd1">▼</button><button data-act="yd10">▼▼</button>
+            <button data-act="w-50">W-</button><button data-act="w-10">w-</button><button data-act="w+10">w+</button><button data-act="w+50">W+</button>
+            <button data-act="h-50">H-</button><button data-act="h-10">h-</button><button data-act="h+10">h+</button><button data-act="h+50">H+</button>
+            <button data-act="reset">重置</button><button data-act="close">完成 ✔</button>
+          </div>
+          <div class="calib-note">◀▶▲▼ 移動裁切視窗（大/細步）；W/H 調整裁切範圍大小。所有調整自動儲存，重新開機後仍生效。</div>
         </div>
       </div>
     </div>
@@ -233,30 +255,91 @@
 <script>
   /* ================= 太陽能網頁畫中畫設定 ================= */
   const SOLAR_EMBED = {
-    url: "https://www.shinemonitor.com/main.html?1788508788844&index=undefined#",   // ← ★ 把你的連結貼在這裡 ★
-    fitWidth: true,     // true = 自動縮放至貼合視窗寬度
-    designWidth: 256,  // 該網頁原本設計的寬度（越大＝顯示範圍越廣、字越小）
-    scale: 0.35,        // fitWidth=false 時使用的手動縮放比例
-    offsetX: 0,         // 裁切：原網頁水平偏移 px（只顯示某部分時使用）
-    offsetY: 0,         // 裁切：原網頁垂直偏移 px
-    refreshSec: 300     // 每 X 秒自動重新載入（0 = 不重整）
+    url: "https://www.shinemonitor.com/main.html",   // ★ 已填入你的連結
+    pageWidth: 1920,   // 網頁渲染寬度
+    pageHeight: 1080,  // 網頁渲染高度
+    offsetX: 175,      // 裁切區左偏移（預設值，可用校正模式調）
+    offsetY: 175,      // 裁切區上偏移
+    cropW: 600,        // 裁切區寬（方塊區域）
+    cropH: 280,        // 裁切區高（兩行方塊）
+    refreshSec: 300    // 每 X 秒自動重新載入（0 = 不重整）
   };
+  const EMBED_STORE_KEY = 'ktmc_embed_calib';
+
+  function loadCalib() {
+    try {
+      const s = JSON.parse(localStorage.getItem(EMBED_STORE_KEY));
+      if (s) {
+        if (typeof s.offsetX === 'number') SOLAR_EMBED.offsetX = s.offsetX;
+        if (typeof s.offsetY === 'number') SOLAR_EMBED.offsetY = s.offsetY;
+        if (typeof s.cropW === 'number') SOLAR_EMBED.cropW = s.cropW;
+        if (typeof s.cropH === 'number') SOLAR_EMBED.cropH = s.cropH;
+      }
+    } catch (e) {}
+  }
+  function saveCalib() {
+    try {
+      localStorage.setItem(EMBED_STORE_KEY, JSON.stringify({
+        offsetX: SOLAR_EMBED.offsetX, offsetY: SOLAR_EMBED.offsetY,
+        cropW: SOLAR_EMBED.cropW, cropH: SOLAR_EMBED.cropH
+      }));
+    } catch (e) {}
+  }
 
   function layoutEmbed() {
     const wrap = document.getElementById('solar-embed-wrap');
     const frame = document.getElementById('solar-embed-frame');
+    const cover = document.getElementById('embed-cover');
     if (!wrap || !frame || !wrap.clientWidth || !wrap.clientHeight) return;
-    const scale = SOLAR_EMBED.fitWidth ? (wrap.clientWidth / SOLAR_EMBED.designWidth) : SOLAR_EMBED.scale;
-    frame.style.width = (wrap.clientWidth / scale) + 'px';
-    frame.style.height = (wrap.clientHeight / scale) + 'px';
+
+    const scale = wrap.clientWidth / SOLAR_EMBED.cropW;
+    frame.style.width = SOLAR_EMBED.pageWidth + 'px';
+    frame.style.height = SOLAR_EMBED.pageHeight + 'px';
     frame.style.transform = 'scale(' + scale + ')';
     frame.style.left = (-SOLAR_EMBED.offsetX * scale) + 'px';
     frame.style.top = (-SOLAR_EMBED.offsetY * scale) + 'px';
+
+    if (cover) {
+      cover.style.top = (SOLAR_EMBED.cropH * scale) + 'px';
+      cover.style.display = 'block';
+    }
+  }
+
+  function updateCalibReadout() {
+    const r = document.getElementById('calib-readout');
+    if (r) r.textContent = 'X:' + SOLAR_EMBED.offsetX + '  Y:' + SOLAR_EMBED.offsetY +
+                           '  W:' + SOLAR_EMBED.cropW + '  H:' + SOLAR_EMBED.cropH;
+  }
+
+  function calibAct(act) {
+    const E = SOLAR_EMBED;
+    switch (act) {
+      case 'xl10': E.offsetX = Math.max(0, E.offsetX - 10); break;
+      case 'xl1':  E.offsetX = Math.max(0, E.offsetX - 1); break;
+      case 'xr10': E.offsetX = Math.min(E.pageWidth - 100, E.offsetX + 10); break;
+      case 'xr1':  E.offsetX = Math.min(E.pageWidth - 100, E.offsetX + 1); break;
+      case 'yu10': E.offsetY = Math.max(0, E.offsetY - 10); break;
+      case 'yu1':  E.offsetY = Math.max(0, E.offsetY - 1); break;
+      case 'yd10': E.offsetY = Math.min(E.pageHeight - 50, E.offsetY + 10); break;
+      case 'yd1':  E.offsetY = Math.min(E.pageHeight - 50, E.offsetY + 1); break;
+      case 'w-50': E.cropW = Math.max(100, E.cropW - 50); break;
+      case 'w-10': E.cropW = Math.max(100, E.cropW - 10); break;
+      case 'w+10': E.cropW = Math.min(E.pageWidth, E.cropW + 10); break;
+      case 'w+50': E.cropW = Math.min(E.pageWidth, E.cropW + 50); break;
+      case 'h-50': E.cropH = Math.max(50, E.cropH - 50); break;
+      case 'h-10': E.cropH = Math.max(50, E.cropH - 10); break;
+      case 'h+10': E.cropH = Math.min(E.pageHeight, E.cropH + 10); break;
+      case 'h+50': E.cropH = Math.min(E.pageHeight, E.cropH + 50); break;
+      case 'reset': E.offsetX = 175; E.offsetY = 175; E.cropW = 600; E.cropH = 280; break;
+    }
+    saveCalib();
+    layoutEmbed();
+    updateCalibReadout();
   }
 
   function initEmbed() {
     const frame = document.getElementById('solar-embed-frame');
-    if (SOLAR_EMBED.url && SOLAR_EMBED.url.indexOf('請替換') === -1 && SOLAR_EMBED.url !== 'about:blank') {
+    if (SOLAR_EMBED.url && SOLAR_EMBED.url !== 'about:blank') {
       frame.src = SOLAR_EMBED.url;
       if (SOLAR_EMBED.refreshSec > 0) {
         setInterval(() => { frame.src = SOLAR_EMBED.url; }, SOLAR_EMBED.refreshSec * 1000);
@@ -264,6 +347,20 @@
     } else {
       document.getElementById('embed-placeholder').style.display = 'flex';
     }
+
+    document.getElementById('calib-toggle').addEventListener('click', () => {
+      const ov = document.getElementById('calib-overlay');
+      ov.classList.toggle('open');
+      updateCalibReadout();
+    });
+    document.querySelectorAll('.calib-grid button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const act = btn.getAttribute('data-act');
+        if (act === 'close') { document.getElementById('calib-overlay').classList.remove('open'); return; }
+        calibAct(act);
+      });
+    });
+
     layoutEmbed();
   }
 
@@ -621,7 +718,6 @@
         }
       } else if (item.hasSchedule) { statusMain = "No Departure"; statusSub = "NO SCHEDULED BUS"; }
 
-      /* 公司標籤 = 該班車實際營辦公司 */
       let coTags = '';
       if (item.co === 'CTB') {
         coTags = `<span class="co-tag co-ctb">CTB<br>城巴</span>`;
@@ -721,7 +817,7 @@
     if (d) d.innerText = now.toLocaleDateString('en-GB', { month: 'numeric', day: 'numeric', weekday: 'short' });
     if (isDataLoaded) renderAllBoards();
     updateDisplayMode();
-    layoutEmbed(); /* 模式切換/視窗變動時重新計算畫中畫尺寸 */
+    layoutEmbed();
   }
 
   function continuousScroll(key, wrapId, bodyId, dt) {
@@ -750,6 +846,7 @@
   }
 
   window.addEventListener('DOMContentLoaded', () => {
+    loadCalib();
     initEmbed();
     fetchAPIData();
     fetchWeatherData();
