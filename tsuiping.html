@@ -173,6 +173,46 @@
   const CTB_CHEUNG_WO_SOUTH_STOP = "003039";
   const CTB_CHEUNG_WO_SOUTH_TRACK = "KT533";
 
+  // 預定義所有常態化顯示的路線
+  const TSUI_N_ROUTES = [
+    { route: "11B", track: "KT272", trackName: "翠桉樓", dest: "KWUN TONG (TSUI PING ROAD)", destZh: "觀塘(翠屏道)" },
+    { route: "11C", track: "KT272", trackName: "翠桉樓", dest: "SAU MAU PING (UPPER)", destZh: "上秀茂坪" },
+    { route: "13M", track: "KT272", trackName: "翠桉樓", dest: "PO TAT (CIRCULAR)", destZh: "寶達(循環線)" },
+    { route: "89", track: "KT273", trackName: "寶佩苑", dest: "LEK YUEN", destZh: "瀝源" },
+    { route: "89C", track: "KT272", trackName: "翠桉樓", dest: "KWUN TONG (TSUI PING ROAD)", destZh: "觀塘(翠屏道)" },
+    { route: "89X", track: "KT272", trackName: "翠桉樓", dest: "SHATIN STATION", destZh: "沙田站" }
+  ];
+  const TSUI_S_ROUTES = [
+    { route: "11B", track: "KT562", trackName: "翠梓樓", dest: "KOWLOON CITY FERRY", destZh: "九龍城碼頭" },
+    { route: "11C", track: "KT561", trackName: "寶佩苑", dest: "CHUK YUEN ESTATE", destZh: "竹園邨" },
+    { route: "14H", track: "KT561", trackName: "寶佩苑", dest: "SHUN LEE (CIRCULAR)", destZh: "順利(循環線)" },
+    { route: "89C", track: "KT562", trackName: "翠梓樓", dest: "HENG ON", destZh: "恆安" }
+  ];
+  const CHEUNG_N_ROUTES = [
+    { route: "11C", track: "KT261", trackName: "祥和苑", dest: "SAU MAU PING (UPPER)", destZh: "上秀茂坪" },
+    { route: "11X", track: "KT261", trackName: "祥和苑", dest: "ON TAI (NORTH)", destZh: "安泰(北)" },
+    { route: "13D", track: "KT261", trackName: "祥和苑", dest: "PO TAT", destZh: "寶達" },
+    { route: "14H", track: "KT261", trackName: "祥和苑", dest: "SHUN LEE (CIRCULAR)", destZh: "順利(循環線)" },
+    { route: "23", track: "KT261", trackName: "祥和苑", dest: "SHUN LEE (CIRCULAR)", destZh: "順利(循環線)" },
+    { route: "28B", track: "KT261", trackName: "祥和苑", dest: "CHOI FOOK", destZh: "彩福" },
+    { route: "N293", track: "KT261", trackName: "祥和苑", dest: "SHEUNG TAK", destZh: "尚德" }
+  ];
+  const CHEUNG_S_ROUTES = [
+    { route: "1A", track: "KT533", trackName: "祥和苑", dest: "STAR FERRY", destZh: "尖沙咀碼頭" },
+    { route: "11C", track: "KT534", trackName: "祥和苑", dest: "CHUK YUEN ESTATE", destZh: "竹園邨" },
+    { route: "11X", track: "KT534", trackName: "祥和苑", dest: "HUNG HOM STATION", destZh: "紅磡站" },
+    { route: "13D", track: "KT534", trackName: "祥和苑", dest: "ISLAND HARBOURVIEW", destZh: "維港灣" },
+    { route: "13M", track: "KT533", trackName: "祥和苑", dest: "PO TAT (CIRCULAR)", destZh: "寶達(循環線)" },
+    { route: "13P", track: "KT533", trackName: "祥和苑", dest: "CHEUNG SHA WAN (LAI KOK ESTATE)", destZh: "長沙灣(麗閣邨)" },
+    { route: "14H", track: "KT534", trackName: "祥和苑", dest: "SHUN LEE (CIRCULAR)", destZh: "順利(循環線)" },
+    { route: "28B", track: "KT533", trackName: "祥和苑", dest: "KAI TAK (KAI CHING ESTATE)", destZh: "啟德(啟晴邨)" },
+    { route: "601", track: "KT533", trackName: "祥和苑", dest: "ADMIRALTY STATION (EAST)", destZh: "金鐘站(東)" },
+    { route: "601P", track: "KT533", trackName: "祥和苑", dest: "SHEUNG WAN", destZh: "上環" },
+    { route: "93A", track: "KT533", trackName: "祥和苑", dest: "KWUN TONG FERRY", destZh: "觀塘碼頭" },
+    { route: "93K", track: "KT534", trackName: "祥和苑", dest: "MONG KOK EAST STATION", destZh: "旺角東站" },
+    { route: "N293", track: "KT533", trackName: "祥和苑", dest: "MONG KOK (PARK AVENUE)", destZh: "旺角(柏景灣)" }
+  ];
+
   let tsuiNorthDepartures = [], tsuiSouthDepartures = [];
   let cheungNorthDepartures = [], cheungSouthDepartures = [];
   let isDataLoaded = false;
@@ -193,7 +233,6 @@
     return "type-local";
   }
 
-  /* ★ 將 API 全大寫英文轉返 Title Case（縮寫保持大寫） */
   function titleCase(str) {
     const ACRO = ["BBI", "MTR", "EKCC", "TST", "HK", "KCR"];
     return (str || "").split(" ").map(w => {
@@ -313,15 +352,42 @@
     return etas;
   }
 
-  function buildNormalizedList(etas) {
+  function getOperators(route, itemCo) {
+    if (CTB_JOINT_ROUTES.includes(route)) return ['KMB', 'CTB'];
+    if (itemCo === 'CTB') return ['CTB'];
+    return ['KMB'];
+  }
+
+  function buildNormalizedList(etas, expectedRoutes) {
     const now = Date.now();
     const routeMap = new Map();
+
+    expectedRoutes.forEach(exp => {
+      routeMap.set(exp.route, {
+        route: exp.route, dest: exp.dest, destZh: exp.destZh, list: [],
+        track: exp.track, trackName: exp.trackName
+      });
+    });
+
     etas.forEach(eta => {
       if (!routeMap.has(eta.route)) {
-        routeMap.set(eta.route, { route: eta.route, dest: eta.dest, destZh: eta.destZh, list: [] });
+        routeMap.set(eta.route, {
+          route: eta.route, dest: eta.dest, destZh: eta.destZh, list: [],
+          track: eta.track, trackName: eta.trackName
+        });
       }
-      routeMap.get(eta.route).list.push(eta);
+      const rd = routeMap.get(eta.route);
+      rd.list.push(eta);
+      if (eta.dest && eta.dest !== '--' && eta.dest !== rd.dest) {
+        rd.dest = eta.dest;
+        rd.destZh = eta.destZh;
+      }
+      if (eta.track && !rd.track) {
+        rd.track = eta.track;
+        rd.trackName = eta.trackName;
+      }
     });
+
     return Array.from(routeMap.values()).map(rd => {
       const upcoming = rd.list
         .filter(e => e.etaTime.getTime() >= now - 10000)
@@ -331,8 +397,8 @@
         route: rd.route, dest: rd.dest, destZh: rd.destZh,
         etaTime: best ? best.etaTime : null,
         co: best ? best.co : null,
-        track: best ? best.track : null,
-        trackName: best ? best.trackName : null,
+        track: rd.track || (best ? best.track : null),
+        trackName: rd.trackName || (best ? best.trackName : null),
         hasSchedule: upcoming.length > 0
       };
     }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
@@ -347,10 +413,10 @@
         fetchKMBStopEtas(CHEUNG_WO_SOUTH_STOPS),
         fetchCitybusEtas()
       ]);
-      tsuiNorthDepartures = buildNormalizedList(tN);
-      tsuiSouthDepartures = buildNormalizedList(tS);
-      cheungNorthDepartures = buildNormalizedList(cN);
-      cheungSouthDepartures = buildNormalizedList([...cS, ...ctb]);
+      tsuiNorthDepartures = buildNormalizedList(tN, TSUI_N_ROUTES);
+      tsuiSouthDepartures = buildNormalizedList(tS, TSUI_S_ROUTES);
+      cheungNorthDepartures = buildNormalizedList(cN, CHEUNG_N_ROUTES);
+      cheungSouthDepartures = buildNormalizedList([...cS, ...ctb], CHEUNG_S_ROUTES);
       isDataLoaded = true;
       renderAllBoards();
     } catch (e) { console.error("API Fetch Error:", e); }
@@ -376,11 +442,13 @@
         }
       } else if (item.hasSchedule) { statusMain = "No Departure"; statusSub = "NO SCHEDULED BUS"; }
 
-      let coTag = '';
-      if (item.co) {
-        coTag = `<span class="co-tag ${item.co === 'CTB' ? 'co-ctb' : 'co-kmb'}">${item.co === 'CTB' ? 'CTB 城巴' : 'KMB 九巴'}</span>`;
-      } else if (CTB_JOINT_ROUTES.includes(item.route)) {
-        coTag = `<div class="co-stack"><span class="co-tag co-kmb">KMB 九巴</span><span class="co-tag co-ctb">CTB 城巴</span></div>`;
+      let coTags = '';
+      const operators = getOperators(item.route, item.co);
+      if (operators.length === 1) {
+        const co = operators[0];
+        coTags = `<span class="co-tag ${co === 'CTB' ? 'co-ctb' : 'co-kmb'}">${co === 'CTB' ? 'CTB 城巴' : 'KMB 九巴'}</span>`;
+      } else {
+        coTags = `<div class="co-stack"><span class="co-tag co-kmb">KMB 九巴</span><span class="co-tag co-ctb">CTB 城巴</span></div>`;
       }
 
       const trackBox = item.track
@@ -389,7 +457,7 @@
 
       html += `
         <div class="train-row">
-          <div class="route-cell"><div class="train-badge ${getBadgeClass(item.route)}">${item.route}</div>${coTag}</div>
+          <div class="route-cell"><div class="train-badge ${getBadgeClass(item.route)}">${item.route}</div>${coTags}</div>
           <div class="time-col"><div class="time-main">${timeStr}</div><div class="time-sub">${item.etaTime ? 'Scheduled' : '--'}</div></div>
           <div class="dest-col"><div class="dest-main">${item.dest}</div><div class="dest-sub">${item.destZh}</div></div>
           <div class="track-col">${trackBox}</div>
