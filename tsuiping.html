@@ -105,11 +105,12 @@
     .time-sub { font-size: 0.62vw; color: #94a3b8; text-transform: uppercase; }
 
     .dest-col { overflow: hidden; padding-right: 0.4vw; }
-    .dest-main { font-size: 1.05vw; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; }
+    .dest-main { font-size: 1.05vw; color: #fff; white-space: nowrap; overflow: hidden; }
+    .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; overflow: hidden; }
 
-    .track-col { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.1vw; }
-    .track-box { background: #fff; color: #000; font-weight: 500; font-size: 0.95vw; padding: 0.1vw 0.4vw; border-radius: 3px; text-align: center; min-width: 3.2vw; box-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; }
+    .track-col { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.1vw; min-width: 0; }
+    .track-box { background: #fff; color: #000; font-weight: 500; font-size: 0.95vw; padding: 0.1vw 0.4vw; border-radius: 3px; text-align: center; min-width: 3.2vw; max-width: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; overflow: hidden; }
+    .track-txt { display: inline-block; white-space: nowrap; }
     .track-name { font-size: 0.55vw; color: #94a3b8; white-space: nowrap; }
 
     .status-col { text-align: right; }
@@ -218,13 +219,14 @@
   /* ================= 太陽能 API 設定 (ShineMonitor) ================= */
   const SOLAR_CONFIG = {
     baseUrl: "https://api.shinemonitor.com/",
-    username: "",    // ← 填入 ShineMonitor 帳號
-    password: "",    // ← 填入密碼
-    companyKey: "",  // ← 填入 company-key
+    username: "ktmc_solar",   // 帳號
+    password: "123456",       // 密碼
+    companyKey: "",           // ← 如自動嘗試失敗，請填入 company-key (見說明)
     plantId: "10180693",
     unitProfit: 5.0,
     co2Factor: 0.7
   };
+  const COMPANY_KEY_CANDIDATES = ["", "shinemonitor", "web", "shine"];
 
   /* ---- 純 JS SHA1 ---- */
   function sha1(str) {
@@ -266,19 +268,26 @@
   function setSolarStatus(txt) { setSolarText('solar-api-status', txt); }
 
   async function solarLogin() {
-    const salt = Date.now();
-    const action = '&action=auth&usr=' + SOLAR_CONFIG.username + '&company-key=' + SOLAR_CONFIG.companyKey;
-    const sign = sha1('' + salt + sha1(SOLAR_CONFIG.password) + action);
-    const url = SOLAR_CONFIG.baseUrl + '?sign=' + sign + '&salt=' + salt + action;
-    const res = await fetch(url);
-    const json = await res.json();
-    if (json && json.err === 0 && json.dat) {
-      solarToken = json.dat.token;
-      solarSecret = json.dat.secret;
-      solarExpire = Date.now() + (json.dat.expire || 3600) * 1000;
-      return true;
+    const keys = SOLAR_CONFIG.companyKey ? [SOLAR_CONFIG.companyKey] : COMPANY_KEY_CANDIDATES;
+    let lastErr = 'unknown';
+    for (const key of keys) {
+      try {
+        const salt = Date.now();
+        const action = '&action=auth&usr=' + SOLAR_CONFIG.username + '&company-key=' + key;
+        const sign = sha1('' + salt + sha1(SOLAR_CONFIG.password) + action);
+        const url = SOLAR_CONFIG.baseUrl + '?sign=' + sign + '&salt=' + salt + action;
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json && json.err === 0 && json.dat) {
+          solarToken = json.dat.token;
+          solarSecret = json.dat.secret;
+          solarExpire = Date.now() + (json.dat.expire || 3600) * 1000;
+          return true;
+        }
+        lastErr = 'err ' + (json ? json.err : 'network');
+      } catch (e) { lastErr = e.message; }
     }
-    throw new Error('auth err ' + (json ? json.err : 'network'));
+    throw new Error('auth fail: ' + lastErr);
   }
 
   async function solarRequest(actionParams) {
@@ -291,10 +300,6 @@
   }
 
   async function fetchSolarData() {
-    if (!SOLAR_CONFIG.username || !SOLAR_CONFIG.password || !SOLAR_CONFIG.companyKey) {
-      setSolarStatus('API: 未設定帳號／密碼／company-key');
-      return;
-    }
     try {
       const pJson = await solarRequest('&action=queryPlantActiveOuputPowerCurrent&plantid=' + SOLAR_CONFIG.plantId);
       if (pJson && pJson.err === 0 && pJson.dat) {
@@ -315,7 +320,7 @@
       setSolarStatus('API: 在線 Online · 電站 ' + SOLAR_CONFIG.plantId);
     } catch (e) {
       solarToken = null;
-      setSolarStatus('API: 離線/連接失敗 (CORS 或憑證問題)');
+      setSolarStatus('API: 離線/連接失敗 (' + e.message + ')');
     }
   }
 
@@ -395,6 +400,7 @@
     { route: "N293", track: "KT533", trackName: "祥和苑", dest: "MONG KOK (PARK AVENUE)", destZh: "旺角(柏景灣)" }
   ];
 
+  /* ★ 循環線：循環點之後的回程站，目的地改為最終目的地 */
   const CIRCULAR_OVERRIDE = {
     "14H": { returnStops: ["KT534", "KT561", "KT562"], dest: "YAU TONG", destZh: "油塘" },
     "13M": { returnStops: ["KT533"], dest: "KWUN TONG (ELEGANCE RD)", destZh: "觀塘(雅麗道)" }
@@ -403,10 +409,9 @@
   let tsuiNorthDepartures = [], tsuiSouthDepartures = [];
   let cheungNorthDepartures = [], cheungSouthDepartures = [];
   let isDataLoaded = false;
-  const DWELL = 2.5; // 每行停定秒數
-  const scrollState = { tN: {off:0,pause:1}, tS: {off:0,pause:1}, cN: {off:0,pause:1}, cS: {off:0,pause:1} };
-  let solarScroll = 0;
+  const scrollState = { tN: 0, tS: 0, cN: 0, cS: 0, solar: 0 };
   let lastTs = null;
+  const marqueeT0 = performance.now();
 
   const PANELS = [
     { key: 'tN', wrap: 'tsui-north-wrap', body: 'tsui-north-body', get: () => tsuiNorthDepartures },
@@ -422,7 +427,6 @@
     return "type-local";
   }
 
-  /* ★ 目的地 Title Case：每詞首字母大寫，特定縮寫保持全大寫 */
   function titleCase(str) {
     const ACRO = ["BBI", "MTR", "EKCC", "TST", "HK", "KCR", "RD"];
     return (str || "").split(" ").map(w => {
@@ -554,10 +558,11 @@
     const routeMap = new Map();
 
     expectedRoutes.forEach(exp => {
-      let dest = titleCase(exp.dest); // ★ 靜態目的地亦套用 Title Case
+      let dest = titleCase(exp.dest);
       let destZh = exp.destZh;
       let isOverride = false;
 
+      // ★ 循環線回程站：目的地改為最終目的地
       if (CIRCULAR_OVERRIDE[exp.route] && CIRCULAR_OVERRIDE[exp.route].returnStops.includes(exp.track)) {
         dest = titleCase(CIRCULAR_OVERRIDE[exp.route].dest);
         destZh = CIRCULAR_OVERRIDE[exp.route].destZh;
@@ -668,8 +673,8 @@
       }
 
       const trackBox = item.track
-        ? `<div class="track-box">${item.trackName || item.track}</div><div class="track-name">${item.track}</div>`
-        : `<div class="track-box">--</div>`;
+        ? `<div class="track-box"><span class="track-txt">${item.trackName || item.track}</span></div><div class="track-name">${item.track}</div>`
+        : `<div class="track-box"><span class="track-txt">--</span></div>`;
 
       html += `
         <div class="train-row">
@@ -681,6 +686,27 @@
         </div>`;
     });
     return html;
+  }
+
+  /* ★ 過長文字橫向走馬燈（用 WAAPI + 全局時鐘，重繪後仍連續） */
+  function setupMarquees() {
+    document.querySelectorAll('.dest-main, .dest-sub, .track-txt').forEach(el => {
+      const container = el.classList.contains('track-txt') ? el.parentElement : el;
+      const overflow = el.scrollWidth - container.clientWidth;
+      if (overflow > 1 && el.animate) {
+        const shift = -(overflow + 6);
+        const dur = 4000 + overflow * 45;
+        const anim = el.animate([
+          { transform: 'translateX(0)' },
+          { transform: 'translateX(0)', offset: 0.15 },
+          { transform: `translateX(${shift}px)`, offset: 0.45 },
+          { transform: `translateX(${shift}px)`, offset: 0.6 },
+          { transform: 'translateX(0)', offset: 0.9 },
+          { transform: 'translateX(0)' }
+        ], { duration: dur, iterations: Infinity });
+        anim.currentTime = (performance.now() - marqueeT0) % dur;
+      }
+    });
   }
 
   function renderAllBoards() {
@@ -699,6 +725,7 @@
         if (needDup && body.children.length < 2) body.appendChild(copy.cloneNode(true));
         if (!needDup && body.children.length > 1) body.removeChild(body.children[1]);
       });
+      setupMarquees();
     });
   }
 
@@ -710,53 +737,21 @@
     if (isDataLoaded) renderAllBoards();
   }
 
-  /* ★ 逐行定格滾動：停頓時所有行完整對齊，不會遮擋 */
-  function stepScroll(key, wrapId, bodyId, dt) {
+  /* 連續滾動（維持原樣） */
+  function continuousScroll(key, wrapId, bodyId, dt) {
     const wrap = document.getElementById(wrapId);
     const body = document.getElementById(bodyId);
     if (!wrap || !body || !body.children.length) return;
     const copyEl = body.children[0];
     const loopH = copyEl.offsetHeight + 4;
     if (loopH <= wrap.clientHeight) {
-      const st = scrollState[key];
-      if (st.off !== 0) { st.off = 0; st.pause = DWELL; body.style.transform = 'translateY(0)'; }
+      if (scrollState[key] !== 0) { scrollState[key] = 0; body.style.transform = 'translateY(0)'; }
       return;
     }
-    const row = copyEl.querySelector('.train-row');
-    const step = (row ? row.offsetHeight : 60) + 4;
-    const st = scrollState[key];
-
-    if (st.pause > 0) {
-      st.pause -= dt;
-    } else {
-      const speed = Math.max(90, window.innerWidth * 0.09);
-      let nextStop = (Math.floor(st.off / step + 1e-4) + 1) * step;
-      if (nextStop > loopH - 2) nextStop = loopH;
-      st.off += speed * dt;
-      if (st.off >= nextStop) {
-        st.off = nextStop;
-        if (st.off >= loopH - 2) st.off = 0; // 無縫回到頂部
-        st.pause = DWELL;
-      }
-    }
-    body.style.transform = `translateY(-${st.off}px)`;
-  }
-
-  /* 太陽能欄：慢速連續滾動 */
-  function continuousScrollSolar(dt) {
-    const wrap = document.getElementById('solar-scroll-wrap');
-    const body = document.getElementById('solar-scroll-body');
-    if (!wrap || !body || !body.children.length) return;
-    const copyEl = body.children[0];
-    const loopH = copyEl.offsetHeight + 4;
-    if (loopH <= wrap.clientHeight) {
-      if (solarScroll !== 0) { solarScroll = 0; body.style.transform = 'translateY(0)'; }
-      return;
-    }
-    const speed = Math.max(18, window.innerWidth * 0.012);
-    let off = solarScroll + speed * dt;
+    const speed = Math.max(24, window.innerWidth * 0.015);
+    let off = scrollState[key] + speed * dt;
     while (off >= loopH) off -= loopH;
-    solarScroll = off;
+    scrollState[key] = off;
     body.style.transform = `translateY(-${off}px)`;
   }
 
@@ -764,8 +759,8 @@
     if (lastTs === null) lastTs = ts;
     const dt = Math.min(0.1, (ts - lastTs) / 1000);
     lastTs = ts;
-    PANELS.forEach(p => stepScroll(p.key, p.wrap, p.body, dt));
-    continuousScrollSolar(dt);
+    PANELS.forEach(p => continuousScroll(p.key, p.wrap, p.body, dt));
+    continuousScroll('solar', 'solar-scroll-wrap', 'solar-scroll-body', dt);
     requestAnimationFrame(scrollLoop);
   }
 
