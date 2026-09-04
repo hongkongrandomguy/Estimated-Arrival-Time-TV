@@ -115,7 +115,7 @@
 
   <div class="board-container">
     <div class="column-pane">
-      <div class="column-title"><span>翠屏道 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/順利</span></div>
+      <div class="column-title"><span>翠屏道 Northbound</span><span style="font-size:0.72vw;color:#94a3b8;">往秀茂坪/沙田/順利</span></div>
       <div class="table-head">
         <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
       </div>
@@ -131,7 +131,7 @@
     </div>
 
     <div class="column-pane">
-      <div class="column-title"><span>翠屏道 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘市中心/九龍</span></div>
+      <div class="column-title"><span>翠屏道 Southbound</span><span style="font-size:0.72vw;color:#94a3b8;">往觀塘市中心/九龍/荃灣</span></div>
       <div class="table-head">
         <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
       </div>
@@ -153,13 +153,18 @@
   </div>
 
 <script>
+  // 包含中途站與總站 (Terminus)
   const TSUI_PING_NORTH_STOPS = [
     { id: "F9210821429F55B6", track: "KT272", name: "Tsui On House", nameZh: "翠桉樓" },
-    { id: "DE925628D8747F6D", track: "KT273", name: "Po Pui Court", nameZh: "寶佩苑" }
+    { id: "DE925628D8747F6D", track: "KT273", name: "Po Pui Court", nameZh: "寶佩苑" },
+    { id: "71B7CB659DF54E28", track: "KT271", name: "Tsui Ping North Estate Terminus", nameZh: "翠屏北邨總站" }, // 89, 234C, 234D
+    { id: "1AEB39A1738104D3", track: "KT949", name: "Tsui Ping Road Terminus", nameZh: "翠屏道總站" }, // 89X
+    { id: "12AF5B1935BB9735", track: "KT950", name: "Tsui Ping Road Terminus", nameZh: "翠屏道總站" } // 89C
   ];
   const TSUI_PING_SOUTH_STOPS = [
     { id: "C6E63C45FF2EA573", track: "KT561", name: "Po Pui Court", nameZh: "寶佩苑" },
-    { id: "3673A01280621EC2", track: "KT562", name: "Tsui Tsz House", nameZh: "翠梓樓" }
+    { id: "3673A01280621EC2", track: "KT562", name: "Tsui Tsz House", nameZh: "翠梓樓" },
+    { id: "ACF18512CA2861EC", track: "KT948", name: "Tsui Ping Road Terminus", nameZh: "翠屏道總站" } // 11B
   ];
   const CHEUNG_WO_NORTH_STOPS = [
     { id: "3093477EA64DDA89", track: "KT261", name: "Cheung Wo Court", nameZh: "祥和苑" }
@@ -173,21 +178,23 @@
   const CTB_CHEUNG_WO_SOUTH_STOP = "003039";
   const CTB_CHEUNG_WO_SOUTH_TRACK = "KT533";
 
-  // 預定義所有常態化顯示的路線
+  // 預定義所有常態化顯示的路線 (包含總站開出路線)
   const TSUI_N_ROUTES = [
-    { route: "11B", track: "KT272", trackName: "翠桉樓", dest: "KWUN TONG (TSUI PING ROAD)", destZh: "觀塘(翠屏道)" },
+    { route: "89", track: "KT271", trackName: "翠屏北邨總站", dest: "LEK YUEN", destZh: "瀝源" },
+    { route: "89C", track: "KT950", trackName: "翠屏道總站", dest: "HENG ON", destZh: "恆安" },
+    { route: "89X", track: "KT949", trackName: "翠屏道總站", dest: "SHATIN STATION", destZh: "沙田站" },
     { route: "11C", track: "KT272", trackName: "翠桉樓", dest: "SAU MAU PING (UPPER)", destZh: "上秀茂坪" },
-    { route: "13M", track: "KT272", trackName: "翠桉樓", dest: "PO TAT (CIRCULAR)", destZh: "寶達(循環線)" },
-    { route: "89", track: "KT273", trackName: "寶佩苑", dest: "LEK YUEN", destZh: "瀝源" },
-    { route: "89C", track: "KT272", trackName: "翠桉樓", dest: "KWUN TONG (TSUI PING ROAD)", destZh: "觀塘(翠屏道)" },
-    { route: "89X", track: "KT272", trackName: "翠桉樓", dest: "SHATIN STATION", destZh: "沙田站" }
+    { route: "13M", track: "KT272", trackName: "翠桉樓", dest: "PO TAT (CIRCULAR)", destZh: "寶達(循環線)" }
   ];
+  
   const TSUI_S_ROUTES = [
-    { route: "11B", track: "KT562", trackName: "翠梓樓", dest: "KOWLOON CITY FERRY", destZh: "九龍城碼頭" },
+    { route: "11B", track: "KT948", trackName: "翠屏道總站", dest: "KOWLOON CITY FERRY", destZh: "九龍城碼頭" },
+    { route: "234C", track: "KT271", trackName: "翠屏北邨總站", dest: "SHAM TSENG", destZh: "深井" },
+    { route: "234D", track: "KT271", trackName: "翠屏北邨總站", dest: "TSING LUNG TAU", destZh: "青龍頭" },
     { route: "11C", track: "KT561", trackName: "寶佩苑", dest: "CHUK YUEN ESTATE", destZh: "竹園邨" },
-    { route: "14H", track: "KT561", trackName: "寶佩苑", dest: "SHUN LEE (CIRCULAR)", destZh: "順利(循環線)" },
-    { route: "89C", track: "KT562", trackName: "翠梓樓", dest: "HENG ON", destZh: "恆安" }
+    { route: "14H", track: "KT561", trackName: "寶佩苑", dest: "SHUN LEE (CIRCULAR)", destZh: "順利(循環線)" }
   ];
+
   const CHEUNG_N_ROUTES = [
     { route: "11C", track: "KT261", trackName: "祥和苑", dest: "SAU MAU PING (UPPER)", destZh: "上秀茂坪" },
     { route: "11X", track: "KT261", trackName: "祥和苑", dest: "ON TAI (NORTH)", destZh: "安泰(北)" },
@@ -197,6 +204,7 @@
     { route: "28B", track: "KT261", trackName: "祥和苑", dest: "CHOI FOOK", destZh: "彩福" },
     { route: "N293", track: "KT261", trackName: "祥和苑", dest: "SHEUNG TAK", destZh: "尚德" }
   ];
+
   const CHEUNG_S_ROUTES = [
     { route: "1A", track: "KT533", trackName: "祥和苑", dest: "STAR FERRY", destZh: "尖沙咀碼頭" },
     { route: "11C", track: "KT534", trackName: "祥和苑", dest: "CHUK YUEN ESTATE", destZh: "竹園邨" },
@@ -309,6 +317,10 @@
       const stop = stopIds[i];
       json.data.forEach(item => {
         if (!item.route) return;
+        
+        // 過濾掉回總站的班次 (目的地包含 TSUI PING)
+        if (item.dest_en && item.dest_en.toUpperCase().includes("TSUI PING")) return;
+        
         if (item.eta) {
           const t = new Date(item.eta);
           if (!isNaN(t.getTime())) {
@@ -370,12 +382,7 @@
     });
 
     etas.forEach(eta => {
-      if (!routeMap.has(eta.route)) {
-        routeMap.set(eta.route, {
-          route: eta.route, dest: eta.dest, destZh: eta.destZh, list: [],
-          track: eta.track, trackName: eta.trackName
-        });
-      }
+      if (!routeMap.has(eta.route)) return; // 只保留預定義路線
       const rd = routeMap.get(eta.route);
       rd.list.push(eta);
       if (eta.dest && eta.dest !== '--' && eta.dest !== rd.dest) {
@@ -406,17 +413,31 @@
 
   async function fetchAPIData() {
     try {
-      const [tN, tS, cN, cS, ctb] = await Promise.all([
-        fetchKMBStopEtas(TSUI_PING_NORTH_STOPS),
-        fetchKMBStopEtas(TSUI_PING_SOUTH_STOPS),
-        fetchKMBStopEtas(CHEUNG_WO_NORTH_STOPS),
-        fetchKMBStopEtas(CHEUNG_WO_SOUTH_STOPS),
+      // 整合所有站牌 (包含總站) 並去重
+      const allStops = [
+        ...TSUI_PING_NORTH_STOPS,
+        ...TSUI_PING_SOUTH_STOPS,
+        ...CHEUNG_WO_NORTH_STOPS,
+        ...CHEUNG_WO_SOUTH_STOPS
+      ];
+      const uniqueStops = Array.from(new Map(allStops.map(s => [s.id, s])).values());
+
+      const [allKMB, ctb] = await Promise.all([
+        fetchKMBStopEtas(uniqueStops),
         fetchCitybusEtas()
       ]);
+
+      // 根據路線歸類到不同的面板
+      const tN = allKMB.filter(e => TSUI_N_ROUTES.some(r => r.route === e.route));
+      const tS = allKMB.filter(e => TSUI_S_ROUTES.some(r => r.route === e.route));
+      const cN = allKMB.filter(e => CHEUNG_N_ROUTES.some(r => r.route === e.route));
+      const cS = allKMB.filter(e => CHEUNG_S_ROUTES.some(r => r.route === e.route));
+
       tsuiNorthDepartures = buildNormalizedList(tN, TSUI_N_ROUTES);
       tsuiSouthDepartures = buildNormalizedList(tS, TSUI_S_ROUTES);
       cheungNorthDepartures = buildNormalizedList(cN, CHEUNG_N_ROUTES);
       cheungSouthDepartures = buildNormalizedList([...cS, ...ctb], CHEUNG_S_ROUTES);
+      
       isDataLoaded = true;
       renderAllBoards();
     } catch (e) { console.error("API Fetch Error:", e); }
