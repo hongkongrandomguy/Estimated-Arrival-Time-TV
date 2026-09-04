@@ -13,86 +13,33 @@
       height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
     }
 
-    /* 新增：主容器，分为左右两部分 */
-    .main-wrapper {
-      display: flex;
-      flex-grow: 1;
-      gap: 0.6vw;
-      overflow: hidden;
-    }
+    .main-wrapper { display: flex; flex-grow: 1; gap: 0.6vw; overflow: hidden; }
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
-    /* 左侧主内容区（约80%） */
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* 右侧太阳能数据栏（约20%） */
+    /* ===== 右側太陽能欄 (約20%)：只顯示數據 ===== */
     .solar-panel {
-      width: 20%;
-      min-width: 200px;
+      width: 20%; min-width: 210px;
       background: linear-gradient(180deg, #0f172a, #1e293b);
-      border: 2px solid #2d3b4e;
-      border-radius: 4px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      border: 2px solid #2d3b4e; border-radius: 4px;
+      display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
     }
-    .solar-header {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      padding: 0.8vw;
-      text-align: center;
-    }
-    .solar-title {
-      font-size: 1.1vw;
-      font-weight: 700;
-      color: #fff;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    }
-    .solar-subtitle {
-      font-size: 0.7vw;
-      color: #fef3c7;
-      margin-top: 0.2vw;
-    }
-    .solar-content {
-      flex-grow: 1;
-      padding: 0.8vw;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6vw;
-    }
-    .solar-stat {
-      background: rgba(0,0,0,0.3);
-      border: 1px solid #334155;
-      border-radius: 4px;
-      padding: 0.6vw;
-    }
-    .solar-stat-label {
-      font-size: 0.7vw;
-      color: #94a3b8;
-      margin-bottom: 0.2vw;
-    }
-    .solar-stat-value {
-      font-size: 1.4vw;
-      font-weight: 700;
-      color: #fbbf24;
-    }
-    .solar-stat-unit {
-      font-size: 0.8vw;
-      color: #fcd34d;
-      margin-left: 0.2vw;
-    }
-    .solar-placeholder {
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-      font-size: 0.9vw;
-      text-align: center;
-    }
+    .solar-header { background: linear-gradient(135deg, #f59e0b, #d97706); padding: 0.7vw 0.8vw; text-align: center; flex-shrink: 0; }
+    .solar-title { font-size: 1.15vw; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+    .solar-subtitle { font-size: 0.68vw; color: #fef3c7; margin-top: 0.15vw; }
+    .solar-scroll-wrap { flex-grow: 1; overflow: hidden; position: relative; }
+    .solar-scroll-body { position: absolute; width: 100%; top: 0; padding: 0.6vw; will-change: transform; }
+    .solar-inner { display: flex; flex-direction: column; gap: 0.6vw; margin-bottom: 4px; }
+
+    .solar-live { background: rgba(0,0,0,0.35); border: 1px solid #334155; border-radius: 4px; padding: 0.7vw; }
+    .solar-stat-label { font-size: 0.72vw; color: #94a3b8; margin-bottom: 0.2vw; }
+    .solar-power-val { font-size: 2.6vw; font-weight: 700; color: #fbbf24; line-height: 1.1; }
+    .solar-power-unit { font-size: 1.1vw; color: #fcd34d; }
+    .solar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5vw; margin-top: 0.6vw; }
+    .solar-cell { background: rgba(0,0,0,0.3); border: 1px solid #334155; border-radius: 4px; padding: 0.5vw 0.55vw; }
+    .solar-cell.wide { grid-column: 1 / -1; }
+    .solar-val { font-size: 1.25vw; font-weight: 700; color: #fcd34d; }
+    .solar-unit { font-size: 0.66vw; color: #94a3b8; }
+    .solar-api-status { margin-top: 0.5vw; font-size: 0.66vw; color: #94a3b8; text-align: center; }
 
     .lcd-header {
       display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: 1vw;
@@ -183,10 +130,9 @@
 </head>
 <body>
 
-  <!-- 主容器：分为左右两部分 -->
   <div class="main-wrapper">
-    
-    <!-- 左侧：巴士信息系统（约80%宽度） -->
+
+    <!-- 左側：巴士資訊 -->
     <div class="main-content">
       <div class="lcd-header">
         <img class="logo-box" src="ktmc.png" alt="KTMC">
@@ -239,38 +185,150 @@
       </div>
     </div>
 
-    <!-- 右侧：太阳能发电数据栏（约20%宽度） -->
+    <!-- 右側：學校太陽能發電數據欄 (20%) — 只顯示數據 -->
     <div class="solar-panel">
       <div class="solar-header">
-        <div class="solar-title">☀️ Solar Power</div>
-        <div class="solar-subtitle">學校太陽能發電系統</div>
+        <div class="solar-title">☀️ 學校太陽能發電系統</div>
+        <div class="solar-subtitle">Kwun Tong Maryknoll College · Solar PV</div>
       </div>
-      <div class="solar-content">
-        <div class="solar-stat">
-          <div class="solar-stat-label">即時發電功率</div>
-          <div class="solar-stat-value">--<span class="solar-stat-unit">kW</span></div>
-        </div>
-        <div class="solar-stat">
-          <div class="solar-stat-label">今日發電量</div>
-          <div class="solar-stat-value">--<span class="solar-stat-unit">kWh</span></div>
-        </div>
-        <div class="solar-stat">
-          <div class="solar-stat-label">本月累計</div>
-          <div class="solar-stat-value">--<span class="solar-stat-unit">kWh</span></div>
-        </div>
-        <div class="solar-stat">
-          <div class="solar-stat-label">減碳當量</div>
-          <div class="solar-stat-value">--<span class="solar-stat-unit">kg CO₂</span></div>
-        </div>
-        <div class="solar-placeholder">
-          <div>等待 API 數據接入...<br>Waiting for data...</div>
+      <div class="solar-scroll-wrap" id="solar-scroll-wrap">
+        <div class="solar-scroll-body" id="solar-scroll-body">
+          <div class="solar-inner">
+            <div class="solar-live">
+              <div class="solar-stat-label">即時發電功率 Real-time Power</div>
+              <div class="solar-power-val"><span class="solar-power-num">--</span><span class="solar-power-unit"> kW</span></div>
+              <div class="solar-grid">
+                <div class="solar-cell"><div class="solar-stat-label">今日發電</div><div class="solar-val solar-energy-today">--</div><div class="solar-unit">kWh</div></div>
+                <div class="solar-cell"><div class="solar-stat-label">本月發電</div><div class="solar-val solar-energy-month">--</div><div class="solar-unit">kWh</div></div>
+                <div class="solar-cell"><div class="solar-stat-label">本年發電</div><div class="solar-val solar-energy-year">--</div><div class="solar-unit">kWh</div></div>
+                <div class="solar-cell"><div class="solar-stat-label">累計發電</div><div class="solar-val solar-energy-total">--</div><div class="solar-unit">kWh</div></div>
+                <div class="solar-cell"><div class="solar-stat-label">今日收益</div><div class="solar-val solar-income-today">--</div><div class="solar-unit">HK$</div></div>
+                <div class="solar-cell"><div class="solar-stat-label">累計收益</div><div class="solar-val solar-income-total">--</div><div class="solar-unit">HK$</div></div>
+                <div class="solar-cell wide"><div class="solar-stat-label">累計 CO₂ 減排</div><div class="solar-val solar-co2-total">--</div><div class="solar-unit">kg</div></div>
+              </div>
+              <div class="solar-api-status">API: 初始化中…</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
 <script>
-  // 包含中途站與總站 (Terminus)
+  /* ================= 太陽能 API 設定 (ShineMonitor) ================= */
+  const SOLAR_CONFIG = {
+    baseUrl: "https://api.shinemonitor.com/",
+    username: "",    // ← 填入 ShineMonitor 帳號
+    password: "",    // ← 填入密碼
+    companyKey: "",  // ← 填入 company-key
+    plantId: "10180693",
+    unitProfit: 5.0,
+    co2Factor: 0.7
+  };
+
+  /* ---- 純 JS SHA1 ---- */
+  function sha1(str) {
+    const utf8 = unescape(encodeURIComponent(str));
+    const ml = utf8.length;
+    const words = [];
+    for (let i = 0; i < ml; i++) words[i >> 2] |= (utf8.charCodeAt(i) & 0xFF) << (24 - (i % 4) * 8);
+    words[ml >> 2] |= 0x80 << (24 - (ml % 4) * 8);
+    let lenWords = words.length;
+    while (lenWords % 16 !== 14) { words[lenWords] = 0; lenWords++; }
+    const bitLen = ml * 8;
+    words[lenWords] = Math.floor(bitLen / 0x100000000);
+    words[lenWords + 1] = bitLen >>> 0;
+    let H0 = 0x67452301, H1 = 0xEFCDAB89, H2 = 0x98BADCFE, H3 = 0x10325476, H4 = 0xC3D2E1F0;
+    const w = new Array(80);
+    for (let b = 0; b < words.length; b += 16) {
+      for (let i = 0; i < 16; i++) w[i] = words[b + i] | 0;
+      for (let i = 16; i < 80; i++) { const n = w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16]; w[i] = (n << 1) | (n >>> 31); }
+      let a = H0, bb = H1, c = H2, d = H3, e = H4;
+      for (let i = 0; i < 80; i++) {
+        let f, k;
+        if (i < 20) { f = (bb & c) | ((~bb) & d); k = 0x5A827999; }
+        else if (i < 40) { f = bb ^ c ^ d; k = 0x6ED9EBA1; }
+        else if (i < 60) { f = (bb & c) | (bb & d) | (c & d); k = 0x8F1BBCDC; }
+        else { f = bb ^ c ^ d; k = 0xCA62C1D6; }
+        const t = (((a << 5) | (a >>> 27)) + f + e + k + w[i]) | 0;
+        e = d; d = c; c = (bb << 30) | (bb >>> 2); bb = a; a = t;
+      }
+      H0 = (H0 + a) | 0; H1 = (H1 + bb) | 0; H2 = (H2 + c) | 0; H3 = (H3 + d) | 0; H4 = (H4 + e) | 0;
+    }
+    return [H0, H1, H2, H3, H4].map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
+  }
+
+  let solarToken = null, solarSecret = null, solarExpire = 0;
+
+  function setSolarText(cls, txt) {
+    document.querySelectorAll('.' + cls).forEach(el => el.textContent = txt);
+  }
+  function setSolarStatus(txt) { setSolarText('solar-api-status', txt); }
+
+  async function solarLogin() {
+    const salt = Date.now();
+    const action = '&action=auth&usr=' + SOLAR_CONFIG.username + '&company-key=' + SOLAR_CONFIG.companyKey;
+    const sign = sha1('' + salt + sha1(SOLAR_CONFIG.password) + action);
+    const url = SOLAR_CONFIG.baseUrl + '?sign=' + sign + '&salt=' + salt + action;
+    const res = await fetch(url);
+    const json = await res.json();
+    if (json && json.err === 0 && json.dat) {
+      solarToken = json.dat.token;
+      solarSecret = json.dat.secret;
+      solarExpire = Date.now() + (json.dat.expire || 3600) * 1000;
+      return true;
+    }
+    throw new Error('auth err ' + (json ? json.err : 'network'));
+  }
+
+  async function solarRequest(actionParams) {
+    if (!solarToken || Date.now() > solarExpire - 60000) await solarLogin();
+    const salt = Date.now();
+    const sign = sha1('' + salt + solarSecret + solarToken + actionParams);
+    const url = SOLAR_CONFIG.baseUrl + '?sign=' + sign + '&salt=' + salt + '&token=' + solarToken + actionParams;
+    const res = await fetch(url);
+    return await res.json();
+  }
+
+  async function fetchSolarData() {
+    if (!SOLAR_CONFIG.username || !SOLAR_CONFIG.password || !SOLAR_CONFIG.companyKey) {
+      setSolarStatus('API: 未設定帳號／密碼／company-key');
+      return;
+    }
+    try {
+      const pJson = await solarRequest('&action=queryPlantActiveOuputPowerCurrent&plantid=' + SOLAR_CONFIG.plantId);
+      if (pJson && pJson.err === 0 && pJson.dat) {
+        setSolarText('solar-power-num', parseFloat(pJson.dat.power || 0).toFixed(2));
+      }
+      const eJson = await solarRequest('&action=queryPlantCurrentData&plantid=' + SOLAR_CONFIG.plantId + '&par=ENERGY_TODAY,ENERGY_MONTH,ENERGY_YEAR,ENERGY_TOTAL');
+      if (eJson && eJson.err === 0 && Array.isArray(eJson.dat)) {
+        const v = eJson.dat.map(d => parseFloat(d.val || 0));
+        const today = v[0] || 0, month = v[1] || 0, year = v[2] || 0, total = v[3] || 0;
+        setSolarText('solar-energy-today', today.toFixed(1));
+        setSolarText('solar-energy-month', month.toFixed(1));
+        setSolarText('solar-energy-year', year.toFixed(1));
+        setSolarText('solar-energy-total', total.toFixed(1));
+        setSolarText('solar-income-today', (today * SOLAR_CONFIG.unitProfit).toFixed(2));
+        setSolarText('solar-income-total', (total * SOLAR_CONFIG.unitProfit).toFixed(2));
+        setSolarText('solar-co2-total', (total * SOLAR_CONFIG.co2Factor).toFixed(1));
+      }
+      setSolarStatus('API: 在線 Online · 電站 ' + SOLAR_CONFIG.plantId);
+    } catch (e) {
+      solarToken = null;
+      setSolarStatus('API: 離線/連接失敗 (CORS 或憑證問題)');
+    }
+  }
+
+  function setupSolarScroll() {
+    const wrap = document.getElementById('solar-scroll-wrap');
+    const body = document.getElementById('solar-scroll-body');
+    if (!wrap || !body || !body.children.length) return;
+    while (body.children.length > 1) body.removeChild(body.lastChild);
+    const copy = body.children[0];
+    if (copy.offsetHeight + 4 > wrap.clientHeight) body.appendChild(copy.cloneNode(true));
+  }
+
+  /* ================= 巴士系統 ================= */
   const TSUI_PING_NORTH_STOPS = [
     { id: "F9210821429F55B6", track: "KT272", name: "Tsui On House", nameZh: "翠桉樓" },
     { id: "DE925628D8747F6D", track: "KT273", name: "Po Pui Court", nameZh: "寶佩苑" },
@@ -302,7 +360,7 @@
     { route: "11C", track: "KT272", trackName: "翠桉樓", dest: "SAU MAU PING (UPPER)", destZh: "上秀茂坪" },
     { route: "13M", track: "KT272", trackName: "翠桉樓", dest: "PO TAT (CIRCULAR)", destZh: "寶達(循環線)" }
   ];
-  
+
   const TSUI_S_ROUTES = [
     { route: "11B", track: "KT948", trackName: "翠屏道總站", dest: "KOWLOON CITY FERRY", destZh: "九龍城碼頭" },
     { route: "234C", track: "KT271", trackName: "翠屏北邨總站", dest: "SHAM TSENG", destZh: "深井" },
@@ -338,22 +396,16 @@
   ];
 
   const CIRCULAR_OVERRIDE = {
-    "14H": {
-      returnStops: ["KT534", "KT561", "KT562"],
-      dest: "YAU TONG",
-      destZh: "油塘"
-    },
-    "13M": {
-      returnStops: ["KT533"],
-      dest: "KWUN TONG (ELEGANCE RD)",
-      destZh: "觀塘(雅麗道)"
-    }
+    "14H": { returnStops: ["KT534", "KT561", "KT562"], dest: "YAU TONG", destZh: "油塘" },
+    "13M": { returnStops: ["KT533"], dest: "KWUN TONG (ELEGANCE RD)", destZh: "觀塘(雅麗道)" }
   };
 
   let tsuiNorthDepartures = [], tsuiSouthDepartures = [];
   let cheungNorthDepartures = [], cheungSouthDepartures = [];
   let isDataLoaded = false;
-  const scrollState = { tN: 0, tS: 0, cN: 0, cS: 0 };
+  const DWELL = 2.5; // 每行停定秒數
+  const scrollState = { tN: {off:0,pause:1}, tS: {off:0,pause:1}, cN: {off:0,pause:1}, cS: {off:0,pause:1} };
+  let solarScroll = 0;
   let lastTs = null;
 
   const PANELS = [
@@ -370,8 +422,9 @@
     return "type-local";
   }
 
+  /* ★ 目的地 Title Case：每詞首字母大寫，特定縮寫保持全大寫 */
   function titleCase(str) {
-    const ACRO = ["BBI", "MTR", "EKCC", "TST", "HK", "KCR"];
+    const ACRO = ["BBI", "MTR", "EKCC", "TST", "HK", "KCR", "RD"];
     return (str || "").split(" ").map(w => {
       if (!w) return w;
       const m = w.match(/^([^a-zA-Z]*)([a-zA-Z][a-zA-Z']*)(.*)$/);
@@ -501,18 +554,17 @@
     const routeMap = new Map();
 
     expectedRoutes.forEach(exp => {
-      let dest = exp.dest;
+      let dest = titleCase(exp.dest); // ★ 靜態目的地亦套用 Title Case
       let destZh = exp.destZh;
       let isOverride = false;
 
       if (CIRCULAR_OVERRIDE[exp.route] && CIRCULAR_OVERRIDE[exp.route].returnStops.includes(exp.track)) {
-        dest = CIRCULAR_OVERRIDE[exp.route].dest;
+        dest = titleCase(CIRCULAR_OVERRIDE[exp.route].dest);
         destZh = CIRCULAR_OVERRIDE[exp.route].destZh;
         isOverride = true;
       }
-      
       if (exp.route === "28B" && exp.track === "KT261") {
-        dest = "CHOI FOOK";
+        dest = "Choi Fook";
         destZh = "彩福";
         isOverride = true;
       }
@@ -528,14 +580,12 @@
       if (!routeMap.has(eta.route)) return;
       const rd = routeMap.get(eta.route);
       rd.list.push(eta);
-      
       if (!rd.isOverride) {
         if (eta.dest && eta.dest !== '--' && eta.dest !== rd.dest) {
           rd.dest = eta.dest;
           rd.destZh = eta.destZh;
         }
       }
-      
       if (eta.track && !rd.track) {
         rd.track = eta.track;
         rd.trackName = eta.trackName;
@@ -582,7 +632,7 @@
       tsuiSouthDepartures = buildNormalizedList(tS, TSUI_S_ROUTES);
       cheungNorthDepartures = buildNormalizedList(cN, CHEUNG_N_ROUTES);
       cheungSouthDepartures = buildNormalizedList([...cS, ...ctb], CHEUNG_S_ROUTES);
-      
+
       isDataLoaded = true;
       renderAllBoards();
     } catch (e) { console.error("API Fetch Error:", e); }
@@ -660,20 +710,53 @@
     if (isDataLoaded) renderAllBoards();
   }
 
-  function continuousScroll(key, wrapId, bodyId, dt) {
+  /* ★ 逐行定格滾動：停頓時所有行完整對齊，不會遮擋 */
+  function stepScroll(key, wrapId, bodyId, dt) {
     const wrap = document.getElementById(wrapId);
     const body = document.getElementById(bodyId);
     if (!wrap || !body || !body.children.length) return;
     const copyEl = body.children[0];
     const loopH = copyEl.offsetHeight + 4;
     if (loopH <= wrap.clientHeight) {
-      if (scrollState[key] !== 0) { scrollState[key] = 0; body.style.transform = 'translateY(0)'; }
+      const st = scrollState[key];
+      if (st.off !== 0) { st.off = 0; st.pause = DWELL; body.style.transform = 'translateY(0)'; }
       return;
     }
-    const speed = Math.max(24, window.innerWidth * 0.015);
-    let off = scrollState[key] + speed * dt;
+    const row = copyEl.querySelector('.train-row');
+    const step = (row ? row.offsetHeight : 60) + 4;
+    const st = scrollState[key];
+
+    if (st.pause > 0) {
+      st.pause -= dt;
+    } else {
+      const speed = Math.max(90, window.innerWidth * 0.09);
+      let nextStop = (Math.floor(st.off / step + 1e-4) + 1) * step;
+      if (nextStop > loopH - 2) nextStop = loopH;
+      st.off += speed * dt;
+      if (st.off >= nextStop) {
+        st.off = nextStop;
+        if (st.off >= loopH - 2) st.off = 0; // 無縫回到頂部
+        st.pause = DWELL;
+      }
+    }
+    body.style.transform = `translateY(-${st.off}px)`;
+  }
+
+  /* 太陽能欄：慢速連續滾動 */
+  function continuousScrollSolar(dt) {
+    const wrap = document.getElementById('solar-scroll-wrap');
+    const body = document.getElementById('solar-scroll-body');
+    if (!wrap || !body || !body.children.length) return;
+    const copyEl = body.children[0];
+    const loopH = copyEl.offsetHeight + 4;
+    if (loopH <= wrap.clientHeight) {
+      if (solarScroll !== 0) { solarScroll = 0; body.style.transform = 'translateY(0)'; }
+      return;
+    }
+    const speed = Math.max(18, window.innerWidth * 0.012);
+    let off = solarScroll + speed * dt;
     while (off >= loopH) off -= loopH;
-    scrollState[key] = off;
+    solarScroll = off;
     body.style.transform = `translateY(-${off}px)`;
   }
 
@@ -681,17 +764,23 @@
     if (lastTs === null) lastTs = ts;
     const dt = Math.min(0.1, (ts - lastTs) / 1000);
     lastTs = ts;
-    PANELS.forEach(p => continuousScroll(p.key, p.wrap, p.body, dt));
+    PANELS.forEach(p => stepScroll(p.key, p.wrap, p.body, dt));
+    continuousScrollSolar(dt);
     requestAnimationFrame(scrollLoop);
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     fetchAPIData();
     fetchWeatherData();
+    fetchSolarData();
+    setupSolarScroll();
     requestAnimationFrame(scrollLoop);
     setInterval(tickRealtime, 1000);
     setInterval(fetchAPIData, 15000);
     setInterval(fetchWeatherData, 60000);
+    setInterval(fetchSolarData, 60000);
+    setInterval(setupSolarScroll, 5000);
+    window.addEventListener('resize', setupSolarScroll);
   });
 </script>
 </body>
