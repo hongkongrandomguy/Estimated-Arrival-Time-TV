@@ -13,8 +13,8 @@
       height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
     }
 
-    .main-wrapper { display: flex; flex-grow: 1; gap: 0.6vw; overflow: hidden; }
-    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+    .main-wrapper { display: flex; flex-grow: 1; gap: 0.6vw; overflow: hidden; transition: flex-direction 0.5s ease; }
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; transition: all 0.5s ease; }
 
     /* ===== 右側太陽能欄 (約20%)：只顯示數據 ===== */
     .solar-panel {
@@ -22,6 +22,7 @@
       background: linear-gradient(180deg, #0f172a, #1e293b);
       border: 2px solid #2d3b4e; border-radius: 4px;
       display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
+      transition: all 0.5s ease;
     }
     .solar-header { background: linear-gradient(135deg, #f59e0b, #d97706); padding: 0.7vw 0.8vw; text-align: center; flex-shrink: 0; }
     .solar-title { font-size: 1.15vw; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
@@ -29,6 +30,24 @@
     .solar-scroll-wrap { flex-grow: 1; overflow: hidden; position: relative; }
     .solar-scroll-body { position: absolute; width: 100%; top: 0; padding: 0.6vw; will-change: transform; }
     .solar-inner { display: flex; flex-direction: column; gap: 0.6vw; margin-bottom: 4px; }
+
+    /* 全屏太陽能模式 */
+    body.show-solar-only .main-wrapper { flex-direction: column; }
+    body.show-solar-only .main-content { display: none; }
+    body.show-solar-only .solar-panel { 
+      width: 100%; 
+      min-width: 100%; 
+      flex-grow: 1;
+      border: 3px solid #f59e0b;
+    }
+    body.show-solar-only .solar-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1vw;
+    }
+    body.show-solar-only .solar-power-val { font-size: 4vw; }
+    body.show-solar-only .solar-val { font-size: 2vw; }
+    body.show-solar-only .solar-title { font-size: 2vw; }
 
     .solar-live { background: rgba(0,0,0,0.35); border: 1px solid #334155; border-radius: 4px; padding: 0.7vw; }
     .solar-stat-label { font-size: 0.72vw; color: #94a3b8; margin-bottom: 0.2vw; }
@@ -42,7 +61,7 @@
     .solar-api-status { margin-top: 0.5vw; font-size: 0.66vw; color: #94a3b8; text-align: center; }
 
     .lcd-header {
-      display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: 1vw;
+      display: grid; grid-template-columns: auto 1fr auto auto auto auto; align-items: center; gap: 1vw;
       background: linear-gradient(180deg, #161f2e, #0b1017);
       border: 2px solid #2d3b4e; border-radius: 4px; padding: 0.5vw 1.2vw; margin-bottom: 0.6vw; flex-shrink: 0;
     }
@@ -56,6 +75,12 @@
     .header-info-val { font-size: 1vw; font-weight: 500; color: #f59e0b; }
     .header-time-box { background: #000; border: 1px solid #3a4859; padding: 0.2vw 1vw; border-radius: 3px; text-align: right; min-width: 7vw; }
     .header-time-val { font-size: 1.6vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
+
+    /* 顯示模式指示器 */
+    .mode-indicator { font-size: 0.72vw; font-weight: 500; padding: 0.15vw 0.5vw; border-radius: 3px; text-align: center; }
+    .mode-simultaneous { background: #16a34a; color: #fff; }
+    .mode-alternating-both { background: #0284c7; color: #fff; }
+    .mode-alternating-solar { background: #d97706; color: #fff; }
 
     .warning-badges { display: flex; gap: 0.5vw; align-items: center; }
     .warn-badge { font-size: 0.78vw; font-weight: 500; padding: 0.2vw 0.6vw; border-radius: 3px; display: inline-flex; align-items: center; gap: 0.4vw; white-space: nowrap; animation: pulse-warn 1.5s infinite; border: 1px solid rgba(255,255,255,0.3); }
@@ -72,7 +97,7 @@
     .column-pane { border: 2px solid #232d3b; border-radius: 4px; background: #05080f; display: flex; flex-direction: column; overflow: hidden; }
     .column-title { background: #141c28; padding: 0.4vw 0.8vw; font-size: 0.88vw; font-weight: 500; color: #38bdf8; border-bottom: 2px solid #283548; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 
-    .table-head { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.1fr 1.3fr; background: #101722; padding: 0.35vw 0.6vw; font-size: 0.72vw; color: #cbd5e1; align-items: center; border-bottom: 1px solid #283548; flex-shrink: 0; text-transform: uppercase; }
+    .table-head { display: grid; grid-template-columns: 1.6fr 1.1fr 2.2fr 1.1fr 1.3fr; background: #101722; padding: 0.35vw 0.6vw; font-size: 0.72vw; color: #cbd5e1; align-items: center; border-bottom: 1px solid #283548; flex-shrink: 0; text-transform: uppercase; }
     .table-head div { display: flex; flex-direction: column; }
     .table-head span { font-size: 0.58vw; color: #718096; }
 
@@ -80,7 +105,7 @@
     .board-body { position: absolute; width: 100%; top: 0; padding: 4px; will-change: transform; }
     .copy { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
 
-    .train-row { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.1fr 1.3fr; align-items: center; padding: 0.35vw 0.6vw; background: #0a0f18; border-radius: 3px; height: 3.8vw; border-bottom: 1px solid #131b26; }
+    .train-row { display: grid; grid-template-columns: 1.6fr 1.1fr 2.2fr 1.1fr 1.3fr; align-items: center; padding: 0.35vw 0.6vw; background: #0a0f18; border-radius: 3px; height: 4.2vw; border-bottom: 1px solid #131b26; }
 
     .route-cell { display: flex; align-items: center; gap: 0.35vw; min-width: 0; }
 
@@ -95,10 +120,23 @@
     .type-nozomi { background: #16a34a; } .type-hikari { background: #e11d48; }
     .type-kodama { background: #0284c7; } .type-local { background: #475569; }
 
-    .co-tag { font-size: 0.62vw; font-weight: 700; border-radius: 2px; padding: 0.08vw 0.3vw; white-space: nowrap; }
+    .co-tag { 
+      font-size: 0.58vw; 
+      font-weight: 700; 
+      border-radius: 2px; 
+      padding: 0.15vw 0.3vw; 
+      white-space: normal;
+      line-height: 1.25;
+      text-align: center;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.8vw;
+    }
     .co-kmb { background: #dc2626; color: #fff; }
     .co-ctb { background: #0057b8; color: #fff; }
-    .co-stack { display: flex; flex-direction: column; gap: 0.15vw; flex-shrink: 0; }
+    .co-stack { display: flex; flex-direction: column; gap: 0.1vw; flex-shrink: 0; }
 
     .time-col { display: flex; flex-direction: column; }
     .time-main { font-size: 1.25vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
@@ -127,6 +165,26 @@
       font-size: 0.88vw; color: #f1f5f9; animation: ticker 40s linear infinite;
     }
     @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+
+    /* API狀態指示器 */
+    .api-status-bar {
+      display: flex;
+      gap: 1vw;
+      padding: 0.3vw 0.8vw;
+      background: #0a0f18;
+      border: 1px solid #232d3b;
+      border-radius: 3px;
+      margin-bottom: 0.4vw;
+      font-size: 0.62vw;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .api-status-item { display: flex; align-items: center; gap: 0.3vw; }
+    .api-dot { width: 0.5vw; height: 0.5vw; border-radius: 50%; display: inline-block; }
+    .api-dot.online { background: #22c55e; box-shadow: 0 0 4px #22c55e; }
+    .api-dot.offline { background: #ef4444; box-shadow: 0 0 4px #ef4444; }
+    .api-dot.loading { background: #f59e0b; box-shadow: 0 0 4px #f59e0b; animation: pulse-dot 1s infinite; }
+    @keyframes pulse-dot { 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
   </style>
 </head>
 <body>
@@ -143,7 +201,16 @@
         </div>
         <div class="header-info-box"><div class="header-info-label">Date</div><div class="header-info-val" id="date-text">----/--/--</div></div>
         <div class="header-info-box"><div class="header-info-label" id="weather-desc">Weather</div><div class="header-info-val" id="temp-text">--°C</div></div>
+        <div class="header-info-box"><div class="header-info-label">Bus API</div><div class="header-info-val" id="bus-api-status">...</div></div>
+        <div class="header-info-box"><div class="header-info-label">Mode</div><div class="header-info-val mode-indicator" id="display-mode">--</div></div>
         <div class="header-time-box"><div class="header-info-label">Time</div><div class="header-time-val" id="clock">00:00</div></div>
+      </div>
+
+      <div class="api-status-bar">
+        <div class="api-status-item"><span class="api-dot loading" id="kmb-api-dot"></span><span id="kmb-api-text">KMB: 連接中...</span></div>
+        <div class="api-status-item"><span class="api-dot loading" id="ctb-api-dot"></span><span id="ctb-api-text">CTB: 連接中...</span></div>
+        <div class="api-status-item"><span class="api-dot loading" id="solar-api-dot"></span><span id="solar-api-text">Solar: 連接中...</span></div>
+        <div class="api-status-item" style="margin-left: auto;"><span>上次更新: <span id="last-update">--:--:--</span></span></div>
       </div>
 
       <div class="board-container">
@@ -261,11 +328,55 @@
   }
 
   let solarToken = null, solarSecret = null, solarExpire = 0;
+  let solarApiOnline = false;
+  let kmbApiOnline = false;
+  let ctbApiOnline = false;
 
   function setSolarText(cls, txt) {
     document.querySelectorAll('.' + cls).forEach(el => el.textContent = txt);
   }
-  function setSolarStatus(txt) { setSolarText('solar-api-status', txt); }
+  function setSolarStatus(txt) { 
+    setSolarText('solar-api-status', txt); 
+    updateApiStatus('solar', txt.includes('在線') || txt.includes('Online'));
+  }
+
+  function updateApiStatus(api, isOnline) {
+    const dotEl = document.getElementById(api + '-api-dot');
+    const textEl = document.getElementById(api + '-api-text');
+    
+    if (dotEl) {
+      dotEl.className = 'api-dot ' + (isOnline ? 'online' : 'offline');
+    }
+    
+    if (api === 'kmb') {
+      kmbApiOnline = isOnline;
+      if (textEl) textEl.textContent = 'KMB: ' + (isOnline ? '在線' : '離線');
+    } else if (api === 'ctb') {
+      ctbApiOnline = isOnline;
+      if (textEl) textEl.textContent = 'CTB: ' + (isOnline ? '在線' : '離線');
+    } else if (api === 'solar') {
+      solarApiOnline = isOnline;
+      if (textEl) textEl.textContent = 'Solar: ' + (isOnline ? '在線' : '離線');
+    }
+    
+    updateBusApiStatus();
+  }
+
+  function updateBusApiStatus() {
+    const el = document.getElementById('bus-api-status');
+    if (!el) return;
+    
+    if (kmbApiOnline && ctbApiOnline) {
+      el.textContent = '在線';
+      el.style.color = '#22c55e';
+    } else if (kmbApiOnline || ctbApiOnline) {
+      el.textContent = '部分';
+      el.style.color = '#f59e0b';
+    } else {
+      el.textContent = '離線';
+      el.style.color = '#ef4444';
+    }
+  }
 
   async function solarLogin() {
     const keys = SOLAR_CONFIG.companyKey ? [SOLAR_CONFIG.companyKey] : COMPANY_KEY_CANDIDATES;
@@ -276,7 +387,7 @@
         const action = '&action=auth&usr=' + SOLAR_CONFIG.username + '&company-key=' + key;
         const sign = sha1('' + salt + sha1(SOLAR_CONFIG.password) + action);
         const url = SOLAR_CONFIG.baseUrl + '?sign=' + sign + '&salt=' + salt + action;
-        const res = await fetch(url);
+        const res = await fetch(url, { mode: 'cors' });
         const json = await res.json();
         if (json && json.err === 0 && json.dat) {
           solarToken = json.dat.token;
@@ -295,12 +406,13 @@
     const salt = Date.now();
     const sign = sha1('' + salt + solarSecret + solarToken + actionParams);
     const url = SOLAR_CONFIG.baseUrl + '?sign=' + sign + '&salt=' + salt + '&token=' + solarToken + actionParams;
-    const res = await fetch(url);
+    const res = await fetch(url, { mode: 'cors' });
     return await res.json();
   }
 
   async function fetchSolarData() {
     try {
+      updateApiStatus('solar', false);
       const pJson = await solarRequest('&action=queryPlantActiveOuputPowerCurrent&plantid=' + SOLAR_CONFIG.plantId);
       if (pJson && pJson.err === 0 && pJson.dat) {
         setSolarText('solar-power-num', parseFloat(pJson.dat.power || 0).toFixed(2));
@@ -318,9 +430,11 @@
         setSolarText('solar-co2-total', (total * SOLAR_CONFIG.co2Factor).toFixed(1));
       }
       setSolarStatus('API: 在線 Online · 電站 ' + SOLAR_CONFIG.plantId);
+      updateApiStatus('solar', true);
     } catch (e) {
       solarToken = null;
       setSolarStatus('API: 離線/連接失敗 (' + e.message + ')');
+      updateApiStatus('solar', false);
     }
   }
 
@@ -493,10 +607,18 @@
   }
 
   async function fetchKMBStopEtas(stopIds) {
+    let success = false;
     const results = await Promise.all(stopIds.map(stop =>
-      fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stop.id}`)
-        .then(res => res.ok ? res.json() : null).catch(() => null)
+      fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stop.id}`, { mode: 'cors' })
+        .then(res => {
+          if (res.ok) { success = true; return res.json(); }
+          return null;
+        })
+        .catch(() => null)
     ));
+    
+    updateApiStatus('kmb', success);
+    
     const etas = [];
     results.forEach((json, i) => {
       if (!json || !Array.isArray(json.data)) return;
@@ -521,11 +643,13 @@
   }
 
   async function fetchCitybusEtas() {
+    let success = false;
     const etas = [];
     for (const route of CTB_JOINT_ROUTES) {
       try {
-        const res = await fetch(`https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${CTB_CHEUNG_WO_SOUTH_STOP}/${route}`);
+        const res = await fetch(`https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${CTB_CHEUNG_WO_SOUTH_STOP}/${route}`, { mode: 'cors' });
         if (!res.ok) continue;
+        success = true;
         const json = await res.json();
         if (!json || !Array.isArray(json.data)) continue;
         json.data.forEach(item => {
@@ -544,6 +668,8 @@
         });
       } catch (e) { console.error(`Citybus fetch error for ${route}:`, e); }
     }
+    
+    updateApiStatus('ctb', success);
     return etas;
   }
 
@@ -640,7 +766,15 @@
 
       isDataLoaded = true;
       renderAllBoards();
-    } catch (e) { console.error("API Fetch Error:", e); }
+      
+      // 更新最後更新時間
+      const now = new Date();
+      document.getElementById('last-update').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    } catch (e) { 
+      console.error("API Fetch Error:", e);
+      updateApiStatus('kmb', false);
+      updateApiStatus('ctb', false);
+    }
   }
 
   function renderBoardHTML(departures) {
@@ -667,9 +801,9 @@
       const operators = getOperators(item.route, item.co);
       if (operators.length === 1) {
         const co = operators[0];
-        coTags = `<span class="co-tag ${co === 'CTB' ? 'co-ctb' : 'co-kmb'}">${co === 'CTB' ? 'CTB 城巴' : 'KMB 九巴'}</span>`;
+        coTags = `<span class="co-tag ${co === 'CTB' ? 'co-ctb' : 'co-kmb'}">${co === 'CTB' ? 'CTB<br>城巴' : 'KMB<br>九巴'}</span>`;
       } else {
-        coTags = `<div class="co-stack"><span class="co-tag co-kmb">KMB 九巴</span><span class="co-tag co-ctb">CTB 城巴</span></div>`;
+        coTags = `<div class="co-stack"><span class="co-tag co-kmb">KMB<br>九巴</span><span class="co-tag co-ctb">CTB<br>城巴</span></div>`;
       }
 
       const trackBox = item.track
@@ -729,12 +863,75 @@
     });
   }
 
+  /* ================= 顯示模式控制 ================= */
+  function getDisplayMode() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
+    
+    // 同步顯示時段:
+    // 12:15 - 13:00 (735 - 780 分鐘)
+    // 15:15 - 16:45 (915 - 1005 分鐘)
+    if ((timeInMinutes >= 735 && timeInMinutes < 780) || 
+        (timeInMinutes >= 915 && timeInMinutes < 1005)) {
+      return 'simultaneous';
+    }
+    
+    return 'alternating';
+  }
+
+  function updateDisplayMode() {
+    const mode = getDisplayMode();
+    const body = document.body;
+    const modeIndicator = document.getElementById('display-mode');
+    
+    if (mode === 'simultaneous') {
+      body.classList.add('mode-simultaneous');
+      body.classList.remove('mode-alternating');
+      body.classList.remove('show-solar-only');
+      
+      if (modeIndicator) {
+        modeIndicator.textContent = '同步顯示';
+        modeIndicator.className = 'header-info-val mode-indicator mode-simultaneous';
+      }
+    } else {
+      body.classList.add('mode-alternating');
+      body.classList.remove('mode-simultaneous');
+      
+      // 間接性顯示模式：2分鐘循環，前30秒顯示兩者，後90秒只顯示太陽能
+      const now = new Date();
+      const secondsInCycle = Math.floor(now.getTime() / 1000) % 120; // 2分鐘 = 120秒
+      
+      if (secondsInCycle < 30) {
+        // 顯示巴士和太陽能 (30秒)
+        body.classList.remove('show-solar-only');
+        
+        if (modeIndicator) {
+          modeIndicator.textContent = '交替(雙)';
+          modeIndicator.className = 'header-info-val mode-indicator mode-alternating-both';
+        }
+      } else {
+        // 只顯示太陽能 (90秒)
+        body.classList.add('show-solar-only');
+        
+        if (modeIndicator) {
+          modeIndicator.textContent = '交替(太陽能)';
+          modeIndicator.className = 'header-info-val mode-indicator mode-alternating-solar';
+        }
+      }
+    }
+  }
+
   function tickRealtime() {
     const now = new Date();
     const c = document.getElementById('clock'), d = document.getElementById('date-text');
     if (c) c.innerText = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
     if (d) d.innerText = now.toLocaleDateString('en-GB', { month: 'numeric', day: 'numeric', weekday: 'short' });
     if (isDataLoaded) renderAllBoards();
+    
+    // 更新顯示模式
+    updateDisplayMode();
   }
 
   /* 連續滾動（維持原樣） */
@@ -775,6 +972,10 @@
     setInterval(fetchWeatherData, 60000);
     setInterval(fetchSolarData, 60000);
     setInterval(setupSolarScroll, 5000);
+    
+    // 初始設定顯示模式
+    updateDisplayMode();
+    
     window.addEventListener('resize', setupSolarScroll);
   });
 </script>
