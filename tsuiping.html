@@ -13,6 +13,87 @@
       height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
     }
 
+    /* 新增：主容器，分为左右两部分 */
+    .main-wrapper {
+      display: flex;
+      flex-grow: 1;
+      gap: 0.6vw;
+      overflow: hidden;
+    }
+
+    /* 左侧主内容区（约80%） */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 右侧太阳能数据栏（约20%） */
+    .solar-panel {
+      width: 20%;
+      min-width: 200px;
+      background: linear-gradient(180deg, #0f172a, #1e293b);
+      border: 2px solid #2d3b4e;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .solar-header {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      padding: 0.8vw;
+      text-align: center;
+    }
+    .solar-title {
+      font-size: 1.1vw;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .solar-subtitle {
+      font-size: 0.7vw;
+      color: #fef3c7;
+      margin-top: 0.2vw;
+    }
+    .solar-content {
+      flex-grow: 1;
+      padding: 0.8vw;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6vw;
+    }
+    .solar-stat {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid #334155;
+      border-radius: 4px;
+      padding: 0.6vw;
+    }
+    .solar-stat-label {
+      font-size: 0.7vw;
+      color: #94a3b8;
+      margin-bottom: 0.2vw;
+    }
+    .solar-stat-value {
+      font-size: 1.4vw;
+      font-weight: 700;
+      color: #fbbf24;
+    }
+    .solar-stat-unit {
+      font-size: 0.8vw;
+      color: #fcd34d;
+      margin-left: 0.2vw;
+    }
+    .solar-placeholder {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      font-size: 0.9vw;
+      text-align: center;
+    }
+
     .lcd-header {
       display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: 1vw;
       background: linear-gradient(180deg, #161f2e, #0b1017);
@@ -102,54 +183,90 @@
 </head>
 <body>
 
-  <div class="lcd-header">
-    <img class="logo-box" src="ktmc.png" alt="KTMC">
-    <div class="header-title-box">
-      <div class="header-main-title">Tsui Ping Rd & Cheung Wo Court Bus ETA Display System <div class="warning-badges" id="warning-container"></div></div>
-      <div class="header-sub-title">翠屏道 & 祥和苑 巴士預計到達時間顯示系統</div>
-    </div>
-    <div class="header-info-box"><div class="header-info-label">Date</div><div class="header-info-val" id="date-text">----/--/--</div></div>
-    <div class="header-info-box"><div class="header-info-label" id="weather-desc">Weather</div><div class="header-info-val" id="temp-text">--°C</div></div>
-    <div class="header-time-box"><div class="header-info-label">Time</div><div class="header-time-val" id="clock">00:00</div></div>
-  </div>
-
-  <div class="board-container">
-    <div class="column-pane">
-      <div class="column-title"><span>Northbound (Tsui Ping Road)</span><span style="font-size:0.72vw;color:#94a3b8;">翠屏道北行（往秀茂坪/沙田/順利）</span></div>
-      <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+  <!-- 主容器：分为左右两部分 -->
+  <div class="main-wrapper">
+    
+    <!-- 左侧：巴士信息系统（约80%宽度） -->
+    <div class="main-content">
+      <div class="lcd-header">
+        <img class="logo-box" src="ktmc.png" alt="KTMC">
+        <div class="header-title-box">
+          <div class="header-main-title">Tsui Ping Rd & Cheung Wo Court Bus ETA Display System <div class="warning-badges" id="warning-container"></div></div>
+          <div class="header-sub-title">翠屏道 & 祥和苑 巴士預計到達時間顯示系統</div>
+        </div>
+        <div class="header-info-box"><div class="header-info-label">Date</div><div class="header-info-val" id="date-text">----/--/--</div></div>
+        <div class="header-info-box"><div class="header-info-label" id="weather-desc">Weather</div><div class="header-info-val" id="temp-text">--°C</div></div>
+        <div class="header-time-box"><div class="header-info-label">Time</div><div class="header-time-val" id="clock">00:00</div></div>
       </div>
-      <div class="board-scroll-wrapper" id="tsui-north-wrap"><div class="board-body" id="tsui-north-body"></div></div>
-    </div>
 
-    <div class="column-pane">
-      <div class="column-title"><span>Northbound (Cheung Wo Court)</span><span style="font-size:0.72vw;color:#94a3b8;">祥和苑北行（往秀茂坪/順利/寶達）</span></div>
-      <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+      <div class="board-container">
+        <div class="column-pane">
+          <div class="column-title"><span>Northbound (Tsui Ping Road)</span><span style="font-size:0.72vw;color:#94a3b8;">翠屏道北行（往秀茂坪/沙田/順利）</span></div>
+          <div class="table-head">
+            <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+          </div>
+          <div class="board-scroll-wrapper" id="tsui-north-wrap"><div class="board-body" id="tsui-north-body"></div></div>
+        </div>
+
+        <div class="column-pane">
+          <div class="column-title"><span>Northbound (Cheung Wo Court)</span><span style="font-size:0.72vw;color:#94a3b8;">祥和苑北行（往秀茂坪/順利/寶達）</span></div>
+          <div class="table-head">
+            <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+          </div>
+          <div class="board-scroll-wrapper" id="cheung-north-wrap"><div class="board-body" id="cheung-north-body"></div></div>
+        </div>
+
+        <div class="column-pane">
+          <div class="column-title"><span>Southbound (Tsui Ping Road)</span><span style="font-size:0.72vw;color:#94a3b8;">翠屏道南行（往觀塘市中心/九龍/荃灣）</span></div>
+          <div class="table-head">
+            <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+          </div>
+          <div class="board-scroll-wrapper" id="tsui-south-wrap"><div class="board-body" id="tsui-south-body"></div></div>
+        </div>
+
+        <div class="column-pane">
+          <div class="column-title"><span>Southbound (Cheung Wo Court)</span><span style="font-size:0.72vw;color:#94a3b8;">祥和苑南行（往觀塘/九龍/港島）</span></div>
+          <div class="table-head">
+            <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+          </div>
+          <div class="board-scroll-wrapper" id="cheung-south-wrap"><div class="board-body" id="cheung-south-body"></div></div>
+        </div>
       </div>
-      <div class="board-scroll-wrapper" id="cheung-north-wrap"><div class="board-body" id="cheung-north-body"></div></div>
-    </div>
 
-    <div class="column-pane">
-      <div class="column-title"><span>Southbound (Tsui Ping Road)</span><span style="font-size:0.72vw;color:#94a3b8;">翠屏道南行（往觀塘市中心/九龍/荃灣）</span></div>
-      <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+      <div class="lcd-ticker">
+        <div class="ticker-tag">Info</div>
+        <div class="ticker-text-wrapper"><div class="ticker-text">測試中 僅供參考 | TESTING IN PROGRESS | FOR REFERENCE ONLY | 601/601P 為九巴／城巴聯營線，班次來源：KMB & Citybus Open Data | Thank you for using the Bus ETA Display System!</div></div>
       </div>
-      <div class="board-scroll-wrapper" id="tsui-south-wrap"><div class="board-body" id="tsui-south-body"></div></div>
     </div>
 
-    <div class="column-pane">
-      <div class="column-title"><span>Southbound (Cheung Wo Court)</span><span style="font-size:0.72vw;color:#94a3b8;">祥和苑南行（往觀塘/九龍/港島）</span></div>
-      <div class="table-head">
-        <div>Route <span>路線</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Stop <span>車站</span></div><div style="text-align:right;">Status <span>狀態</span></div>
+    <!-- 右侧：太阳能发电数据栏（约20%宽度） -->
+    <div class="solar-panel">
+      <div class="solar-header">
+        <div class="solar-title">☀️ Solar Power</div>
+        <div class="solar-subtitle">學校太陽能發電系統</div>
       </div>
-      <div class="board-scroll-wrapper" id="cheung-south-wrap"><div class="board-body" id="cheung-south-body"></div></div>
+      <div class="solar-content">
+        <div class="solar-stat">
+          <div class="solar-stat-label">即時發電功率</div>
+          <div class="solar-stat-value">--<span class="solar-stat-unit">kW</span></div>
+        </div>
+        <div class="solar-stat">
+          <div class="solar-stat-label">今日發電量</div>
+          <div class="solar-stat-value">--<span class="solar-stat-unit">kWh</span></div>
+        </div>
+        <div class="solar-stat">
+          <div class="solar-stat-label">本月累計</div>
+          <div class="solar-stat-value">--<span class="solar-stat-unit">kWh</span></div>
+        </div>
+        <div class="solar-stat">
+          <div class="solar-stat-label">減碳當量</div>
+          <div class="solar-stat-value">--<span class="solar-stat-unit">kg CO₂</span></div>
+        </div>
+        <div class="solar-placeholder">
+          <div>等待 API 數據接入...<br>Waiting for data...</div>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <div class="lcd-ticker">
-    <div class="ticker-tag">Info</div>
-    <div class="ticker-text-wrapper"><div class="ticker-text">測試中 僅供參考 | TESTING IN PROGRESS | FOR REFERENCE ONLY | 601/601P 為九巴／城巴聯營線，班次來源：KMB & Citybus Open Data | Thank you for using the Bus ETA Display System!</div></div>
   </div>
 
 <script>
@@ -157,14 +274,14 @@
   const TSUI_PING_NORTH_STOPS = [
     { id: "F9210821429F55B6", track: "KT272", name: "Tsui On House", nameZh: "翠桉樓" },
     { id: "DE925628D8747F6D", track: "KT273", name: "Po Pui Court", nameZh: "寶佩苑" },
-    { id: "71B7CB659DF54E28", track: "KT271", name: "Tsui Ping North Estate Terminus", nameZh: "翠屏北邨總站" }, // 89, 234C, 234D
-    { id: "1AEB39A1738104D3", track: "KT949", name: "Tsui Ping Road Terminus", nameZh: "翠屏道總站" }, // 89X
-    { id: "12AF5B1935BB9735", track: "KT950", name: "Tsui Ping Road Terminus", nameZh: "翠屏道總站" } // 89C
+    { id: "71B7CB659DF54E28", track: "KT271", name: "Tsui Ping North Estate Terminus", nameZh: "翠屏北邨總站" },
+    { id: "1AEB39A1738104D3", track: "KT949", name: "Tsui Ping Road Terminus", nameZh: "翠屏道總站" },
+    { id: "12AF5B1935BB9735", track: "KT950", name: "Tsui Ping Road Terminus", nameZh: "翠屏道總站" }
   ];
   const TSUI_PING_SOUTH_STOPS = [
     { id: "C6E63C45FF2EA573", track: "KT561", name: "Po Pui Court", nameZh: "寶佩苑" },
     { id: "3673A01280621EC2", track: "KT562", name: "Tsui Tsz House", nameZh: "翠梓樓" },
-    { id: "ACF18512CA2861EC", track: "KT948", name: "Tsui Ping Road Terminus", nameZh: "翠屏道總站" } // 11B
+    { id: "ACF18512CA2861EC", track: "KT948", name: "Tsui Ping Road Terminus", nameZh: "翠屏道總站" }
   ];
   const CHEUNG_WO_NORTH_STOPS = [
     { id: "3093477EA64DDA89", track: "KT261", name: "Cheung Wo Court", nameZh: "祥和苑" }
@@ -178,7 +295,6 @@
   const CTB_CHEUNG_WO_SOUTH_STOP = "003039";
   const CTB_CHEUNG_WO_SOUTH_TRACK = "KT533";
 
-  // 預定義所有常態化顯示的路線 (包含總站開出路線)
   const TSUI_N_ROUTES = [
     { route: "89", track: "KT271", trackName: "翠屏北邨總站", dest: "LEK YUEN", destZh: "瀝源" },
     { route: "89C", track: "KT950", trackName: "翠屏道總站", dest: "HENG ON", destZh: "恆安" },
@@ -220,6 +336,19 @@
     { route: "93K", track: "KT534", trackName: "祥和苑", dest: "MONG KOK EAST STATION", destZh: "旺角東站" },
     { route: "N293", track: "KT533", trackName: "祥和苑", dest: "MONG KOK (PARK AVENUE)", destZh: "旺角(柏景灣)" }
   ];
+
+  const CIRCULAR_OVERRIDE = {
+    "14H": {
+      returnStops: ["KT534", "KT561", "KT562"],
+      dest: "YAU TONG",
+      destZh: "油塘"
+    },
+    "13M": {
+      returnStops: ["KT533"],
+      dest: "KWUN TONG (ELEGANCE RD)",
+      destZh: "觀塘(雅麗道)"
+    }
+  };
 
   let tsuiNorthDepartures = [], tsuiSouthDepartures = [];
   let cheungNorthDepartures = [], cheungSouthDepartures = [];
@@ -317,10 +446,7 @@
       const stop = stopIds[i];
       json.data.forEach(item => {
         if (!item.route) return;
-        
-        // 過濾掉回總站的班次 (目的地包含 TSUI PING)
         if (item.dest_en && item.dest_en.toUpperCase().includes("TSUI PING")) return;
-        
         if (item.eta) {
           const t = new Date(item.eta);
           if (!isNaN(t.getTime())) {
@@ -375,20 +501,41 @@
     const routeMap = new Map();
 
     expectedRoutes.forEach(exp => {
+      let dest = exp.dest;
+      let destZh = exp.destZh;
+      let isOverride = false;
+
+      if (CIRCULAR_OVERRIDE[exp.route] && CIRCULAR_OVERRIDE[exp.route].returnStops.includes(exp.track)) {
+        dest = CIRCULAR_OVERRIDE[exp.route].dest;
+        destZh = CIRCULAR_OVERRIDE[exp.route].destZh;
+        isOverride = true;
+      }
+      
+      if (exp.route === "28B" && exp.track === "KT261") {
+        dest = "CHOI FOOK";
+        destZh = "彩福";
+        isOverride = true;
+      }
+
       routeMap.set(exp.route, {
-        route: exp.route, dest: exp.dest, destZh: exp.destZh, list: [],
-        track: exp.track, trackName: exp.trackName
+        route: exp.route, dest: dest, destZh: destZh, list: [],
+        track: exp.track, trackName: exp.trackName,
+        isOverride: isOverride
       });
     });
 
     etas.forEach(eta => {
-      if (!routeMap.has(eta.route)) return; // 只保留預定義路線
+      if (!routeMap.has(eta.route)) return;
       const rd = routeMap.get(eta.route);
       rd.list.push(eta);
-      if (eta.dest && eta.dest !== '--' && eta.dest !== rd.dest) {
-        rd.dest = eta.dest;
-        rd.destZh = eta.destZh;
+      
+      if (!rd.isOverride) {
+        if (eta.dest && eta.dest !== '--' && eta.dest !== rd.dest) {
+          rd.dest = eta.dest;
+          rd.destZh = eta.destZh;
+        }
       }
+      
       if (eta.track && !rd.track) {
         rd.track = eta.track;
         rd.trackName = eta.trackName;
@@ -413,7 +560,6 @@
 
   async function fetchAPIData() {
     try {
-      // 整合所有站牌 (包含總站) 並去重
       const allStops = [
         ...TSUI_PING_NORTH_STOPS,
         ...TSUI_PING_SOUTH_STOPS,
@@ -427,7 +573,6 @@
         fetchCitybusEtas()
       ]);
 
-      // 根據路線歸類到不同的面板
       const tN = allKMB.filter(e => TSUI_N_ROUTES.some(r => r.route === e.route));
       const tS = allKMB.filter(e => TSUI_S_ROUTES.some(r => r.route === e.route));
       const cN = allKMB.filter(e => CHEUNG_N_ROUTES.some(r => r.route === e.route));
