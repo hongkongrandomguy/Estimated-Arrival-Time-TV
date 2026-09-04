@@ -28,9 +28,11 @@
     .solar-subtitle { font-size: 0.68vw; color: #fef3c7; margin-top: 0.15vw; }
     .calib-btn { position: absolute; top: 0.3vw; right: 0.3vw; background: rgba(0,0,0,0.45); color: #fff; border: 1px solid #64748b; border-radius: 3px; font-size: 0.8vw; padding: 0.05vw 0.45vw; cursor: pointer; z-index: 5; }
 
-    .solar-embed-wrap { position: relative; flex: 1; overflow: hidden; background: #0f172a; }
-    #solar-embed-frame { position: absolute; border: 0; transform-origin: 0 0; background: #ffffff; }
+    .solar-embed-wrap { position: relative; flex: 1; overflow: hidden; background: #0f172a; display: flex; flex-direction: column; }
+    .embed-slot { position: relative; overflow: hidden; flex-shrink: 0; width: 100%; }
+    .embed-slot iframe { position: absolute; border: 0; transform-origin: 0 0; background: #ffffff; }
     .embed-cover { position: absolute; left: 0; right: 0; bottom: 0; background: #0f172a; display: none; z-index: 2; }
+    #embed-slot-b { border-top: 2px solid #2d3b4e; }
     .embed-placeholder {
       position: absolute; inset: 0; display: none; z-index: 3;
       flex-direction: column; align-items: center; justify-content: center; gap: 0.6vw;
@@ -41,6 +43,9 @@
     .calib-overlay { position: absolute; inset: 0; z-index: 6; background: rgba(2,4,8,0.93); display: none; flex-direction: column; gap: 0.5vw; padding: 0.6vw; overflow: auto; }
     .calib-overlay.open { display: flex; }
     .calib-title { font-size: 0.8vw; color: #fcd34d; font-weight: 700; }
+    .calib-targets { display: flex; gap: 0.3vw; }
+    .calib-targets button { flex: 1; background: #1e293b; color: #94a3b8; border: 1px solid #475569; border-radius: 3px; font-size: 0.7vw; padding: 0.3vw 0; cursor: pointer; }
+    .calib-targets button.active { background: #38bdf8; color: #000; font-weight: 700; border-color: #38bdf8; }
     .calib-readout { font-size: 0.72vw; color: #38bdf8; margin-top: 0.2vw; }
     .calib-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35vw; }
     .calib-grid button { background: #1e293b; color: #e2e8f0; border: 1px solid #475569; border-radius: 3px; font-size: 0.72vw; padding: 0.45vw 0; cursor: pointer; }
@@ -155,7 +160,6 @@
     .api-dot.loading { background: #f59e0b; box-shadow: 0 0 4px #f59e0b; animation: pulse-dot 1s infinite; }
     @keyframes pulse-dot { 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
 
-    /* 顯示模式切換按鈕 */
     .mode-switch { display: flex; gap: 0.25vw; margin-left: auto; align-items: center; }
     .mode-switch button {
       background: #1e293b; color: #94a3b8; border: 1px solid #475569; border-radius: 3px;
@@ -234,7 +238,7 @@
       </div>
     </div>
 
-    <!-- 右側：太陽能網頁畫中畫 -->
+    <!-- 右側：太陽能畫中畫（上：方塊區 / 下：圖表區） -->
     <div class="solar-panel">
       <div class="solar-header">
         <div class="solar-title">☀️ 學校太陽能發電系統</div>
@@ -242,14 +246,24 @@
         <div class="calib-btn" id="calib-toggle">⚙</div>
       </div>
       <div class="solar-embed-wrap" id="solar-embed-wrap">
-        <iframe id="solar-embed-frame" src="about:blank"></iframe>
-        <div class="embed-cover" id="embed-cover"></div>
+        <div class="embed-slot" id="embed-slot-a">
+          <iframe id="solar-embed-frame-a" src="about:blank"></iframe>
+          <div class="embed-cover" id="embed-cover-a"></div>
+        </div>
+        <div class="embed-slot" id="embed-slot-b">
+          <iframe id="solar-embed-frame-b" src="about:blank"></iframe>
+          <div class="embed-cover" id="embed-cover-b"></div>
+        </div>
         <div class="embed-placeholder" id="embed-placeholder">
           <div class="big">☀️</div>
           <div>尚未設定網站連結</div>
         </div>
         <div class="calib-overlay" id="calib-overlay">
-          <div class="calib-title">裁切校正模式（只影響合并顯示的側欄裁切）</div>
+          <div class="calib-title">裁切校正（合并顯示用）</div>
+          <div class="calib-targets">
+            <button id="calib-target-blocks" class="active">方塊區</button>
+            <button id="calib-target-chart">圖表區</button>
+          </div>
           <div class="calib-readout" id="calib-readout"></div>
           <div class="calib-grid">
             <button data-act="xl10">◀◀</button><button data-act="xl1">◀</button><button data-act="xr1">▶</button><button data-act="xr10">▶▶</button>
@@ -258,38 +272,42 @@
             <button data-act="h-50">H-</button><button data-act="h-10">h-</button><button data-act="h+10">h+</button><button data-act="h+50">H+</button>
             <button data-act="reset">重置</button><button data-act="close">完成 ✔</button>
           </div>
-          <div class="calib-note">◀▶▲▼ 移動裁切視窗；W/H 調整裁切範圍。調整自動儲存。單獨全頁顯示時不使用裁切。</div>
+          <div class="calib-note">先選「方塊區／圖表區」，再用 ◀▶▲▼ 移動、W/H 調範圍。調整自動儲存。請在合并顯示下校正。</div>
         </div>
       </div>
     </div>
   </div>
 
 <script>
-  /* ================= 太陽能網頁畫中畫設定 ================= */
+  /* ================= 太陽能畫中畫設定（兩個裁切區） ================= */
+  const EMBED_DEFAULTS = {
+    blocks: { offsetX: 170, offsetY: 180, cropW: 600, cropH: 280 },   /* 左上數據方塊 */
+    chart:  { offsetX: 950, offsetY: 110, cropW: 960, cropH: 450 }    /* 右邊實時功率圖表 */
+  };
   const SOLAR_EMBED = {
     url: "https://www.shinemonitor.com/main.html",
     pageWidth: 1920,
     pageHeight: 1080,
-    offsetX: 175,
-    offsetY: 175,
-    cropW: 600,
-    cropH: 280,
+    blocks: Object.assign({}, EMBED_DEFAULTS.blocks),
+    chart: Object.assign({}, EMBED_DEFAULTS.chart),
     refreshSec: 300
   };
   const EMBED_STORE_KEY = 'ktmc_embed_calib';
   const MODE_STORE_KEY = 'ktmc_display_mode';
-
-  /* 顯示模式：auto=跟時間表 / merged=永遠合并 / alt=永遠間隔 */
   let displayOverride = 'auto';
+  let calibTarget = 'blocks';
 
   function loadCalib() {
     try {
       const s = JSON.parse(localStorage.getItem(EMBED_STORE_KEY));
       if (s) {
-        if (typeof s.offsetX === 'number') SOLAR_EMBED.offsetX = s.offsetX;
-        if (typeof s.offsetY === 'number') SOLAR_EMBED.offsetY = s.offsetY;
-        if (typeof s.cropW === 'number') SOLAR_EMBED.cropW = s.cropW;
-        if (typeof s.cropH === 'number') SOLAR_EMBED.cropH = s.cropH;
+        ['blocks', 'chart'].forEach(k => {
+          if (s[k]) {
+            ['offsetX', 'offsetY', 'cropW', 'cropH'].forEach(f => {
+              if (typeof s[k][f] === 'number') SOLAR_EMBED[k][f] = s[k][f];
+            });
+          }
+        });
       }
       const m = localStorage.getItem(MODE_STORE_KEY);
       if (m === 'auto' || m === 'merged' || m === 'alt') displayOverride = m;
@@ -297,70 +315,94 @@
   }
   function saveCalib() {
     try {
-      localStorage.setItem(EMBED_STORE_KEY, JSON.stringify({
-        offsetX: SOLAR_EMBED.offsetX, offsetY: SOLAR_EMBED.offsetY,
-        cropW: SOLAR_EMBED.cropW, cropH: SOLAR_EMBED.cropH
-      }));
+      localStorage.setItem(EMBED_STORE_KEY, JSON.stringify({ blocks: SOLAR_EMBED.blocks, chart: SOLAR_EMBED.chart }));
     } catch (e) {}
   }
 
-  /* ★ 合并顯示：側欄裁切方塊放大；單獨顯示：全頁縮放貼合、不裁切不放大 */
+  function positionCrop(frame, cover, cfg, scale) {
+    frame.style.width = SOLAR_EMBED.pageWidth + 'px';
+    frame.style.height = SOLAR_EMBED.pageHeight + 'px';
+    frame.style.transform = 'scale(' + scale + ')';
+    frame.style.left = (-cfg.offsetX * scale) + 'px';
+    frame.style.top = (-cfg.offsetY * scale) + 'px';
+    if (cover) {
+      cover.style.top = (cfg.cropH * scale) + 'px';
+      cover.style.display = 'block';
+    }
+  }
+
+  function fitFullPage(frame, slot) {
+    const scale = Math.min(slot.clientWidth / SOLAR_EMBED.pageWidth, slot.clientHeight / SOLAR_EMBED.pageHeight);
+    frame.style.width = SOLAR_EMBED.pageWidth + 'px';
+    frame.style.height = SOLAR_EMBED.pageHeight + 'px';
+    frame.style.transform = 'scale(' + scale + ')';
+    frame.style.left = ((slot.clientWidth - SOLAR_EMBED.pageWidth * scale) / 2) + 'px';
+    frame.style.top = ((slot.clientHeight - SOLAR_EMBED.pageHeight * scale) / 2) + 'px';
+  }
+
+  /* ★ 合并顯示：slot A=方塊區（上）、slot B=圖表區（下）；單獨顯示：slot A 全頁、slot B 隱藏 */
   function layoutEmbed() {
     const wrap = document.getElementById('solar-embed-wrap');
-    const frame = document.getElementById('solar-embed-frame');
-    const cover = document.getElementById('embed-cover');
-    if (!wrap || !frame || !wrap.clientWidth || !wrap.clientHeight) return;
+    const slotA = document.getElementById('embed-slot-a');
+    const slotB = document.getElementById('embed-slot-b');
+    const frameA = document.getElementById('solar-embed-frame-a');
+    const frameB = document.getElementById('solar-embed-frame-b');
+    const coverA = document.getElementById('embed-cover-a');
+    const coverB = document.getElementById('embed-cover-b');
+    if (!wrap || !frameA || !wrap.clientWidth || !wrap.clientHeight) return;
 
     const solarOnly = document.body.classList.contains('show-solar-only');
 
     if (solarOnly) {
-      const scale = Math.min(wrap.clientWidth / SOLAR_EMBED.pageWidth, wrap.clientHeight / SOLAR_EMBED.pageHeight);
-      frame.style.width = SOLAR_EMBED.pageWidth + 'px';
-      frame.style.height = SOLAR_EMBED.pageHeight + 'px';
-      frame.style.transform = 'scale(' + scale + ')';
-      frame.style.left = ((wrap.clientWidth - SOLAR_EMBED.pageWidth * scale) / 2) + 'px';
-      frame.style.top = ((wrap.clientHeight - SOLAR_EMBED.pageHeight * scale) / 2) + 'px';
-      if (cover) cover.style.display = 'none';
+      slotB.style.display = 'none';
+      slotA.style.height = '100%';
+      fitFullPage(frameA, slotA);
+      coverA.style.display = 'none';
     } else {
-      const scale = wrap.clientWidth / SOLAR_EMBED.cropW;
-      frame.style.width = SOLAR_EMBED.pageWidth + 'px';
-      frame.style.height = SOLAR_EMBED.pageHeight + 'px';
-      frame.style.transform = 'scale(' + scale + ')';
-      frame.style.left = (-SOLAR_EMBED.offsetX * scale) + 'px';
-      frame.style.top = (-SOLAR_EMBED.offsetY * scale) + 'px';
-      if (cover) {
-        cover.style.top = (SOLAR_EMBED.cropH * scale) + 'px';
-        cover.style.display = 'block';
-      }
+      slotB.style.display = 'block';
+      const w = wrap.clientWidth;
+
+      const sA = w / SOLAR_EMBED.blocks.cropW;
+      slotA.style.height = (SOLAR_EMBED.blocks.cropH * sA) + 'px';
+      positionCrop(frameA, coverA, SOLAR_EMBED.blocks, sA);
+
+      const sB = w / SOLAR_EMBED.chart.cropW;
+      slotB.style.height = (SOLAR_EMBED.chart.cropH * sB) + 'px';
+      positionCrop(frameB, coverB, SOLAR_EMBED.chart, sB);
     }
   }
 
   function updateCalibReadout() {
     const r = document.getElementById('calib-readout');
-    if (r) r.textContent = 'X:' + SOLAR_EMBED.offsetX + '  Y:' + SOLAR_EMBED.offsetY +
-                           '  W:' + SOLAR_EMBED.cropW + '  H:' + SOLAR_EMBED.cropH;
+    const c = SOLAR_EMBED[calibTarget];
+    if (r) r.textContent = '【' + (calibTarget === 'blocks' ? '方塊區' : '圖表區') + '】 X:' + c.offsetX +
+                           '  Y:' + c.offsetY + '  W:' + c.cropW + '  H:' + c.cropH;
+  }
+  function updateCalibTargetUI() {
+    document.getElementById('calib-target-blocks').classList.toggle('active', calibTarget === 'blocks');
+    document.getElementById('calib-target-chart').classList.toggle('active', calibTarget === 'chart');
   }
 
   function calibAct(act) {
-    const E = SOLAR_EMBED;
+    const E = SOLAR_EMBED[calibTarget];
     switch (act) {
       case 'xl10': E.offsetX = Math.max(0, E.offsetX - 10); break;
       case 'xl1':  E.offsetX = Math.max(0, E.offsetX - 1); break;
-      case 'xr10': E.offsetX = Math.min(E.pageWidth - 100, E.offsetX + 10); break;
-      case 'xr1':  E.offsetX = Math.min(E.pageWidth - 100, E.offsetX + 1); break;
+      case 'xr10': E.offsetX = Math.min(SOLAR_EMBED.pageWidth - 100, E.offsetX + 10); break;
+      case 'xr1':  E.offsetX = Math.min(SOLAR_EMBED.pageWidth - 100, E.offsetX + 1); break;
       case 'yu10': E.offsetY = Math.max(0, E.offsetY - 10); break;
       case 'yu1':  E.offsetY = Math.max(0, E.offsetY - 1); break;
-      case 'yd10': E.offsetY = Math.min(E.pageHeight - 50, E.offsetY + 10); break;
-      case 'yd1':  E.offsetY = Math.min(E.pageHeight - 50, E.offsetY + 1); break;
+      case 'yd10': E.offsetY = Math.min(SOLAR_EMBED.pageHeight - 50, E.offsetY + 10); break;
+      case 'yd1':  E.offsetY = Math.min(SOLAR_EMBED.pageHeight - 50, E.offsetY + 1); break;
       case 'w-50': E.cropW = Math.max(100, E.cropW - 50); break;
       case 'w-10': E.cropW = Math.max(100, E.cropW - 10); break;
-      case 'w+10': E.cropW = Math.min(E.pageWidth, E.cropW + 10); break;
-      case 'w+50': E.cropW = Math.min(E.pageWidth, E.cropW + 50); break;
+      case 'w+10': E.cropW = Math.min(SOLAR_EMBED.pageWidth, E.cropW + 10); break;
+      case 'w+50': E.cropW = Math.min(SOLAR_EMBED.pageWidth, E.cropW + 50); break;
       case 'h-50': E.cropH = Math.max(50, E.cropH - 50); break;
       case 'h-10': E.cropH = Math.max(50, E.cropH - 10); break;
-      case 'h+10': E.cropH = Math.min(E.pageHeight, E.cropH + 10); break;
-      case 'h+50': E.cropH = Math.min(E.pageHeight, E.cropH + 50); break;
-      case 'reset': E.offsetX = 175; E.offsetY = 175; E.cropW = 600; E.cropH = 280; break;
+      case 'h+10': E.cropH = Math.min(SOLAR_EMBED.pageHeight, E.cropH + 10); break;
+      case 'h+50': E.cropH = Math.min(SOLAR_EMBED.pageHeight, E.cropH + 50); break;
+      case 'reset': Object.assign(E, EMBED_DEFAULTS[calibTarget]); break;
     }
     saveCalib();
     layoutEmbed();
@@ -368,11 +410,11 @@
   }
 
   function initEmbed() {
-    const frame = document.getElementById('solar-embed-frame');
+    const frames = [document.getElementById('solar-embed-frame-a'), document.getElementById('solar-embed-frame-b')];
     if (SOLAR_EMBED.url && SOLAR_EMBED.url !== 'about:blank') {
-      frame.src = SOLAR_EMBED.url;
+      frames.forEach(f => { f.src = SOLAR_EMBED.url; });
       if (SOLAR_EMBED.refreshSec > 0) {
-        setInterval(() => { frame.src = SOLAR_EMBED.url; }, SOLAR_EMBED.refreshSec * 1000);
+        setInterval(() => { frames.forEach(f => { f.src = SOLAR_EMBED.url; }); }, SOLAR_EMBED.refreshSec * 1000);
       }
     } else {
       document.getElementById('embed-placeholder').style.display = 'flex';
@@ -381,6 +423,12 @@
     document.getElementById('calib-toggle').addEventListener('click', () => {
       document.getElementById('calib-overlay').classList.toggle('open');
       updateCalibReadout();
+    });
+    document.getElementById('calib-target-blocks').addEventListener('click', () => {
+      calibTarget = 'blocks'; updateCalibTargetUI(); updateCalibReadout();
+    });
+    document.getElementById('calib-target-chart').addEventListener('click', () => {
+      calibTarget = 'chart'; updateCalibTargetUI(); updateCalibReadout();
     });
     document.querySelectorAll('.calib-grid button').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -829,7 +877,7 @@
     });
   }
 
-  /* ================= 顯示模式控制（自動時間表 + 手動覆蓋） ================= */
+  /* ================= 顯示模式控制 ================= */
   function updateDisplayMode() {
     const now = new Date();
     const t = now.getHours() * 60 + now.getMinutes();
@@ -839,7 +887,7 @@
     let simultaneous;
     if (displayOverride === 'merged') simultaneous = true;
     else if (displayOverride === 'alt') simultaneous = false;
-    else simultaneous = (t >= 735 && t < 780) || (t >= 915 && t < 1005); /* 12:15-13:00 / 15:15-16:45 */
+    else simultaneous = (t >= 735 && t < 780) || (t >= 915 && t < 1005);
 
     if (simultaneous) {
       body.classList.remove('show-solar-only');
@@ -904,7 +952,6 @@
     loadCalib();
     initEmbed();
 
-    /* 模式切換按鈕 */
     document.querySelectorAll('#mode-switch button').forEach(b => {
       b.addEventListener('click', () => setModeOverride(b.getAttribute('data-mode')));
     });
