@@ -16,7 +16,7 @@
     .main-wrapper { display: flex; flex-grow: 1; gap: 0.6vw; overflow: hidden; }
     .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; transition: all 0.5s ease; }
 
-    /* ===== 右側太陽能欄 (約20%) ===== */
+    /* ===== 右側太陽能欄 (約20%)：畫中畫嵌入 ===== */
     .solar-panel {
       width: 20%; min-width: 210px;
       background: linear-gradient(180deg, #0f172a, #1e293b);
@@ -27,29 +27,22 @@
     .solar-header { background: linear-gradient(135deg, #f59e0b, #d97706); padding: 0.7vw 0.8vw; text-align: center; flex-shrink: 0; }
     .solar-title { font-size: 1.15vw; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
     .solar-subtitle { font-size: 0.68vw; color: #fef3c7; margin-top: 0.15vw; }
-    .solar-scroll-wrap { flex-grow: 1; overflow: hidden; position: relative; }
-    .solar-scroll-body { position: absolute; width: 100%; top: 0; padding: 0.6vw; will-change: transform; }
-    .solar-inner { display: flex; flex-direction: column; gap: 0.6vw; margin-bottom: 4px; }
+
+    .solar-embed-wrap { position: relative; flex: 1; overflow: hidden; background: #0f172a; }
+    #solar-embed-frame { position: absolute; border: 0; transform-origin: 0 0; background: #ffffff; }
+    .embed-placeholder {
+      position: absolute; inset: 0; display: none;
+      flex-direction: column; align-items: center; justify-content: center; gap: 0.6vw;
+      color: #94a3b8; font-size: 0.85vw; text-align: center; padding: 1vw;
+    }
+    .embed-placeholder .big { font-size: 2.4vw; }
 
     /* 全屏太陽能模式 */
     body.show-solar-only .main-wrapper { flex-direction: column; }
     body.show-solar-only .main-content { display: none; }
     body.show-solar-only .solar-panel { width: 100%; min-width: 100%; flex-grow: 1; border: 3px solid #f59e0b; }
-    body.show-solar-only .solar-inner { max-width: 900px; margin: 0 auto; padding: 1vw; }
-    body.show-solar-only .solar-power-val { font-size: 4vw; }
-    body.show-solar-only .solar-val { font-size: 2vw; }
     body.show-solar-only .solar-title { font-size: 2vw; }
-
-    .solar-live { background: rgba(0,0,0,0.35); border: 1px solid #334155; border-radius: 4px; padding: 0.7vw; }
-    .solar-stat-label { font-size: 0.72vw; color: #94a3b8; margin-bottom: 0.2vw; }
-    .solar-power-val { font-size: 2.6vw; font-weight: 700; color: #fbbf24; line-height: 1.1; }
-    .solar-power-unit { font-size: 1.1vw; color: #fcd34d; }
-    .solar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5vw; margin-top: 0.6vw; }
-    .solar-cell { background: rgba(0,0,0,0.3); border: 1px solid #334155; border-radius: 4px; padding: 0.5vw 0.55vw; }
-    .solar-cell.wide { grid-column: 1 / -1; }
-    .solar-val { font-size: 1.25vw; font-weight: 700; color: #fcd34d; }
-    .solar-unit { font-size: 0.66vw; color: #94a3b8; }
-    .solar-api-status { margin-top: 0.5vw; font-size: 0.66vw; color: #94a3b8; text-align: center; }
+    body.show-solar-only .solar-subtitle { font-size: 1vw; }
 
     .lcd-header {
       display: grid; grid-template-columns: auto 1fr auto auto auto auto auto; align-items: center; gap: 1vw;
@@ -120,8 +113,6 @@
     .time-main { font-size: 1.25vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
     .time-sub { font-size: 0.62vw; color: #94a3b8; text-transform: uppercase; }
 
-    /* ★ 走馬燈修正：裁切只放在外層 .dest-col，內層文字元素不可 overflow:hidden，
-       否則平移時被裁掉的後半段永遠無法顯示 */
     .dest-col { overflow: hidden; padding-right: 0.4vw; }
     .dest-main { font-size: 1.05vw; color: #fff; white-space: nowrap; will-change: transform; }
     .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; will-change: transform; }
@@ -178,7 +169,7 @@
       <div class="api-status-bar">
         <div class="api-status-item"><span class="api-dot loading" id="kmb-api-dot"></span><span id="kmb-api-text">KMB: 連接中...</span></div>
         <div class="api-status-item"><span class="api-dot loading" id="ctb-api-dot"></span><span id="ctb-api-text">CTB: 連接中...</span></div>
-        <div class="api-status-item"><span class="api-dot loading" id="solar-api-dot"></span><span id="solar-api-text">Solar: 連接中...</span></div>
+        <div class="api-status-item"><span class="api-dot online"></span><span>Solar: 畫中畫嵌入</span></div>
         <div class="api-status-item" style="margin-left: auto;"><span>上次更新: <span id="last-update">--:--:--</span></span></div>
       </div>
 
@@ -222,174 +213,58 @@
       </div>
     </div>
 
-    <!-- 右側：學校太陽能發電數據欄 (20%) -->
+    <!-- 右側：太陽能網頁畫中畫 -->
     <div class="solar-panel">
       <div class="solar-header">
         <div class="solar-title">☀️ 學校太陽能發電系統</div>
         <div class="solar-subtitle">Kwun Tong Maryknoll College · Solar PV</div>
       </div>
-      <div class="solar-scroll-wrap" id="solar-scroll-wrap">
-        <div class="solar-scroll-body" id="solar-scroll-body">
-          <div class="solar-inner">
-            <div class="solar-live">
-              <div class="solar-stat-label">即時發電功率 Real-time Power</div>
-              <div class="solar-power-val"><span class="solar-power-num">--</span><span class="solar-power-unit"> kW</span></div>
-              <div class="solar-grid">
-                <div class="solar-cell"><div class="solar-stat-label">今日發電</div><div class="solar-val solar-energy-today">--</div><div class="solar-unit">kWh</div></div>
-                <div class="solar-cell"><div class="solar-stat-label">本月發電</div><div class="solar-val solar-energy-month">--</div><div class="solar-unit">kWh</div></div>
-                <div class="solar-cell"><div class="solar-stat-label">本年發電</div><div class="solar-val solar-energy-year">--</div><div class="solar-unit">kWh</div></div>
-                <div class="solar-cell"><div class="solar-stat-label">累計發電</div><div class="solar-val solar-energy-total">--</div><div class="solar-unit">kWh</div></div>
-                <div class="solar-cell"><div class="solar-stat-label">今日收益</div><div class="solar-val solar-income-today">--</div><div class="solar-unit">HK$</div></div>
-                <div class="solar-cell"><div class="solar-stat-label">累計收益</div><div class="solar-val solar-income-total">--</div><div class="solar-unit">HK$</div></div>
-                <div class="solar-cell wide"><div class="solar-stat-label">累計 CO₂ 減排</div><div class="solar-val solar-co2-total">--</div><div class="solar-unit">kg</div></div>
-              </div>
-              <div class="solar-api-status">API: 初始化中…</div>
-            </div>
-          </div>
+      <div class="solar-embed-wrap" id="solar-embed-wrap">
+        <iframe id="solar-embed-frame" src="about:blank"></iframe>
+        <div class="embed-placeholder" id="embed-placeholder">
+          <div class="big">☀️</div>
+          <div>尚未設定網站連結</div>
+          <div>請在代碼 SOLAR_EMBED.url 填入連結</div>
         </div>
       </div>
     </div>
   </div>
 
 <script>
-  /* ================= 太陽能 API 設定 (ShineMonitor) ================= */
-  const SOLAR_CONFIG = {
-    baseUrl: "https://api.shinemonitor.com/",
-    username: "ktmc_solar",
-    password: "123456",
-    companyKey: "",
-    plantId: "10180693",
-    unitProfit: 5.0,
-    co2Factor: 0.7
+  /* ================= 太陽能網頁畫中畫設定 ================= */
+  const SOLAR_EMBED = {
+    url: "https://www.shinemonitor.com/main.html?1788508788844&index=undefined#",   // ← ★ 把你的連結貼在這裡 ★
+    fitWidth: true,     // true = 自動縮放至貼合視窗寬度
+    designWidth: 1280,  // 該網頁原本設計的寬度（越大＝顯示範圍越廣、字越小）
+    scale: 0.35,        // fitWidth=false 時使用的手動縮放比例
+    offsetX: 0,         // 裁切：原網頁水平偏移 px（只顯示某部分時使用）
+    offsetY: 0,         // 裁切：原網頁垂直偏移 px
+    refreshSec: 300     // 每 X 秒自動重新載入（0 = 不重整）
   };
-  const COMPANY_KEY_CANDIDATES = ["", "shinemonitor", "web", "shine"];
 
-  /* ---- 純 JS SHA1 ---- */
-  function sha1(str) {
-    const utf8 = unescape(encodeURIComponent(str));
-    const ml = utf8.length;
-    const words = [];
-    for (let i = 0; i < ml; i++) words[i >> 2] |= (utf8.charCodeAt(i) & 0xFF) << (24 - (i % 4) * 8);
-    words[ml >> 2] |= 0x80 << (24 - (ml % 4) * 8);
-    let lenWords = words.length;
-    while (lenWords % 16 !== 14) { words[lenWords] = 0; lenWords++; }
-    const bitLen = ml * 8;
-    words[lenWords] = Math.floor(bitLen / 0x100000000);
-    words[lenWords + 1] = bitLen >>> 0;
-    let H0 = 0x67452301, H1 = 0xEFCDAB89, H2 = 0x98BADCFE, H3 = 0x10325476, H4 = 0xC3D2E1F0;
-    const w = new Array(80);
-    for (let b = 0; b < words.length; b += 16) {
-      for (let i = 0; i < 16; i++) w[i] = words[b + i] | 0;
-      for (let i = 16; i < 80; i++) { const n = w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16]; w[i] = (n << 1) | (n >>> 31); }
-      let a = H0, bb = H1, c = H2, d = H3, e = H4;
-      for (let i = 0; i < 80; i++) {
-        let f, k;
-        if (i < 20) { f = (bb & c) | ((~bb) & d); k = 0x5A827999; }
-        else if (i < 40) { f = bb ^ c ^ d; k = 0x6ED9EBA1; }
-        else if (i < 60) { f = (bb & c) | (bb & d) | (c & d); k = 0x8F1BBCDC; }
-        else { f = bb ^ c ^ d; k = 0xCA62C1D6; }
-        const t = (((a << 5) | (a >>> 27)) + f + e + k + w[i]) | 0;
-        e = d; d = c; c = (bb << 30) | (bb >>> 2); bb = a; a = t;
+  function layoutEmbed() {
+    const wrap = document.getElementById('solar-embed-wrap');
+    const frame = document.getElementById('solar-embed-frame');
+    if (!wrap || !frame || !wrap.clientWidth || !wrap.clientHeight) return;
+    const scale = SOLAR_EMBED.fitWidth ? (wrap.clientWidth / SOLAR_EMBED.designWidth) : SOLAR_EMBED.scale;
+    frame.style.width = (wrap.clientWidth / scale) + 'px';
+    frame.style.height = (wrap.clientHeight / scale) + 'px';
+    frame.style.transform = 'scale(' + scale + ')';
+    frame.style.left = (-SOLAR_EMBED.offsetX * scale) + 'px';
+    frame.style.top = (-SOLAR_EMBED.offsetY * scale) + 'px';
+  }
+
+  function initEmbed() {
+    const frame = document.getElementById('solar-embed-frame');
+    if (SOLAR_EMBED.url && SOLAR_EMBED.url.indexOf('請替換') === -1 && SOLAR_EMBED.url !== 'about:blank') {
+      frame.src = SOLAR_EMBED.url;
+      if (SOLAR_EMBED.refreshSec > 0) {
+        setInterval(() => { frame.src = SOLAR_EMBED.url; }, SOLAR_EMBED.refreshSec * 1000);
       }
-      H0 = (H0 + a) | 0; H1 = (H1 + bb) | 0; H2 = (H2 + c) | 0; H3 = (H3 + d) | 0; H4 = (H4 + e) | 0;
+    } else {
+      document.getElementById('embed-placeholder').style.display = 'flex';
     }
-    return [H0, H1, H2, H3, H4].map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
-  }
-
-  let solarToken = null, solarSecret = null, solarExpire = 0;
-
-  function setSolarText(cls, txt) {
-    document.querySelectorAll('.' + cls).forEach(el => el.textContent = txt);
-  }
-  function setSolarStatus(txt) { setSolarText('solar-api-status', txt); }
-
-  function updateApiStatus(api, isOnline) {
-    const dotEl = document.getElementById(api + '-api-dot');
-    const textEl = document.getElementById(api + '-api-text');
-    if (dotEl) dotEl.className = 'api-dot ' + (isOnline ? 'online' : 'offline');
-    if (textEl) {
-      const names = { kmb: 'KMB', ctb: 'CTB', solar: 'Solar' };
-      textEl.textContent = names[api] + ': ' + (isOnline ? '在線' : '離線');
-    }
-    if (api !== 'solar') updateBusApiStatus();
-  }
-
-  function updateBusApiStatus() {
-    const kmbOn = document.getElementById('kmb-api-dot').classList.contains('online');
-    const ctbOn = document.getElementById('ctb-api-dot').classList.contains('online');
-    const el = document.getElementById('bus-api-status');
-    if (!el) return;
-    if (kmbOn && ctbOn) { el.textContent = '在線'; el.style.color = '#22c55e'; }
-    else if (kmbOn || ctbOn) { el.textContent = '部分'; el.style.color = '#f59e0b'; }
-    else { el.textContent = '離線'; el.style.color = '#ef4444'; }
-  }
-
-  async function solarLogin() {
-    const keys = SOLAR_CONFIG.companyKey ? [SOLAR_CONFIG.companyKey] : COMPANY_KEY_CANDIDATES;
-    let lastErr = 'unknown';
-    for (const key of keys) {
-      try {
-        const salt = Date.now();
-        const action = '&action=auth&usr=' + SOLAR_CONFIG.username + '&company-key=' + key;
-        const sign = sha1('' + salt + sha1(SOLAR_CONFIG.password) + action);
-        const url = SOLAR_CONFIG.baseUrl + '?sign=' + sign + '&salt=' + salt + action;
-        const res = await fetch(url);
-        const json = await res.json();
-        if (json && json.err === 0 && json.dat) {
-          solarToken = json.dat.token;
-          solarSecret = json.dat.secret;
-          solarExpire = Date.now() + (json.dat.expire || 3600) * 1000;
-          return true;
-        }
-        lastErr = 'err ' + (json ? json.err : 'network');
-      } catch (e) { lastErr = e.message; }
-    }
-    throw new Error('auth fail: ' + lastErr);
-  }
-
-  async function solarRequest(actionParams) {
-    if (!solarToken || Date.now() > solarExpire - 60000) await solarLogin();
-    const salt = Date.now();
-    const sign = sha1('' + salt + solarSecret + solarToken + actionParams);
-    const url = SOLAR_CONFIG.baseUrl + '?sign=' + sign + '&salt=' + salt + '&token=' + solarToken + actionParams;
-    const res = await fetch(url);
-    return await res.json();
-  }
-
-  async function fetchSolarData() {
-    try {
-      const pJson = await solarRequest('&action=queryPlantActiveOuputPowerCurrent&plantid=' + SOLAR_CONFIG.plantId);
-      if (pJson && pJson.err === 0 && pJson.dat) {
-        setSolarText('solar-power-num', parseFloat(pJson.dat.power || 0).toFixed(2));
-      }
-      const eJson = await solarRequest('&action=queryPlantCurrentData&plantid=' + SOLAR_CONFIG.plantId + '&par=ENERGY_TODAY,ENERGY_MONTH,ENERGY_YEAR,ENERGY_TOTAL');
-      if (eJson && eJson.err === 0 && Array.isArray(eJson.dat)) {
-        const v = eJson.dat.map(d => parseFloat(d.val || 0));
-        const today = v[0] || 0, month = v[1] || 0, year = v[2] || 0, total = v[3] || 0;
-        setSolarText('solar-energy-today', today.toFixed(1));
-        setSolarText('solar-energy-month', month.toFixed(1));
-        setSolarText('solar-energy-year', year.toFixed(1));
-        setSolarText('solar-energy-total', total.toFixed(1));
-        setSolarText('solar-income-today', (today * SOLAR_CONFIG.unitProfit).toFixed(2));
-        setSolarText('solar-income-total', (total * SOLAR_CONFIG.unitProfit).toFixed(2));
-        setSolarText('solar-co2-total', (total * SOLAR_CONFIG.co2Factor).toFixed(1));
-      }
-      setSolarStatus('API: 在線 Online · 電站 ' + SOLAR_CONFIG.plantId);
-      updateApiStatus('solar', true);
-    } catch (e) {
-      solarToken = null;
-      setSolarStatus('API: 離線/連接失敗 (' + e.message + ')');
-      updateApiStatus('solar', false);
-    }
-  }
-
-  function setupSolarScroll() {
-    const wrap = document.getElementById('solar-scroll-wrap');
-    const body = document.getElementById('solar-scroll-body');
-    if (!wrap || !body || !body.children.length) return;
-    while (body.children.length > 1) body.removeChild(body.lastChild);
-    const copy = body.children[0];
-    if (copy.offsetHeight + 4 > wrap.clientHeight) body.appendChild(copy.cloneNode(true));
+    layoutEmbed();
   }
 
   /* ================= 巴士系統 ================= */
@@ -467,7 +342,7 @@
   let tsuiNorthDepartures = [], tsuiSouthDepartures = [];
   let cheungNorthDepartures = [], cheungSouthDepartures = [];
   let isDataLoaded = false;
-  const scrollState = { tN: 0, tS: 0, cN: 0, cS: 0, solar: 0 };
+  const scrollState = { tN: 0, tS: 0, cN: 0, cS: 0 };
   let lastTs = null;
   const marqueeT0 = performance.now();
 
@@ -611,6 +486,27 @@
     return etas;
   }
 
+  function updateApiStatus(api, isOnline) {
+    const dotEl = document.getElementById(api + '-api-dot');
+    const textEl = document.getElementById(api + '-api-text');
+    if (dotEl) dotEl.className = 'api-dot ' + (isOnline ? 'online' : 'offline');
+    if (textEl) {
+      const names = { kmb: 'KMB', ctb: 'CTB' };
+      textEl.textContent = names[api] + ': ' + (isOnline ? '在線' : '離線');
+    }
+    updateBusApiStatus();
+  }
+
+  function updateBusApiStatus() {
+    const kmbOn = document.getElementById('kmb-api-dot').classList.contains('online');
+    const ctbOn = document.getElementById('ctb-api-dot').classList.contains('online');
+    const el = document.getElementById('bus-api-status');
+    if (!el) return;
+    if (kmbOn && ctbOn) { el.textContent = '在線'; el.style.color = '#22c55e'; }
+    else if (kmbOn || ctbOn) { el.textContent = '部分'; el.style.color = '#f59e0b'; }
+    else { el.textContent = '離線'; el.style.color = '#ef4444'; }
+  }
+
   function buildNormalizedList(etas, expectedRoutes) {
     const now = Date.now();
     const routeMap = new Map();
@@ -662,7 +558,7 @@
       return {
         route: rd.route, dest: rd.dest, destZh: rd.destZh,
         etaTime: best ? best.etaTime : null,
-        co: best ? best.co : null,   /* ★ 該班次的實際營辦公司 */
+        co: best ? best.co : null,
         track: rd.track || (best ? best.track : null),
         trackName: rd.trackName || (best ? best.trackName : null),
         hasSchedule: upcoming.length > 0
@@ -725,14 +621,13 @@
         }
       } else if (item.hasSchedule) { statusMain = "No Departure"; statusSub = "NO SCHEDULED BUS"; }
 
-      /* ★ 公司標籤 = 該班車實際營辦公司（跟隨資料來源），而非聯營關係 */
+      /* 公司標籤 = 該班車實際營辦公司 */
       let coTags = '';
       if (item.co === 'CTB') {
         coTags = `<span class="co-tag co-ctb">CTB<br>城巴</span>`;
       } else if (item.co === 'KMB') {
         coTags = `<span class="co-tag co-kmb">KMB<br>九巴</span>`;
       } else if (CTB_JOINT_ROUTES.includes(item.route)) {
-        /* 暫無班次資料時，以半透明雙標籤作參考 */
         coTags = `<div class="co-stack"><span class="co-tag co-kmb co-dim">KMB<br>九巴</span><span class="co-tag co-ctb co-dim">CTB<br>城巴</span></div>`;
       } else {
         coTags = `<span class="co-tag co-kmb co-dim">KMB<br>九巴</span>`;
@@ -754,9 +649,6 @@
     return html;
   }
 
-  /* ★ 走馬燈修正：
-     - dest 元素自身不再 overflow:hidden，平移時被遮的文字能滑入可見範圍
-     - overflow 以「文字總寬 - 元素可見寬」計算，shift 剛好把句尾完全帶入視窗 */
   function setupMarquees() {
     document.querySelectorAll('.dest-main, .dest-sub, .track-txt').forEach(el => {
       const isTrack = el.classList.contains('track-txt');
@@ -774,9 +666,6 @@
           { transform: 'translateX(0)' }
         ], { duration: dur, iterations: Infinity });
         anim.currentTime = (performance.now() - marqueeT0) % dur;
-      } else if (el.animate) {
-        el.getAnimations && el.getAnimations().forEach(a => a.cancel());
-        el.style.transform = 'translateX(0)';
       }
     });
   }
@@ -802,8 +691,6 @@
   }
 
   /* ================= 顯示模式控制 ================= */
-  /* 同步顯示時段: 12:15-13:00 及 15:15-16:45；其餘時間為間接性顯示
-     間接性顯示: 每 2 分鐘一個循環 → 前 30 秒巴士+太陽能一起顯示，其餘 90 秒只顯示太陽能 */
   function updateDisplayMode() {
     const now = new Date();
     const t = now.getHours() * 60 + now.getMinutes();
@@ -834,6 +721,7 @@
     if (d) d.innerText = now.toLocaleDateString('en-GB', { month: 'numeric', day: 'numeric', weekday: 'short' });
     if (isDataLoaded) renderAllBoards();
     updateDisplayMode();
+    layoutEmbed(); /* 模式切換/視窗變動時重新計算畫中畫尺寸 */
   }
 
   function continuousScroll(key, wrapId, bodyId, dt) {
@@ -858,23 +746,19 @@
     const dt = Math.min(0.1, (ts - lastTs) / 1000);
     lastTs = ts;
     PANELS.forEach(p => continuousScroll(p.key, p.wrap, p.body, dt));
-    continuousScroll('solar', 'solar-scroll-wrap', 'solar-scroll-body', dt);
     requestAnimationFrame(scrollLoop);
   }
 
   window.addEventListener('DOMContentLoaded', () => {
+    initEmbed();
     fetchAPIData();
     fetchWeatherData();
-    fetchSolarData();
-    setupSolarScroll();
     requestAnimationFrame(scrollLoop);
     setInterval(tickRealtime, 1000);
     setInterval(fetchAPIData, 15000);
     setInterval(fetchWeatherData, 60000);
-    setInterval(fetchSolarData, 60000);
-    setInterval(setupSolarScroll, 5000);
     updateDisplayMode();
-    window.addEventListener('resize', setupSolarScroll);
+    window.addEventListener('resize', layoutEmbed);
   });
 </script>
 </body>
